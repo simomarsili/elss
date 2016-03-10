@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+HEADER=$\
+'
+======================
+Requirements/Tested on
+======================
+
+- GNU Make 3.81
+- gfortran 4.8.2
+- OPENMPI 1.6
+'
+
+DAT=10.fa
+NS=10000
+NPROC=4
+
+# check 
+echo "$HEADER"
+
+root_dir=../
+src_dir=$root_dir/src
+
+# check src dir
+if [ ! -d $src_dir ]
+then
+    echo "run this script in test dir. Aborting."; exit 1; 
+fi
+
+# check executable 
+(cd $src_dir && 
+    if [ ! -f elss ]; then
+	command -v mpif90 >/dev/null 2>&1 || { echo >&2 "mpif90 is required but it's not installed.  Aborting."; exit 1; }
+	echo "compiling elss..."
+	make realclean; 
+	make; 
+    fi
+) &> log ; 
+
+EXE=$src_dir/elss
+
+echo '
+================
+Running tests...
+================
+'
+
+command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
+
+echo "estimating model parameters... (dump: rst,prm,LEARN.log)"
+mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DAT --learn-agd 2000 --random_seed 123 --lambda 100.0>> log 2>&1; 
+#mpiexec -n 4 $EXE --nsweeps $NS --fasta PF00076.fa --learn-agd 1000 -w PF00076.w >> log 2>&1; 
+
+echo "sampling sequences from the model distribution...(dumps: 0.trj,SIM.log)"
+$EXE -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1; 
+
+echo "checking data energies...(dumps: 0.ene,EVAL.log)"
+$EXE -r rst --fasta $DATA --random_seed 123 >> log 2>&1; 
+
+if [ $NS -eq 10000 ] && [ $NPROC -eq 4 ] && [ $DAT == '10.fa' ]
+then 
+echo '
+================
+Checking results
+================
+'
+    # check diffs 
+    if ! cmp 0.trj 0.TRJ >/dev/null 2>&1; then
+	echo "RESULTS DIFFER..."
+	echo "check files 0.TRJ and 0.trj for minor numerical diffs"
+	echo "check log file"
+    else
+	echo "!!! TESTS OK !!!"
+    fi
+fi 
+
+exit 0
