@@ -1,0 +1,4 @@
+*~
+/src/elss*
+src/*.o
+src/*.mod
