@@ -34,7 +34,7 @@ In this case, the starting sequence will be read from file **start.fa** (**--seq
     $ elss -r rst -n 100000
 
 First line: the program reads a MSA from file **PF00076.fa** (**--fasta PF00076.fa**) and compute the maximum-a-posteriori estimate of the parameters of the energy function. The algorithm takes 2000 accelerated gradient descent steps (**--learn-agd 2000**), computing the gradient of the objective function from the accumulated statistics of 8 (**mpiexec -n 8**) _persistent_, 10000 sweeps long Markov chains (**--nsweeps 10000**). 
-The option --lambda controls the value of the hyper-parameter of the Gaussian prior, P_0(\theta) $\propto$ \exp (-0.5 * \lambda * \theta^2). Higher values correspond to more strongly regularized solutions. The default is 100.0. 
+The option --lambda controls the value of the hyper-parameter of the Gaussian prior, $P_0(\theta) \propto \exp (-0.5 * \lambda * \theta^2)$. Higher values correspond to more strongly regularized solutions. The default is 100.0. 
 Output files: the files _prm_ (a file containing the estimated parameters), _rst_ (a binary restart file) and _LEARN.log_, a log file. 
 
 Second line: **elss** will read the final energy model from the previous calculation (_-r rst_) and simulate a (100000 sweeps long) trajectory in sequence space starting from a random sequence. The command will dump the file _0.trj__ (see previous example). 
@@ -97,13 +97,8 @@ If you are using Debian or a Debian derivative such as Ubuntu, you should find 3
 
 # Obtaining the source
 
-All elss source code is hosted on GitHub. You can download the source code directly from GitHub or, if you have 
-the git version control software installed on your computer, you can use git to obtain the source code. 
-The latter method has the benefit that it is easy to receive updates directly from the GitHub repository. 
-GitHub has a good set of instructions for how to set up git to work with GitHub since this involves setting up ssh keys. 
-With git installed and setup, the following command will download the full source code from the GitHub repository:
-
-    git clone https://github.com/yyy/xxx.git
+All **elss** source code is hosted on Github. 
+You can download the latest release using [this link](https://github.com/simomarsili/elss/archive/0.1.0.tar.gz). 
 
 # Compiling on Linux and Mac OS X ###
 
