@@ -287,7 +287,8 @@ contains
     thr = nint(nv * wid * 0.01_kflt)
     ws = 1.0_kflt
     do id = 1,ns-1
-       if (iproc == 0 .and. mod(ns,10000)==0) write(0,'(a,f8.1)') 'computing weigths: ', 100.0*real(id)/real(ns)
+       if (iproc == 0 .and. mod(id,1000)==0) write(0,'(a,f8.1,a1)') 'computing weigths: ', 100.0*real(id)/real(ns),'%'
+       flush(0)
        x = seqs(:,id)
        do jd = id+1,ns
           y = seqs(:,jd)
