@@ -1,14 +1,14 @@
 # elss
 
-**elss** is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in protein sequence spaces. 
+**elss** is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in protein sequence spaces.   
 **elss** can either be used to simulate a trajectory with a user-defined energy function, or to infer a data-driven statistical model from a multiple sequence alignment (MSA) 
 via maximum a posteriori (MAP) estimation. The energy function and its parameters control both the frequencies of amino acids 
-at the different positions along the chain and their correlations, and determine the frequency of a protein sequence in random samples extracted from the corresponding Gibbs distribution. 
+at the different positions along the chain and their correlations. 
 
 # Obtaining the source
 
 All **elss** source code is hosted on Github. 
-You can download the latest release using [this link](https://github.com/simomarsili/elss/archive/0.1.0.tar.gz). 
+You can download the latest version of the code using [this link](https://github.com/simomarsili/elss/archive/0.1.0.tar.gz). 
 
 # Prerequisites
 
