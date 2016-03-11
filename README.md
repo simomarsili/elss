@@ -48,7 +48,7 @@ This will build the executable elss.
 
 # Testing
 
-Run the _run-test.bash_ script in the test directory: 
+Run the **run-test.bash** script in the test directory: 
 
     (cd test; ./run-test.bash)
 
