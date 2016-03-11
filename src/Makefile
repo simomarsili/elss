@@ -1,7 +1,7 @@
 ELSS = elss
 FC = mpif90
 FFLAGS = -O2 -fconvert=little-endian
-# important: use -heap-arrays with the Intel ifort 
+# important: use -heap-arrays with Intel ifort 
 # ifort 
 #FFLAGS = -fast -heap-arrays 
 # gfortran 
