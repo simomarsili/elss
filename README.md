@@ -2,8 +2,55 @@
 
 **elss** is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in protein sequence spaces. 
 **elss** can either be used to simulate a trajectory with a user-defined energy function, or to infer a data-driven statistical model from a multiple sequence alignment (MSA) 
-via maximum a posteriori (MAP) estimation. **elss** implements an energy function given by a sum of potential terms that control both the frequencies of amino acids 
-at the different positions along the chain and their correlations. 
+via maximum a posteriori (MAP) estimation. The energy function and its parameters control both the frequencies of amino acids 
+at the different positions along the chain and their correlations, and determine the frequency of a protein sequence in random samples extracted from the corresponding Gibbs distribution. 
+
+# Obtaining the source
+
+All **elss** source code is hosted on Github. 
+You can download the latest release using [this link](https://github.com/simomarsili/elss/archive/0.1.0.tar.gz). 
+
+# Prerequisites
+
+In order to compile **elss**, you will need to have a **Fortran compiler** installed on your machine.   
+For gfortran, it is necessary to use version 4.6.0 or above.
+If you are using Debian or a Debian derivative such as Ubuntu, you can install the gfortran compiler using the following command:
+
+    sudo apt-get install gfortran
+
+The inference algorithm works by simulating a swarm of persistent Markov chains. 
+To compile **elss** with support for parallel runs on a distributed-memory architecture, you will need to have a valid **MPI implementation** installed on your machine. 
+The code has been tested and is known to work with the latest versions of both OpenMPI and MPICH.   
+OpenMPI (recommended) can be installed on Debian derivatives with:
+
+    sudo apt-get install openmpi-bin libopenmpi1.6 libopenmpi-dev
+
+For details on running MPI jobs with OpenMPI see [this link](https://www.open-mpi.org/faq/?category=running)
+
+Alternatively, MPICH can be installed with:
+
+    sudo apt-get install mpich libmpich-dev
+
+The compiling and linking of source files is handled by **Gnu Make**. 
+If you are using Debian or a Debian derivative such as Ubuntu, you should find 3.81 already installed. 
+
+(optional) **git** version control software for obtaining source code
+
+    sudo apt-get install git
+
+# Compiling ###
+
+To compile **elss**, from the project root directory enter the src directory and type make:
+
+    (cd src; make) 
+
+This will build the executable elss.
+
+# Testing
+
+Run the _run-test.bash_ script in the test directory: 
+
+    (cd test; ./run-test.bash)
 
 # A simple example
 
@@ -66,53 +113,6 @@ The parameter file is the result of the inference algorithm, and can be modified
 - lines with five fields define interaction terms between amino acids at different positions.  
     the line "55 70 5 20  1.0" in the example introduces a potential term in the energy function that disfavours    
     the amino acid pair PHE and TYR at positions no. 55 and 70 respectevly. 
-
-# Prerequisites
-
-In order to compile **elss**, you will need to have a **Fortran compiler** installed on your machine.   
-For gfortran, it is necessary to use version 4.6.0 or above.
-If you are using Debian or a Debian derivative such as Ubuntu, you can install the gfortran compiler using the following command:
-
-    sudo apt-get install gfortran
-
-The inference algorithm works by simulating a swarm of persistent Markov chains. 
-To compile **elss** with support for parallel runs on a distributed-memory architecture, you will need to have a valid **MPI implementation** installed on your machine. 
-The code has been tested and is known to work with the latest versions of both OpenMPI and MPICH. 
-OpenMPI (recommended) can be installed on Debian derivatives with:
-
-    sudo apt-get install openmpi-bin libopenmpi1.6 libopenmpi-dev
-
-For details on running MPI jobs with OpenMPI see [this link](https://www.open-mpi.org/faq/?category=running)
-
-Alternatively, MPICH can be installed like this:
-
-    sudo apt-get install mpich libmpich-dev
-
-The compiling and linking of source files is handled by **Gnu Make**. 
-If you are using Debian or a Debian derivative such as Ubuntu, you should find 3.81 already installed. 
-
-(optional) **git** version control software for obtaining source code
-
-    sudo apt-get install git
-
-# Obtaining the source
-
-All **elss** source code is hosted on Github. 
-You can download the latest release using [this link](https://github.com/simomarsili/elss/archive/0.1.0.tar.gz). 
-
-# Compiling on Linux and Mac OS X ###
-
-To compile elss on Linux or Max OS X, from the project root directory enter the src directory and type make:
-
-    (cd src; make) 
-
-This will build the executable elss.
-
-# Testing
-
-Run the _run-test.bash_ script in the test directory: 
-
-    (cd test; ./run-test.bash)
 
 # Contributing
 
