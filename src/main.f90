@@ -31,13 +31,13 @@ program main
   real(kflt)              :: neff         ! effective number of seqs
   integer,    allocatable :: seq(:)    ! seq array
   integer,    allocatable :: seqs(:,:) ! data matrix
-  integer,    allocatable :: seqs0(:,:) 
+  integer,    allocatable :: seqs0(:,:)
   real(kflt), allocatable :: prm(:)       ! parameters array
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
   real(kflt), allocatable :: fdata(:)     ! empirical frequencies
   real(kflt), allocatable :: scores(:,:)  ! final scores
   integer, allocatable    :: seqs_table(:,:)
-  ! command line parameters 
+  ! command line parameters
   integer                    :: udata        ! data unit
   character(len=string_size) :: data_format  ! data format ('raw', 'table', 'protein')
   integer                    :: uwgt         ! ww unit
@@ -52,7 +52,7 @@ program main
   real(kflt)                 :: lambda       ! Gaussian prior hyperparameter
   character(len=string_size) :: mode         ! run mode: EVAL, SIM, LEARN
   integer                    :: rseed        ! random seed
-  real(kflt)                 :: beta         ! temperature of the run 
+  real(kflt)                 :: beta         ! temperature of the run
   integer                         :: err
   character(long_string_size)     :: err_string
   integer                         :: dim1,dim2
@@ -78,7 +78,7 @@ program main
   nupdate = 10
   niter_gd = 0
   niter_agd = 0
-  lambda = 100.0_kflt 
+  lambda = 100.0_kflt
   mode = ''
   rseed = 0
   beta = 1.0_kflt
@@ -102,7 +102,7 @@ program main
 
   call mpi_wrapper_initialize(err)
 
-  !================================================ init. the random number generator 
+  !================================================ init. the random number generator
 
   call random_initialize(rseed,iproc)
 
@@ -119,7 +119,7 @@ program main
      close(uprm)
   end if
 
-  !================================================ read restart file 
+  !================================================ read restart file
 
   if (urst > 0) then
      call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,fmodel,err)
@@ -134,7 +134,7 @@ program main
   !================================================ read data
 
   if (udata > 0) then
-     
+
      call data_read(iproc,udata,data_format,uwgt,wid,&
           nvars,nclasses,nseqs,neff,seqs,err,err_string)
 
@@ -144,11 +144,20 @@ program main
         stop
      end if
 
+     if (iproc == 0) then
+        if (lambda / neff < 0.01_kflt) then
+           write(0,'(a)') 'WARNING WARNING'
+           write(0,'(a,f8.1)') 'reg. strength parameter (lambda) is set to: ', lambda
+           write(0,'(a,f8.1)') 'effective num. of sequences (neff) is:      ', neff
+           write(0,'(a)')      'their ratio (lambda/neff) is < 0.01: consider increasing lambda (-l <lambda>)'
+           write(0,*)
+        end if
+     end if
      lambda = lambda / neff
 
      !================================================ allocate memory for the run and initialize
-     
-     if (uprm == 0 .and. urst == 0) then 
+
+     if (uprm == 0 .and. urst == 0) then
 
         dim1 = nvars * nclasses
         dim2 = nvars * (nvars - 1) * nclasses**2 / 2
@@ -164,15 +173,15 @@ program main
         !================================================ initialize system configuration
 
         call random_seq(nvars,nclasses,seq)
-        
+
      end if
      close(udata)
   end if
 
-  ! open output 
+  ! open output
 
   call units_open(trim(mode)//'.log','unknown',ulog,err)
-  if(err /= 0) then 
+  if(err /= 0) then
      if (iproc == 0) write(0,*) "error opening file ", trim(mode)//'.log'
      call mpi_wrapper_finalize(err)
      stop
@@ -189,25 +198,25 @@ program main
      write(ulog,'(a)')         '#  mode  :    '//trim(mode)
      write(ulog,'(a)')         '#  format:    '//trim(data_format)
      if (urst > 0) write(ulog,'(a)')&
-                            '#  reading restart file           ' 
+          '#  reading restart file           '
      if (uprm > 0) write(ulog,'(a)')&
-                            '#  reading parameter file         ' 
+          '#  reading parameter file         '
      write(ulog,'(a,1x,i8)')   '#  n. of procs                  = ', nproc
      write(ulog,'(a,1x,i8)')   '#  n. of variables              = ', nvars
      write(ulog,'(a,1x,i8)')   '#  n. of classes                = ', nclasses
      write(ulog,'(a,1x,i8)')   '#  n. of seqs                   = ', nseqs
      write(ulog,'(a,1x,i8)')   '#  stride (sweeps) for updates  = ', nupdate
      if (trim(mode) == 'SIM') &
-     write(ulog,'(a,1x,i8)')   '#  n. of MC sweeps              = ', mc_nsweeps
+          write(ulog,'(a,1x,i8)')   '#  n. of MC sweeps              = ', mc_nsweeps
      write(ulog,'(a,1x,f8.1)') '#  temperature factor           = ', 1.0_kflt / beta
      if (trim(mode) == 'LEARN') then
         if (wid > 0.0 .or. uwgt > 0.0) then
            if (wid > 0.0) then
               write(ulog,'(a,1x,f8.1)') &
-                           '#  %id for reweighting          = ', wid
+                   '#  %id for reweighting          = ', wid
            else if (uwgt > 0.0) then
               write(ulog,'(a)') &
-                           '#  reading weights from file...    '
+                   '#  reading weights from file...    '
            end if
            write(ulog,'(a,1x,f8.1)') '#  effective n. of seqs         = ', neff
            write(ulog,'(a,1x,f8.3)') '#  prior (hyper )parameter      = ', lambda
@@ -230,7 +239,7 @@ program main
 
      write(filename,*) iproc
      call units_open(trim(adjustl(filename))//'.ene','unknown',uene,err)
-     if(err /= 0) then 
+     if(err /= 0) then
         if (iproc == 0) write(0,*) "error opening file ", trim(adjustl(filename))//'.ene'
         call mpi_wrapper_finalize(err)
         stop
@@ -240,55 +249,55 @@ program main
         call mcmc_compute_energy(nvars,nclasses,seqs(:,j),prm(1:dim1),prm(dim1+1:dim1+dim2),efields,ecouplings,etot)
         call dump_energies(uene,etot,efields,ecouplings)
      end do
-     
+
   case('SIM')
 
-     !================================================ run a simulation 
+     !================================================ run a simulation
 
-     if (useq > 0) then 
-        ! read starting sequence (NB: overwrite rst) 
+     if (useq > 0) then
+        ! read starting sequence (NB: overwrite rst)
         select case (trim(data_format))
-        case('raw') 
+        case('raw')
            read(useq,*) seq
         case('protein')
            call fasta_read(useq,seqs0,err,err_string)
-           if (err > 0) then 
+           if (err > 0) then
               if (iproc == 0) call dump_error(err,err_string)
               call mpi_wrapper_finalize(err)
               stop
            end if
-           seq = seqs0(:,1)           
+           seq = seqs0(:,1)
         end select
-     else if (urst == 0) then 
+     else if (urst == 0) then
         ! if no restart, generate a random seq
         allocate(seq(nvars),stat=err)
         allocate(seqs_table(nvars,nproc),stat=err)
         seq = 0
         seqs_table = 0
         call random_seq(nvars,nclasses,seq)
-     end if     
+     end if
 
      write(filename,*) iproc
      call units_open(trim(adjustl(filename))//'.trj','unknown',utrj,err)
-     if(err /= 0) then 
+     if(err /= 0) then
         if (iproc == 0) write(0,*) "error opening file ", trim(adjustl(filename))//'.trj'
         call mpi_wrapper_finalize(err)
         stop
      end if
 
-     hot_start = .false. 
+     hot_start = .false.
      call mcmc_simulate(nvars,nclasses,seq,&
           prm(1:dim1),prm(dim1+1:dim1+dim2),data_format,&
           fmodel(1:dim1),fmodel(dim1+1:dim1+dim2),&
           beta,mc_nsweeps,hot_start,nupdate,utrj,facc)
 
-     ! update seqs_table 
+     ! update seqs_table
      seqs_table(:,iproc+1) = seq
      CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
 
-     ! dump a rst 
+     ! dump a rst
      call dump_rst('rst','replace',data_format,nvars,nclasses,nproc,seqs_table,prm,err)
-     if( err /= 0 ) then 
+     if( err /= 0 ) then
         if ( iproc == 0 ) write(0,*) "error opening file rst", err
         call mpi_wrapper_finalize(err)
         stop
@@ -309,16 +318,16 @@ program main
 
      !================================================ maximum a posteriori estimate of parameters
 
-     ! inv. temperature for MAP estimation is set to 1 
+     ! inv. temperature for MAP estimation is set to 1
      call map_learn(nvars,nclasses,niter_agd,niter_gd,lambda,mc_nsweeps,&
           1.0_kflt,nupdate,data_format,ulog,fdata,seq,seqs_table,prm,fmodel)
 
      !================================================ compute and print scores
 
      !     call gauge(nvars,nclasses,prm(1:dim1),prm(dim1+1:dim1+dim2))
-     
+
      !     call compute_scores(nvars,nclasses,prm(dim1+1:dim1+dim2),scores)
-     
+
      !     if ( iproc == 0 ) call print_scores(nvars,scores)
 
   end select

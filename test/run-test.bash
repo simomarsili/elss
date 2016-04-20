@@ -11,7 +11,7 @@ Requirements/Tested on
 - OPENMPI 1.6
 '
 
-DAT=10.fa
+DATA=10.fa
 NS=10000
 NPROC=4
 
@@ -48,7 +48,7 @@ Running tests...
 command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
 
 echo "estimating model parameters... (dump: rst,prm,LEARN.log)"
-mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DAT --learn-agd 2000 --random_seed 123 --lambda 100.0>> log 2>&1; 
+mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DATA --learn-agd 2000 --random_seed 123 --lambda 100.0>> log 2>&1; 
 #mpiexec -n 4 $EXE --nsweeps $NS --fasta PF00076.fa --learn-agd 1000 -w PF00076.w >> log 2>&1; 
 
 echo "sampling sequences from the model distribution...(dumps: 0.trj,SIM.log)"
@@ -57,7 +57,7 @@ $EXE -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1;
 echo "checking data energies...(dumps: 0.ene,EVAL.log)"
 $EXE -r rst --fasta $DATA --random_seed 123 >> log 2>&1; 
 
-if [ $NS -eq 10000 ] && [ $NPROC -eq 4 ] && [ $DAT == '10.fa' ]
+if [ $NS -eq 10000 ] && [ $NPROC -eq 4 ] && [ $DATA == '10.fa' ]
 then 
 echo '
 ================
