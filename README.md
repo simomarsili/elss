@@ -8,7 +8,7 @@ at the different positions along the chain and their correlations.
 # Obtaining the source
 
 All **elss** source code is hosted on Github. 
-You can download the latest version of the code using [this link](https://github.com/simomarsili/elss/archive/0.1.0.tar.gz). 
+You can download the latest version of the code using [this link](https://github.com/simomarsili/elss/archive/0.1.1.tar.gz). 
 
 # Prerequisites
 
