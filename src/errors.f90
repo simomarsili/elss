@@ -18,25 +18,28 @@ module errors
   public :: dump_error
   character(len=1), parameter                  :: nl=achar(10)
   character(len=long_string_size)              :: syntax = nl//& 
-       '                                       elss (0.1.0)                                            '//nl//&
+       '                                       elss (0.2.1)                                            '//nl//&
        '                                    ==================                                         '//nl//&
        '                                                                                               '//nl//&
-       ' "elss" is a Monte Carlo (MC) simulation code for the analysis of energy landscapes in protein '//nl//&
-       ' sequence spaces. It can either be used in conjunction with a user-defined energy function, or '//nl//&
-       ' to infer a data-driven statistical model from a multiple sequence alignment (MSA) via maximum '//nl//&
-       ' a posteriori (MAP) estimation[cite].'//nl//&
+       ' "elss" is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in  '//nl//&
+       ' protein sequence spaces. elss can either be used to simulate a trajectory with a user-defined '//nl//&
+       ' energy function, or to infer a data-driven statistical model from a multiple sequence         '//nl//&
+       ' alignment (MSA) via maximum a posteriori (MAP) estimation. The energy function and its        '//nl//&
+       ' parameters control both the frequencies of amino acids at the different positions along the   '//nl//& 
+       ' chain and their correlations.                                                                 '//nl//& 
        nl//&
        nl//&
        'Option                         Description                                     (Default Value)  '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
+       ' (-h|--help)                   print this help message                         (None)         '//nl//&
        nl//&
        ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
        '        OR'//nl//&   
-       ' --rst <path_to_file>          restart file                                    (None)           '//nl//&   
+       ' (-r|--rst) <path_to_file>     restart file                                    (None)           '//nl//&   
        nl//&
        ' (-n|--nsweeps) <int>          num. of MC sweeps                               (0)              '//nl//&
        nl//&
-       ' (-u|--nupdate) <int>          stride (as num. of sweeps) for updates          (10)             '//nl//&
+       ' (-u|--nupdate) <int>          stride (as num. of sweeps) for averages updates (10)             '//nl//&
        nl//&
        ' --fasta <path_to_file>        data file (MSA format)                          (None)           '//nl//&
        '        OR'//nl//&   
@@ -54,28 +57,16 @@ module errors
        nl//&
        ' (--learn|--learn-agd) <int>   num. of accelerated gradient descent steps      (0)              '//nl//&
        nl//&
-       ' (-l|--lambda) <float>         Gaussian prior (regularization) hyper-parameter (0.01)           '//nl//&
+       ' (-l|--lambda) <float>         (scaled) regularization parameter               (0.01)           '//nl//&
+       nl//&
+       ' --random_seed <int>           initialize the random seed                      (0)              '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        nl//&
        nl//&
-       'Usage Examples                                                                                  '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
-       '                                                                                                    '//nl//&
-       ' elss --prm 1.prm  -n 1000                                                                          '//nl//&
-       '                                                                                                    '//nl//&
-       ' Description:                                                                                       '//nl//&    
-       ' simulate a (1000 sweeps) random walk in sequence space. Parameters for the energy function         '//nl//&
-       ' are read from file 1.prm.                                                                          '//nl//&
-       '                                                                                                    '//nl//&
-       ' mpiexec -n 16 elss --fasta msa.fa --agd 200 -gd 100 -n 10000                                       '//nl//&
-       '                                                                                                    '//nl//&    
-       ' Description:                                                                                       '//nl//&    
-       ' read data as a protein multiple sequence alignment in FASTA format, and infer the parameters of a  '//nl//&
-       ' fully visible and fully connected Boltzmann machine (a pairwise model of interacting amino acids). '//nl//&
-       ' The program will perform 200 steps of accelerated gradient descent followed by 100 steps of        '//nl//&
-       ' standard gradient descent algorithm.                                                               '//nl//&
-       ' An approximated regularized likelihood gradient is computed from the statistics of 16 independent  '//nl//&
-       ' persistent Markov chains (each consisting of 10000 MC sweeps).                                     '//nl//&
+       ' For more information and usage examples, please check the project github repository:           '//nl//&
+       ' https://github.com/simomarsili/elss                                                            '//nl//&
+       '------------------------------------------------------------------------------------------------'//nl//&
        '                                                                                                    '
   character(len=string_size), dimension(-1:45) :: err_msg = & 
        [ &
