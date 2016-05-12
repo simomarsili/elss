@@ -6,9 +6,9 @@ HEADER=$\
 Requirements/Tested on
 ======================
 
-- GNU Make 3.81
-- gfortran 4.8.2
-- OPENMPI 1.6
+- GNU Make 3.81 or higher (4.1)
+- gfortran 4.8.2 or higher (5.3.1)
+- OPENMPI 1.6 or higher (1.10)
 '
 
 DATA=10.fa
