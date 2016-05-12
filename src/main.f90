@@ -78,7 +78,7 @@ program main
   nupdate = 10
   niter_gd = 0
   niter_agd = 0
-  lambda = 100.0_kflt
+  lambda = 0.01_kflt
   mode = ''
   rseed = 0
   beta = 1.0_kflt
@@ -144,17 +144,6 @@ program main
         stop
      end if
 
-     if (iproc == 0) then
-        if (lambda / neff < 0.01_kflt) then
-           write(0,'(a)') 'WARNING WARNING'
-           write(0,'(a,f8.1)') 'reg. strength parameter (lambda) is set to: ', lambda
-           write(0,'(a,f8.1)') 'effective num. of sequences (neff) is:      ', neff
-           write(0,'(a)')      'their ratio (lambda/neff) is < 0.01: consider increasing lambda (-l <lambda>)'
-           write(0,*)
-        end if
-     end if
-     lambda = lambda / neff
-
      !================================================ allocate memory for the run and initialize
 
      if (uprm == 0 .and. urst == 0) then
@@ -219,8 +208,8 @@ program main
                    '#  reading weights from file...    '
            end if
            write(ulog,'(a,1x,f8.1)') '#  effective n. of seqs         = ', neff
-           write(ulog,'(a,1x,f8.3)') '#  prior (hyper )parameter      = ', lambda
         end if
+        write(ulog,'(a,1x,f8.3)') '#  scaled prior (hyper-)parameter  = ', lambda
         write(ulog,'(a,1x,i8)')   '#  MC sweeps per gradient est.  = ', mc_nsweeps
         write(ulog,'(a,1x,i8)')   '#  n. of iterations (GD)        = ', niter_gd
         write(ulog,'(a,1x,i8)')   '#  n. of iterations (AGD)       = ', niter_agd
