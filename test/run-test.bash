@@ -48,7 +48,7 @@ Running tests...
 command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
 
 echo "estimating model parameters... (dump: rst,prm,LEARN.log)"
-mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DATA --learn-agd 2000 --random_seed 123 --lambda 100.0>> log 2>&1; 
+mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DATA --learn-agd 2000 --random_seed 123 --lambda 0.01>> log 2>&1; 
 #mpiexec -n 4 $EXE --nsweeps $NS --fasta PF00076.fa --learn-agd 1000 -w PF00076.w >> log 2>&1; 
 
 echo "sampling sequences from the model distribution...(dumps: 0.trj,SIM.log)"
