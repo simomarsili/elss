@@ -23,7 +23,7 @@ To compile **elss** with support for parallel runs on a distributed-memory archi
 The code has been tested and is known to work with the latest versions of both OpenMPI and MPICH.   
 OpenMPI (recommended) can be installed on Debian derivatives with:
 
-    sudo apt-get install openmpi-bin libopenmpi1.6 libopenmpi-dev
+    sudo apt-get install openmpi-bin libopenmpi1.10 libopenmpi-dev
 
 For details on running MPI jobs with OpenMPI see [this link](https://www.open-mpi.org/faq/?category=running)
 
