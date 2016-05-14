@@ -77,11 +77,11 @@ In this case, the starting sequence will be read from file **start.fa** (**--seq
 
 # A slightly more complex example
 
-    $ mpiexec -n 8 elss --fasta PF00076.fa --learn-agd 2000 -n 10000 --lambda 100.0
+    $ mpiexec -n 8 elss --fasta PF00076.fa --learn-agd 2000 -n 10000 --lambda 0.01
     $ elss -r rst -n 100000
 
 First line: the program reads a MSA from file **PF00076.fa** (**--fasta PF00076.fa**) and compute the maximum-a-posteriori estimate of the parameters of the energy function. The algorithm takes 2000 accelerated gradient descent steps (**--learn-agd 2000**), computing the gradient of the objective function from the accumulated statistics of 8 (**mpiexec -n 8**) _persistent_, 10000 sweeps long Markov chains (**--nsweeps 10000**). 
-The option --lambda controls the value of the hyper-parameter of the Gaussian prior, $P_0(\theta) \propto \exp (-0.5 * \lambda * \theta^2)$. Higher values correspond to more strongly regularized solutions. The default is 0.01. 
+The option --lambda controls regularization strength. Higher values correspond to more regularized solutions. The default is 0.01. 
 Output files: the files _prm_ (a file containing the estimated parameters), _rst_ (a binary restart file) and _LEARN.log_, a log file. 
 
 Second line: **elss** will read the final energy model from the previous calculation (_-r rst_) and simulate a (100000 sweeps long) trajectory in sequence space starting from a random sequence. The command will dump the file _0.trj__ (see previous example). 
