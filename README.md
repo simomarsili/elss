@@ -9,7 +9,7 @@ stochastic approximation of the gradients of the (intractable) partition functio
 # Obtaining the source
 
 All **mcDCA** source code is hosted on Github. 
-You can download the latest version of the code using [this link](https://github.com/simomarsili/mcDCA/archive/0.2.1.tar.gz). 
+You can download the latest version of the code using [this link](https://github.com/simomarsili/mcDCA/archive/v0.3.1.tar.gz). 
 
 # Prerequisites
 
