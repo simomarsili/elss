@@ -1,9 +1,10 @@
 # mcDCA
 
-**mcDCA** is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in protein sequence spaces, within the framework of [Direct Coupling Analysis (DCA)](https://en.wikipedia.org/wiki/Direct_coupling_analysis). At variance with other methods, **mcDCA** uses a stochastic approximation procedure based on Markov chain Monte Carlo simulations to approximate the gradients of the (intractable) partition function (for an exemplary application of the code to the study of families of protein sequences, see this paper: [Sutto, Marsili et al. From residue coevolution to protein conformation ensembles and functional dynamics](http://www.pnas.org/content/112/44/13567.full.pdf?with-ds=yes)).  
-**mcDCA** can either be used to simulate a trajectory with a user-defined energy function, or to infer a data-driven statistical model from a multiple sequence alignment (MSA) 
-via maximum a posteriori (MAP) estimation. The energy function and its parameters control both the frequencies of amino acids 
-at the different positions along the chain and their correlations. 
+**mcDCA** is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in protein sequence spaces,
+within the framework of [Direct Coupling Analysis (DCA)](https://en.wikipedia.org/wiki/Direct_coupling_analysis).
+**mcDCA** can either be used to simulate a trajectory with a user-defined energy function, or to infer a data-driven statistical model
+from a multiple sequence alignment (MSA) via maximum a posteriori (MAP) estimation. Learning is carried out using a
+stochastic approximation of the gradients of the (intractable) partition function, based on Markov chain Monte Carlo simulations. 
 
 # Obtaining the source
 
