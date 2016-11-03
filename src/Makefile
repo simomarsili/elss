@@ -1,7 +1,7 @@
-ELSS = elss
+EXE = mcDCA
 FC = mpif90
 FFLAGS = -O2 -fconvert=little-endian
-# important: use -heap-arrays with Intel ifort 
+# important: use -heap-arrays with the Intel ifort 
 # ifort 
 #FFLAGS = -fast -heap-arrays 
 # gfortran 
@@ -10,7 +10,7 @@ LDFLAGS = -s
 SRCS = main.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 likelihood.f90 mpi_wrapper.f90 map.f90 fasta.f90
 OBJS = main.o units.o random.o mcmc.o kinds.o data.o command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o likelihood.o mpi_wrapper.o map.o fasta.o
 
-$(ELSS): $(OBJS) 
+$(EXE): $(OBJS) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 .SUFFIXES: $(SUFFIXES) .f90 .f
@@ -54,7 +54,7 @@ clean:
 
 # realclean: remove all regenerable files, including executables
 realclean: clean
-	$(RM) $(ELSS) $(OBJS)
+	$(RM) $(EXE) $(OBJS)
 
 # debug: debug options (enable D comments lines, disable -O for ABSOFT)
 debug:

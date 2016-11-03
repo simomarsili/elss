@@ -1,29 +1,29 @@
-# elss
+# mcDCA
 
-**elss** is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in protein sequence spaces.   
-**elss** can either be used to simulate a trajectory with a user-defined energy function, or to infer a data-driven statistical model from a multiple sequence alignment (MSA) 
+**mcDCA** is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in protein sequence spaces, within the framework of [Direct Coupling Analysis (DCA)](https://en.wikipedia.org/wiki/Direct_coupling_analysis). At variance with other methods, **mcDCA** uses a stochastic approximation procedure based on Markov chain Monte Carlo simulations to approximate the gradients of the (intractable) partition function (for an exemplary application of the code to the study of families of protein sequences, see this paper: [Sutto, Marsili et al. From residue coevolution to protein conformation ensembles and functional dynamics](http://www.pnas.org/content/112/44/13567.full.pdf?with-ds=yes)).  
+**mcDCA** can either be used to simulate a trajectory with a user-defined energy function, or to infer a data-driven statistical model from a multiple sequence alignment (MSA) 
 via maximum a posteriori (MAP) estimation. The energy function and its parameters control both the frequencies of amino acids 
 at the different positions along the chain and their correlations. 
 
 # Obtaining the source
 
-All **elss** source code is hosted on Github. 
-You can download the latest version of the code using [this link](https://github.com/simomarsili/elss/archive/0.1.0.tar.gz). 
+All **mcDCA** source code is hosted on Github. 
+You can download the latest version of the code using [this link](https://github.com/simomarsili/mcDCA/archive/0.2.1.tar.gz). 
 
 # Prerequisites
 
-In order to compile **elss**, you will need to have a **Fortran compiler** installed on your machine.   
+In order to compile **mcDCA**, you will need to have a **Fortran compiler** installed on your machine.   
 For gfortran, it is necessary to use version 4.6.0 or above.
 If you are using Debian or a Debian derivative such as Ubuntu, you can install the gfortran compiler using the following command:
 
     sudo apt-get install gfortran
 
 The inference algorithm works by simulating a swarm of persistent Markov chains. 
-To compile **elss** with support for parallel runs on a distributed-memory architecture, you will need to have a valid **MPI implementation** installed on your machine. 
+To compile **mcDCA** with support for parallel runs on a distributed-memory architecture, you will need to have a valid **MPI implementation** installed on your machine. 
 The code has been tested and is known to work with the latest versions of both OpenMPI and MPICH.   
 OpenMPI (recommended) can be installed on Debian derivatives with:
 
-    sudo apt-get install openmpi-bin libopenmpi1.6 libopenmpi-dev
+    sudo apt-get install openmpi-bin libopenmpi1.10 libopenmpi-dev
 
 For details on running MPI jobs with OpenMPI see [this link](https://www.open-mpi.org/faq/?category=running)
 
@@ -40,11 +40,11 @@ If you are using Debian or a Debian derivative such as Ubuntu, you should find 3
 
 # Compiling ###
 
-To compile **elss**, from the project root directory enter the src directory and type make:
+To compile **mcDCA**, from the project root directory enter the src directory and type make:
 
     (cd src; make) 
 
-This will build the executable elss.
+This will build the executable mcDCA.
 
 # Testing
 
@@ -54,7 +54,7 @@ Run the **run-test.bash** script in the test directory:
 
 # A simple example
 
-    $ elss -p prm -n 10000 
+    $ mcDCA -p prm -n 10000 
 
 the program will read custom values for the parameters of the energy function from file _prm_ (**-p prm**); then it will simulate a (10000 sweeps long) trajectory (**-n 10000**) starting from a random sequence. Sampled sequences will be saved to file **0.trj** (in FASTA format) every 10 sweeps. 
 
@@ -71,20 +71,20 @@ the program will read custom values for the parameters of the energy function fr
     
 Same analysis with small differences: 
 
-    $ elss -p prm --seq start.fa -n 10000 --nupdate 1 
+    $ mcDCA -p prm --seq start.fa -n 10000 --nupdate 1 
     
 In this case, the starting sequence will be read from file **start.fa** (**--seq start.fa**) in FASTA format, and sequences will be dumped at every sweep (**--nupdate 1**). 
 
 # A slightly more complex example
 
-    $ mpiexec -n 8 elss --fasta PF00076.fa --learn-agd 2000 -n 10000 --lambda 100.0
-    $ elss -r rst -n 100000
+    $ mpiexec -n 8 mcDCA --fasta PF00076.fa --learn-agd 2000 -n 10000 --lambda 0.01
+    $ mcDCA -r rst -n 100000
 
 First line: the program reads a MSA from file **PF00076.fa** (**--fasta PF00076.fa**) and compute the maximum-a-posteriori estimate of the parameters of the energy function. The algorithm takes 2000 accelerated gradient descent steps (**--learn-agd 2000**), computing the gradient of the objective function from the accumulated statistics of 8 (**mpiexec -n 8**) _persistent_, 10000 sweeps long Markov chains (**--nsweeps 10000**). 
-The option --lambda controls the value of the hyper-parameter of the Gaussian prior, $P_0(\theta) \propto \exp (-0.5 * \lambda * \theta^2)$. Higher values correspond to more strongly regularized solutions. The default is 100.0. 
+The option --lambda controls regularization strength. Higher values correspond to more regularized solutions. The default is 0.01. 
 Output files: the files _prm_ (a file containing the estimated parameters), _rst_ (a binary restart file) and _LEARN.log_, a log file. 
 
-Second line: **elss** will read the final energy model from the previous calculation (_-r rst_) and simulate a (100000 sweeps long) trajectory in sequence space starting from a random sequence. The command will dump the file _0.trj__ (see previous example). 
+Second line: **mcDCA** will read the final energy model from the previous calculation (_-r rst_) and simulate a (100000 sweeps long) trajectory in sequence space starting from a random sequence. The command will dump the file _0.trj__ (see previous example). 
 
 # Format of the parameter file
 The parameter file is the result of the inference algorithm, and can be modified to investigate the effect of perturbations to the energy function. 
@@ -116,7 +116,7 @@ The parameter file is the result of the inference algorithm, and can be modified
 
 # Contributing
 
-**elss** is an OPEN Source Project so please help out by [reporting bugs](http://github.com/simomarsili/elss/issues) or [forking and opening pull](https://github.com/simomarsili/elss) requests when possible.
+**mcDCA** is an OPEN Source Project so please help out by [reporting bugs](http://github.com/simomarsili/mcDCA/issues) or [forking and opening pull](https://github.com/simomarsili/mcDCA) requests when possible.
 
 # LICENSE (MIT/X11)
 
