@@ -1,4 +1,4 @@
-EXE = mcDCA
+EXE = mcdca
 FC = mpif90
 FFLAGS = -O2 -fconvert=little-endian
 # important: use -heap-arrays with the Intel ifort 
