@@ -19,7 +19,6 @@ module map
 
   public :: map_learn
 
-  real(kflt) :: eps_map = 0.01_kflt
   real(kflt) :: data_energy,regularization_energy,&
        data_energy1,regularization_energy1
 
@@ -102,6 +101,7 @@ contains
     integer,    intent(in)       :: mc_nsweeps
     integer,    intent(inout)    :: tot_iter
     integer,    intent(in)       :: nupdate
+    real(kflt)                      :: eps_map = 0.01_kflt
     integer                         :: iter
     character(len=long_string_size) :: filename
     integer                         :: nind, err
@@ -226,6 +226,7 @@ contains
     integer,    intent(in)       :: mc_nsweeps
     integer,    intent(inout)    :: tot_iter
     integer,    intent(in)       :: nupdate
+    real(kflt)                      :: eps_map = 0.01_kflt
     integer                         :: iter
     character(len=long_string_size) :: filename
     integer                         :: nind, err
@@ -337,6 +338,7 @@ contains
     integer,    intent(in)       :: mc_nsweeps
     integer,    intent(inout)    :: tot_iter
     integer,    intent(in)       :: nupdate
+    real(kflt)                      :: eps_map = 0.01_kflt
     integer                         :: iter
     character(len=long_string_size) :: filename
     integer                         :: nind, err
