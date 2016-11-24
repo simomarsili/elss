@@ -37,7 +37,7 @@ fi
     fi
 ) &> log ; 
 
-EXE=$src_dir/elss
+EXE=$src_dir/mcdca
 
 echo '
 ================
