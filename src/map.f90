@@ -57,7 +57,7 @@ contains
          '     ll_ene,   data_ene,'//&
          '  prior_ene,   cpu_time,       pacc'
 
-    if (niter_agd > 0) call map_all('nag',nvars,nclasses,seq,seqs_table,prm,fmodel,&
+    if (niter_agd > 0) call map_all('adam',nvars,nclasses,seq,seqs_table,prm,fmodel,&
          fdata,data_format,ulog,beta,lambda,&
          niter_agd,mc_nsweeps,tot_iter,nupdate)
     
@@ -133,7 +133,7 @@ contains
     case('gd')
        eps_map = 0.01_kflt
     case('nag')
-       eps_map = 0.01_kflt
+       eps_map = 0.001_kflt
        if (iproc == 0) then 
           allocate(prm1(dimm),stat=err)
           prm1 = prm
@@ -141,7 +141,7 @@ contains
        tfista = 1.0_kflt
     case('adam')
        ! the "standard" value for adam should be 1.e-3
-       eps_map = 0.01_kflt
+       eps_map = 0.001_kflt
        if (iproc == 0) then 
           allocate(prm1(dimm),stat=err)
           allocate(prm2(dimm),stat=err)
