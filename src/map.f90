@@ -57,11 +57,19 @@ contains
          '     ll_ene,   data_ene,'//&
          '  prior_ene,   cpu_time,       pacc'
 
-    if (niter_agd > 0) call map_agd('nag',nvars,nclasses,seq,seqs_table,prm,fmodel,&
+!    if (niter_agd > 0) call map_agd('nag',nvars,nclasses,seq,seqs_table,prm,fmodel,&
+!         fdata,data_format,ulog,beta,lambda,&
+!         niter_agd,mc_nsweeps,tot_iter,nupdate)
+!    
+!    if (niter_gd > 0) call map_gd(nvars,nclasses,seq,seqs_table,prm,fmodel,&
+!         fdata,data_format,ulog,beta,lambda,&
+!         niter_gd,mc_nsweeps,tot_iter,nupdate)
+
+    if (niter_agd > 0) call map_all('adam',nvars,nclasses,seq,seqs_table,prm,fmodel,&
          fdata,data_format,ulog,beta,lambda,&
          niter_agd,mc_nsweeps,tot_iter,nupdate)
     
-    if (niter_gd > 0) call map_gd(nvars,nclasses,seq,seqs_table,prm,fmodel,&
+    if (niter_gd > 0) call map_all('gd',nvars,nclasses,seq,seqs_table,prm,fmodel,&
          fdata,data_format,ulog,beta,lambda,&
          niter_gd,mc_nsweeps,tot_iter,nupdate)
 
@@ -447,6 +455,163 @@ contains
     end if
 
   end subroutine map_adam
+
+  subroutine map_all(algorithm,nvars,nclasses,seq,seqs_table,prm,fmodel,fdata,data_format,ulog,beta,lambda,niter,&
+       mc_nsweeps,tot_iter,nupdate)
+    use mcmc, only:       mcmc_update_energy
+    use dump, only:       dump_rst
+    use likelihood, only: likelihood_compute_energies,likelihood_compute_gradient
+
+    character(len=*), intent(in)  :: algorithm
+    integer,    intent(inout)    :: nvars,nclasses
+    integer,    intent(inout)    :: seq(:)
+    integer,    intent(inout)    :: seqs_table(:,:)
+    real(kflt), intent(inout)    :: prm(:)
+    real(kflt), intent(out)      :: fmodel(:)
+    real(kflt), intent(in)       :: fdata(:)
+    character(len=*), intent(in) :: data_format
+    integer,    intent(in)       :: ulog
+    real(kflt), intent(in)       :: beta
+    real(kflt), intent(in)       :: lambda
+    integer,    intent(in)       :: niter
+    integer,    intent(in)       :: mc_nsweeps
+    integer,    intent(inout)    :: tot_iter
+    integer,    intent(in)       :: nupdate
+    real(kflt)                      :: eps_map = 0.01_kflt
+    integer                         :: iter
+    character(len=long_string_size) :: filename
+    integer                         :: nind, err
+    integer                         :: dim1, dim2, dimm
+    real(kflt), allocatable         :: grd(:)
+    real(kflt), allocatable         :: prm1(:)
+    real(kflt), allocatable         :: prm2(:)
+    real(kflt)                      :: tfista,tpfista,mnest
+    real                            :: elapsed
+    real(kflt)                      :: facc
+    real(kflt)                      :: grd_nrm ! grd_nrm to be minimized; magnitude of the gradient
+    real(kflt)                      :: max_err
+!    real(kflt)                      :: mu=0.9_kflt,nu=0.999_kflt
+    real(kflt)                      :: mu=0.9_kflt,nu=0.999_kflt
+!    real(kflt)                      :: mu=0.9_kflt,nu=0.9_kflt
+!    real(kflt)                      :: mu=0.8_kflt,nu=0.9_kflt
+
+
+    dim1 = nvars*nclasses
+    dim2 = nvars*(nvars-1)*nclasses**2/2
+    dimm = dim1 + dim2
+    if (iproc == 0) allocate(grd(dimm),stat=err)
+    
+    ! initialize and set alg. dependent defaults
+    dimm = size(prm)
+    select case(trim(algorithm))
+    case('gd')
+       eps_map = 0.01_kflt
+    case('nag')
+       eps_map = 0.01_kflt
+       if (iproc == 0) then 
+          allocate(prm1(dimm),stat=err)
+          prm1 = prm
+       end if
+       tfista = 1.0_kflt
+    case('adam')
+       eps_map = 0.001_kflt
+       if (iproc == 0) then 
+          allocate(prm1(dimm),stat=err)
+          allocate(prm2(dimm),stat=err)
+          prm1 = 0.0_kflt
+          prm2 = 0.0_kflt
+       end if
+    case default
+       eps_map = 0.001_kflt
+       if (iproc == 0) then 
+          allocate(prm1(dimm),stat=err)
+          allocate(prm2(dimm),stat=err)
+          allocate(grd(dimm),stat=err)
+          prm1 = 0.0_kflt
+          prm2 = 0.0_kflt
+       end if
+    end select
+
+    do iter = 1,niter
+
+       tot_iter = tot_iter + 1
+       
+       ! compute model frequencies
+       call map_compute_fmodel(nvars,nclasses,seq,prm,beta,iter,mc_nsweeps,nupdate,fmodel,elapsed,facc)
+
+       ! each chain knows the coordinates of other chains
+       seqs_table(:,iproc+1) = seq
+       CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
+
+       if(iproc == 0) then
+          if(mod(iter,1) == 0 .or. iter == 1) then
+             call dump_rst('rst','replace',data_format,nvars,nclasses,nproc,seqs_table,prm,err)
+             if( err /= 0 ) then 
+                if ( iproc == 0 ) write(0,*) "error opening file rst", err
+                call mpi_wrapper_finalize(err)
+                stop
+             end if
+          end if
+          
+          ! print reconstr. err. 
+          max_err = sqrt(maxval((fmodel - fdata - lambda * prm)**2))
+          grd_nrm = sqrt(sum((fmodel - fdata - lambda * prm)**2)/size(prm))
+          
+          ! compute likelihood gradient 
+          call likelihood_compute_gradient(fdata,fmodel,lambda,prm,grd)
+
+          select case(trim(algorithm))
+          case('gd')
+             prm = prm - eps_map * grd
+          case('nag')
+             tpfista = 0.5_kflt * (1.0_kflt + sqrt(1.0_kflt + 4.0_kflt * tfista**2))
+             mnest = (tfista - 1.0_kflt) / tpfista
+             prm = prm + mnest**2 * prm1 - (1.0_kflt+mnest) * eps_map * grd
+             prm1 = mnest * prm1 - eps_map * grd
+             tfista = tpfista
+          case('adam')
+             prm1 = mu*prm1 + (1.0_kflt - mu) * grd
+             prm2 = nu*prm2 + (1.0_kflt - nu) * grd**2
+             prm = prm - eps_map * (prm1 / (1.0_kflt - mu**iter)) / &
+                  (sqrt(prm2 / (1.0_kflt - nu**iter)) + 1.e-8_kflt)
+          case default
+             prm1 = mu*prm1 + (1.0_kflt - mu) * grd
+             prm2 = nu*prm2 + (1.0_kflt - nu) * grd**2
+             prm = prm - eps_map * (prm1 / (1.0_kflt - mu**iter)) / &
+                  (sqrt(prm2 / (1.0_kflt - nu**iter)) + 1.e-8_kflt)
+          end select
+          
+          call likelihood_compute_energies(fdata,prm,lambda,data_energy,regularization_energy)
+
+          write(ulog,'(i6,1x,7f14.6)') &
+               iter, max_err, grd_nrm, &
+               (data_energy + regularization_energy)/float(nvars), & 
+               data_energy/float(nvars), regularization_energy/float(nvars), elapsed, facc
+          flush(ulog)
+
+       end if
+
+       call float_bcast(size(prm),prm)
+       
+       call mcmc_update_energy(nvars,nclasses,seq,prm(1:dim1),prm(dim1+1:dimm))
+
+    end do
+
+    if (iproc == 0) then
+       deallocate(grd)
+       select case(algorithm)
+       case('nag')
+          deallocate(prm1)
+       case('adam')
+          deallocate(prm1)
+          deallocate(prm2)
+       case default
+          deallocate(prm1)
+          deallocate(prm2)
+       end select
+    end if
+
+  end subroutine map_all
 
   subroutine map_compute_fmodel(nvars,nclasses,seq,prm,beta,iter,&
                                 mc_nsweeps,nupdate,fmodel,elapsed,facc)
