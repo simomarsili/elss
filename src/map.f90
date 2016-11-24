@@ -58,7 +58,7 @@ contains
          '     ll_ene,   data_ene,'//&
          '  prior_ene,   cpu_time,       pacc'
 
-    if (niter_agd > 0) call map_agd(nvars,nclasses,seq,seqs_table,prm,fmodel,&
+    if (niter_agd > 0) call map_agd('nag',nvars,nclasses,seq,seqs_table,prm,fmodel,&
          fdata,data_format,ulog,beta,lambda,&
          niter_agd,mc_nsweeps,tot_iter,nupdate)
     
@@ -111,6 +111,7 @@ contains
     real(kflt)                      :: facc
     real(kflt)                      :: grd_nrm ! grd_nrm to be minimized; magnitude of the gradient
     real(kflt)                      :: max_err
+    
 
 
     dim1 = nvars*nclasses
@@ -172,12 +173,11 @@ contains
 
   end subroutine map_gd
 
-  subroutine map_agd(nvars,nclasses,seq,seqs_table,prm,fmodel,fdata,data_format,ulog,beta,lambda,niter,&
-                     mc_nsweeps,tot_iter,nupdate)
-    use mcmc, only:       mcmc_update_energy
-    use dump, only:       dump_rst
-    use likelihood, only: likelihood_compute_energies,likelihood_compute_gradient
-    
+  subroutine map_agd(algorithm,nvars,nclasses,seq,seqs_table,prm,fmodel,fdata,data_format,ulog,beta,lambda,niter,&
+       mc_nsweeps,tot_iter,nupdate)
+    ! redirect to the actual accelerated gradient algorithm
+
+    character(len=*), intent(in)  :: algorithm
     integer,    intent(inout)    :: nvars,nclasses
     integer,    intent(inout)    :: seq(:)
     integer,    intent(inout)    :: seqs_table(:,:)
@@ -192,96 +192,17 @@ contains
     integer,    intent(in)       :: mc_nsweeps
     integer,    intent(inout)    :: tot_iter
     integer,    intent(in)       :: nupdate
-    integer                         :: iter
-    character(len=long_string_size) :: filename
-    integer                         :: nind, err
-    integer                         :: dim1, dim2, dimm
-    real(kflt), allocatable         :: grd(:)
-    real(kflt), allocatable         :: prm1(:)
-    real(kflt)                      :: tfista,tpfista,mnest
-    real                            :: elapsed
-    real(kflt)                      :: facc
-    real(kflt)                      :: grd_nrm ! grd_nrm to be minimized; magnitude of the gradient
-    real(kflt)                      :: max_err
 
+    select case(trim(algorithm))
+    case('nag')
+       call map_nag(nvars,nclasses,seq,seqs_table,prm,fmodel,fdata,&
+            data_format,ulog,beta,lambda,niter,mc_nsweeps,tot_iter,nupdate)
+    case('adam')
+       call map_adam(nvars,nclasses,seq,seqs_table,prm,fmodel,fdata,&
+            data_format,ulog,beta,lambda,niter,mc_nsweeps,tot_iter,nupdate)
+    case default
+    end select
     
-    dim1 = nvars*nclasses
-    dim2 = nvars*(nvars-1)*nclasses**2/2
-    dimm = dim1 + dim2
-
-    if (iproc == 0) then 
-       allocate(prm1(size(prm)),stat=err)
-       allocate(grd(size(prm)),stat=err)
-       prm1 = prm
-    end if
-
-    tfista = 1.0_kflt
-
-    do iter = 1,niter
-
-       tot_iter = tot_iter + 1
-       
-       ! compute model frequencies
-       call map_compute_fmodel(nvars,nclasses,seq,prm,beta,iter,mc_nsweeps,nupdate,fmodel,elapsed,facc)
-
-       ! each chain knows the coordinates of other chains
-       seqs_table(:,iproc+1) = seq
-       CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
-
-       if(iproc == 0) then
-
-          ! dump prms
-          if(mod(iter,1) == 0 .or. iter == 1) then
-             ! in AGD prm estimates are stored in prm1
-             ! while averages are taken at prm 
-             call dump_rst('rst','replace',data_format,nvars,nclasses,nproc,seqs_table,prm1,err)
-             if( err /= 0 ) then 
-                if ( iproc == 0 ) write(0,*) "error opening file rst", err
-                call mpi_wrapper_finalize(err)
-                stop
-             end if
-          end if
-          
-          ! print reconstr. err. 
-          max_err = sqrt(maxval((fmodel - fdata - lambda * prm)**2))
-          grd_nrm = sqrt(sum((fmodel - fdata - lambda * prm)**2)/size(prm))
-          
-          ! compute likelihood gradient 
-          call likelihood_compute_gradient(fdata,fmodel,lambda,prm,grd)
-
-          ! update parameters
-          tpfista = 0.5_kflt * (1.0_kflt + sqrt(1.0_kflt + 4.0_kflt * tfista**2))
-          mnest = (tfista - 1.0_kflt) / tpfista
-          
-          grd = - eps_map * grd + prm - prm1
-          prm1 = prm1 + grd
-          prm = prm1 + mnest * grd
-          
-          tfista = tpfista
-          
-          call likelihood_compute_energies(fdata,prm,lambda,data_energy,regularization_energy)
-
-          call likelihood_compute_energies(fdata,prm1,lambda,data_energy1,regularization_energy1)
-
-          write(ulog,'(i6,1x,7f14.6)') &
-               iter, max_err, grd_nrm, &
-               (data_energy1 + regularization_energy1)/float(nvars), & 
-               data_energy1/float(nvars), regularization_energy1/float(nvars), elapsed, facc
-          flush(ulog)
-
-       end if
-
-       call float_bcast(size(prm),prm)
-       
-       call mcmc_update_energy(nvars,nclasses,seq,prm(1:dim1),prm(dim1+1:dimm))
-
-    end do
-
-    if (iproc == 0) then 
-       deallocate(prm1)
-       deallocate(grd)
-    end if
-
   end subroutine map_agd
 
   subroutine map_nag(nvars,nclasses,seq,seqs_table,prm,fmodel,fdata,data_format,ulog,beta,lambda,niter,&
