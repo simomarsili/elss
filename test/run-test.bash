@@ -12,7 +12,8 @@ Requirements/Tested on
 '
 
 DATA=10.fa
-NS=10000
+NS=1000
+NITER=2000
 NPROC=4
 
 # check 
@@ -48,7 +49,7 @@ Running tests...
 command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
 
 echo "estimating model parameters... (dump: rst,prm,LEARN.log)"
-mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DATA --learn-agd 2000 --random_seed 123 --lambda 0.01>> log 2>&1; 
+mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DATA --learn-agd $NITER --random_seed 123 --lambda 0.01>> log 2>&1; 
 
 echo "sampling sequences from the model distribution...(dumps: 0.trj,SIM.log)"
 $EXE -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1; 
@@ -56,7 +57,7 @@ $EXE -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1;
 echo "checking data energies...(dumps: 0.ene,EVAL.log)"
 $EXE -r rst --fasta $DATA --random_seed 123 >> log 2>&1; 
 
-if [ $NS -eq 10000 ] && [ $NPROC -eq 4 ] && [ $DATA == '10.fa' ]
+if [ $NITER -eq 2000 ] && [ $NS -eq 1000 ] && [ $NPROC -eq 4 ] && [ $DATA == '10.fa' ]
 then 
 echo '
 ================
