@@ -133,7 +133,7 @@ contains
     case('gd')
        eps_map = 0.01_kflt
     case('nag')
-       eps_map = 0.001_kflt
+       eps_map = 0.01_kflt
        if (iproc == 0) then 
           allocate(prm1(dimm),stat=err)
           prm1 = prm
@@ -141,7 +141,7 @@ contains
        tfista = 1.0_kflt
     case('adam')
        ! the "standard" value for adam should be 1.e-3
-       eps_map = 0.001_kflt
+       eps_map = 0.01_kflt
        if (iproc == 0) then 
           allocate(prm1(dimm),stat=err)
           allocate(prm2(dimm),stat=err)
@@ -149,7 +149,7 @@ contains
           prm2 = 0.0_kflt
        end if
     case default
-       eps_map = 0.001_kflt
+       eps_map = 0.01_kflt
        if (iproc == 0) then 
           allocate(prm1(dimm),stat=err)
           allocate(prm2(dimm),stat=err)

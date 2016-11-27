@@ -94,7 +94,7 @@ contains
        mc_step = mc_step + nmoves
        nacc = nacc + na
 
-       ! update averages
+       ! update averages every nmoves
        call averages_update(seq,freq_single,freq_pair)
 
        if (utrj > 0) then 
