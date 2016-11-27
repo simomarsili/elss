@@ -27,7 +27,7 @@ contains
     real(kflt), intent(out)     :: grd(:)
     
     ! the gradient is: F - f + l * p
-    grd = fdata - fmodel + lambda * prm
+    grd = fmodel - fdata + lambda * prm
     
   end subroutine cost_compute_gradient
 
@@ -37,7 +37,7 @@ contains
     real(kflt), intent(in)  :: lambda
     real(kflt), intent(out) :: edata,ereg
 
-    edata = sum(fdata * prm)
+    edata = -sum(fdata * prm)
 
     ereg = 0.5_kflt * lambda * sum(prm**2)
 
