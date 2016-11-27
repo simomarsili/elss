@@ -86,7 +86,7 @@ contains
        mc_nsweeps,tot_iter,nupdate)
     use mcmc, only:       mcmc_update_energy
     use dump, only:       dump_rst
-    use likelihood, only: likelihood_compute_energies,likelihood_compute_gradient
+    use cost, only: cost_compute_energies,cost_compute_gradient
 
     character(len=*), intent(in)  :: algorithm
     integer,    intent(inout)    :: nvars,nclasses
@@ -184,8 +184,8 @@ contains
           max_err = sqrt(maxval((fmodel - fdata - lambda * prm)**2))
           grd_nrm = sqrt(sum((fmodel - fdata - lambda * prm)**2)/size(prm))
           
-          ! compute likelihood gradient 
-          call likelihood_compute_gradient(fdata,fmodel,lambda,prm,grd)
+          ! compute gradient  of the cost function
+          call cost_compute_gradient(fdata,fmodel,lambda,prm,grd)
 
           select case(trim(algorithm))
           case('gd')
@@ -208,7 +208,7 @@ contains
                   (sqrt(prm2 / (1.0_kflt - nu**iter)) + 1.e-8_kflt)
           end select
           
-          call likelihood_compute_energies(fdata,prm,lambda,data_energy,regularization_energy)
+          call cost_compute_energies(fdata,prm,lambda,data_energy,regularization_energy)
 
           write(ulog,'(i6,1x,7f14.6)') &
                iter, max_err, grd_nrm, &
