@@ -181,8 +181,8 @@ contains
           end if
           
           ! print reconstr. err. 
-          max_err = sqrt(maxval((fmodel - fdata - lambda * prm)**2))
-          grd_nrm = sqrt(sum((fmodel - fdata - lambda * prm)**2)/size(prm))
+          max_err = sqrt(maxval((fmodel - fdata + lambda * prm)**2))
+          grd_nrm = sqrt(sum((fmodel - fdata + lambda * prm)**2)/size(prm))
           
           ! compute gradient  of the cost function
           call cost_compute_gradient(fdata,fmodel,lambda,prm,grd)
