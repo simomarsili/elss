@@ -143,6 +143,8 @@ contains
        end do
     end do
 
+    eh = -eh
+    ej = -ej
     et = eh + ej
 
   end subroutine mcmc_compute_energy
@@ -174,6 +176,8 @@ contains
        end do
     end do
 
+    efields = -efields
+    ecouplings = -ecouplings
     etot = efields + ecouplings
 
   end subroutine mcmc_update_energy
@@ -246,6 +250,8 @@ contains
        end do
 
        ! sum for de
+       deh = -deh
+       dek = -dek
        de = deh + dek
 
        ! metropolis
