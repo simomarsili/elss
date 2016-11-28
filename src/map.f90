@@ -50,14 +50,14 @@ contains
     dimm = dim1 + dim2
 
     tot_iter = 0
-
+    
     write(ulog,'(a)') &
          '# iter, '//&
-         '    max_err,   mean_err,'//&
-         '     ll_ene,   data_ene,'//&
-         '  prior_ene,   cpu_time,       pacc'
+         ' max_abs_grad, sum(grad**2),'//&
+         '     data_ene, prior_energy,'//&
+         '     cpu_time'
 
-    if (niter_agd > 0) call map_all('ada',nvars,nclasses,seq,seqs_table,prm,fmodel,&
+    if (niter_agd > 0) call map_all('adam',nvars,nclasses,seq,seqs_table,prm,fmodel,&
          fdata,data_format,ulog,beta,lambda,&
          niter_agd,mc_nsweeps,tot_iter,nupdate)
     
@@ -114,8 +114,6 @@ contains
     real(kflt)                      :: tfista,tpfista,mnest
     real                            :: elapsed
     real(kflt)                      :: facc
-    real(kflt)                      :: grd_nrm ! grd_nrm to be minimized; magnitude of the gradient
-    real(kflt)                      :: max_err
     real(kflt),parameter            :: gamma1=0.9_kflt,gamma2=0.999_kflt
     logical                         :: fixed_gamma = .true.
     real(kflt)                      :: g1,g2
@@ -179,12 +177,13 @@ contains
              end if
           end if
           
-          ! print reconstr. err. 
-          max_err = sqrt(maxval((fmodel - fdata + lambda * prm)**2))
-          grd_nrm = sqrt(sum((fmodel - fdata + lambda * prm)**2)/size(prm))
-          
           ! compute gradient  of the cost function
           call cost_compute_gradient(fdata,fmodel,lambda,prm,grd)
+          
+          write(ulog,'(i6,1x,5f14.6)') &
+               iter, sqrt(maxval(grd**2)), sum(grd**2), &
+               data_energy/float(nvars), regularization_energy/float(nvars), elapsed
+          flush(ulog)
 
           select case(trim(algorithm))
           case('gd')
@@ -222,12 +221,6 @@ contains
           end select
           
           call cost_compute_energies(fdata,prm,lambda,data_energy,regularization_energy)
-
-          write(ulog,'(i6,1x,7f14.6)') &
-               iter, max_err, grd_nrm, &
-               (data_energy + regularization_energy)/float(nvars), & 
-               data_energy/float(nvars), regularization_energy/float(nvars), elapsed, facc
-          flush(ulog)
 
        end if
 
