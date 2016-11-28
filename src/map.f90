@@ -57,7 +57,7 @@ contains
          '     ll_ene,   data_ene,'//&
          '  prior_ene,   cpu_time,       pacc'
 
-    if (niter_agd > 0) call map_all('adam',nvars,nclasses,seq,seqs_table,prm,fmodel,&
+    if (niter_agd > 0) call map_all('ada',nvars,nclasses,seq,seqs_table,prm,fmodel,&
          fdata,data_format,ulog,beta,lambda,&
          niter_agd,mc_nsweeps,tot_iter,nupdate)
     
@@ -116,8 +116,10 @@ contains
     real(kflt)                      :: facc
     real(kflt)                      :: grd_nrm ! grd_nrm to be minimized; magnitude of the gradient
     real(kflt)                      :: max_err
-    real(kflt)                      :: gamma1=0.9_kflt,gamma2=0.999_kflt
+    real(kflt),parameter            :: gamma1=0.9_kflt,gamma2=0.999_kflt
     logical                         :: fixed_gamma = .true.
+    real(kflt)                      :: g1,g2
+    integer, parameter              :: nt0=10
 
 
     dim1 = nvars*nclasses
@@ -184,11 +186,6 @@ contains
           ! compute gradient  of the cost function
           call cost_compute_gradient(fdata,fmodel,lambda,prm,grd)
 
-          if(.not. fixed_gamma) then
-             gamma1 = real(iter)/real(iter+10)
-             gamma2 = real(iter)/real(iter+10)
-          end if
-
           select case(trim(algorithm))
           case('gd')
              prm = prm - eps_map * grd
@@ -203,6 +200,20 @@ contains
              prm2 = gamma2*prm2 + (1.0_kflt - gamma2) * grd**2
              prm = prm - eps_map * (prm1 / (1.0_kflt - gamma1**(iter+1))) / &
                   (sqrt(prm2 / (1.0_kflt - gamma2**(iter+1))) + 1.e-8_kflt)
+          case('adam-modified')
+             if(real(iter) <= gamma1*nt0/(1.0_kflt-gamma1)) then
+                g1 = real(iter) / real(iter+nt0)                
+             else
+                g1 = gamma1
+             end if
+             if(real(iter) <= gamma2*nt0/(1.0_kflt-gamma2)) then
+                g2 = real(iter) / real(iter+nt0)                
+             else
+                g2 = gamma2
+             end if
+             prm1 = g1*prm1 + (1.0_kflt - g1) * grd
+             prm2 = g2*prm2 + (1.0_kflt - g2) * grd**2
+             prm = prm - eps_map * prm1 / (sqrt(prm2) + 1.e-8_kflt)
           case default
              prm1 = gamma1*prm1 + (1.0_kflt - gamma1) * grd
              prm2 = gamma2*prm2 + (1.0_kflt - gamma2) * grd**2
