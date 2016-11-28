@@ -116,11 +116,8 @@ contains
     real(kflt)                      :: facc
     real(kflt)                      :: grd_nrm ! grd_nrm to be minimized; magnitude of the gradient
     real(kflt)                      :: max_err
-!    real(kflt)                      :: mu=0.9_kflt,nu=0.999_kflt
-    real(kflt)                      :: mu=0.9_kflt,nu=0.999_kflt
-!    real(kflt)                      :: mu=0.9_kflt,nu=0.9_kflt
-    !    real(kflt)                      :: mu=0.8_kflt,nu=0.9_kflt
-    logical                         :: fixed_mu = .true.
+    real(kflt)                      :: gamma1=0.9_kflt,gamma2=0.999_kflt
+    logical                         :: fixed_gamma = .true.
 
 
     dim1 = nvars*nclasses
@@ -187,30 +184,30 @@ contains
           ! compute gradient  of the cost function
           call cost_compute_gradient(fdata,fmodel,lambda,prm,grd)
 
-          if(.not. fixed_mu) then
-             mu = real(iter)/real(iter+10)
-             nu = real(iter)/real(iter+10)
+          if(.not. fixed_gamma) then
+             gamma1 = real(iter)/real(iter+10)
+             gamma2 = real(iter)/real(iter+10)
           end if
 
           select case(trim(algorithm))
           case('gd')
              prm = prm - eps_map * grd
           case('momentum')
-             prm1 = mu * prm1 + (1.0_kflt -mu) * grd
-             prm = prm - eps_map * prm1 / (1.0_kflt - mu**(iter+1))
+             prm1 = gamma1 * prm1 + (1.0_kflt -gamma1) * grd
+             prm = prm - eps_map * prm1 / (1.0_kflt - gamma1**(iter+1))
           case('nag')
-             prm1 = mu * prm1 - eps_map * grd
-             prm = prm + mu * prm1 - eps_map * grd
+             prm1 = gamma1 * prm1 - eps_map * grd
+             prm = prm + gamma1 * prm1 - eps_map * grd
           case('adam')
-             prm1 = mu*prm1 + (1.0_kflt - mu) * grd
-             prm2 = nu*prm2 + (1.0_kflt - nu) * grd**2
-             prm = prm - eps_map * (prm1 / (1.0_kflt - mu**(iter+1))) / &
-                  (sqrt(prm2 / (1.0_kflt - nu**(iter+1))) + 1.e-8_kflt)
+             prm1 = gamma1*prm1 + (1.0_kflt - gamma1) * grd
+             prm2 = gamma2*prm2 + (1.0_kflt - gamma2) * grd**2
+             prm = prm - eps_map * (prm1 / (1.0_kflt - gamma1**(iter+1))) / &
+                  (sqrt(prm2 / (1.0_kflt - gamma2**(iter+1))) + 1.e-8_kflt)
           case default
-             prm1 = mu*prm1 + (1.0_kflt - mu) * grd
-             prm2 = nu*prm2 + (1.0_kflt - nu) * grd**2
-             prm = prm - eps_map * (prm1 / (1.0_kflt - mu**(iter+1))) / &
-                  (sqrt(prm2 / (1.0_kflt - nu**(iter+1))) + 1.e-8_kflt)
+             prm1 = gamma1*prm1 + (1.0_kflt - gamma1) * grd
+             prm2 = gamma2*prm2 + (1.0_kflt - gamma2) * grd**2
+             prm = prm - eps_map * (prm1 / (1.0_kflt - gamma1**(iter+1))) / &
+                  (sqrt(prm2 / (1.0_kflt - gamma2**(iter+1))) + 1.e-8_kflt)
           end select
           
           call cost_compute_energies(fdata,prm,lambda,data_energy,regularization_energy)
