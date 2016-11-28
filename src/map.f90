@@ -119,7 +119,8 @@ contains
 !    real(kflt)                      :: mu=0.9_kflt,nu=0.999_kflt
     real(kflt)                      :: mu=0.9_kflt,nu=0.999_kflt
 !    real(kflt)                      :: mu=0.9_kflt,nu=0.9_kflt
-!    real(kflt)                      :: mu=0.8_kflt,nu=0.9_kflt
+    !    real(kflt)                      :: mu=0.8_kflt,nu=0.9_kflt
+    logical                         :: fixed_mu = .true.
 
 
     dim1 = nvars*nclasses
@@ -130,18 +131,18 @@ contains
     ! initialize and set alg. dependent defaults
     dimm = size(prm)
     select case(trim(algorithm))
-    case('gd')
-       eps_map = 0.01_kflt
+    case('momentum')
+       if (iproc == 0) then
+          allocate(prm1(dimm),stat=err)
+          prm1 = prm
+       end if
     case('nag')
-       eps_map = 0.01_kflt
        if (iproc == 0) then 
           allocate(prm1(dimm),stat=err)
           prm1 = prm
        end if
-       tfista = 1.0_kflt
     case('adam')
-       ! the "standard" value for adam should be 1.e-3
-       eps_map = 0.01_kflt
+       ! the "standard" value for adam should be eps_map = 1.e-3
        if (iproc == 0) then 
           allocate(prm1(dimm),stat=err)
           allocate(prm2(dimm),stat=err)
@@ -153,7 +154,6 @@ contains
        if (iproc == 0) then 
           allocate(prm1(dimm),stat=err)
           allocate(prm2(dimm),stat=err)
-          allocate(grd(dimm),stat=err)
           prm1 = 0.0_kflt
           prm2 = 0.0_kflt
        end if
@@ -187,25 +187,30 @@ contains
           ! compute gradient  of the cost function
           call cost_compute_gradient(fdata,fmodel,lambda,prm,grd)
 
+          if(.not. fixed_mu) then
+             mu = real(iter)/real(iter+10)
+             nu = real(iter)/real(iter+10)
+          end if
+
           select case(trim(algorithm))
           case('gd')
              prm = prm - eps_map * grd
+          case('momentum')
+             prm1 = mu * prm1 + (1.0_kflt -mu) * grd
+             prm = prm - eps_map * prm1 / (1.0_kflt - mu**(iter+1))
           case('nag')
-             tpfista = 0.5_kflt * (1.0_kflt + sqrt(1.0_kflt + 4.0_kflt * tfista**2))
-             mnest = (tfista - 1.0_kflt) / tpfista
-             prm = prm + mnest**2 * prm1 - (1.0_kflt+mnest) * eps_map * grd
-             prm1 = mnest * prm1 - eps_map * grd
-             tfista = tpfista
+             prm1 = mu * prm1 - eps_map * grd
+             prm = prm + mu * prm1 - eps_map * grd
           case('adam')
              prm1 = mu*prm1 + (1.0_kflt - mu) * grd
              prm2 = nu*prm2 + (1.0_kflt - nu) * grd**2
-             prm = prm - eps_map * (prm1 / (1.0_kflt - mu**iter)) / &
-                  (sqrt(prm2 / (1.0_kflt - nu**iter)) + 1.e-8_kflt)
+             prm = prm - eps_map * (prm1 / (1.0_kflt - mu**(iter+1))) / &
+                  (sqrt(prm2 / (1.0_kflt - nu**(iter+1))) + 1.e-8_kflt)
           case default
              prm1 = mu*prm1 + (1.0_kflt - mu) * grd
              prm2 = nu*prm2 + (1.0_kflt - nu) * grd**2
-             prm = prm - eps_map * (prm1 / (1.0_kflt - mu**iter)) / &
-                  (sqrt(prm2 / (1.0_kflt - nu**iter)) + 1.e-8_kflt)
+             prm = prm - eps_map * (prm1 / (1.0_kflt - mu**(iter+1))) / &
+                  (sqrt(prm2 / (1.0_kflt - nu**(iter+1))) + 1.e-8_kflt)
           end select
           
           call cost_compute_energies(fdata,prm,lambda,data_energy,regularization_energy)
@@ -226,7 +231,9 @@ contains
 
     if (iproc == 0) then
        deallocate(grd)
-       select case(algorithm)
+       select case(trim(algorithm))
+       case('momentum')
+          deallocate(prm1)
        case('nag')
           deallocate(prm1)
        case('adam')
