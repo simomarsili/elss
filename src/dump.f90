@@ -40,13 +40,12 @@ module dump
 contains
 
   subroutine read_prm_unit(unt,nvars,nclasses,&
-                                    prm,fmodel,data_format,error_code)
+                                    prm,data_format,error_code)
     use parser, only: parser_nfields,remove_comments
     use random, only: random_seq
     integer,    intent(in)                 :: unt
     integer,    intent(inout)              :: nvars, nclasses
     real(kflt), intent(inout), allocatable :: prm(:)
-    real(kflt), intent(inout), allocatable :: fmodel(:)
     character(len=*), intent(inout)        :: data_format
     integer,    intent(out)                :: error_code
     integer                         :: iv,jv
@@ -82,20 +81,18 @@ contains
        nclasses = nc
        ! no data have been read
        ! => allocate and initialize
-       if (allocated(prm) .or. allocated(fmodel)) then 
+       if (allocated(prm)) then 
           ! arrays are already allocated
           ! => exit
           error_code = 33
           return
        end if
        allocate(prm(nvars*nclasses + nvars*(nvars-1)*nclasses**2/2),stat=err)
-       allocate(fmodel(nvars*nclasses + nvars*(nvars-1)*nclasses**2/2),stat=err)
        prm = 0.0_kflt
-       fmodel = 0.0_kflt
     else 
        ! after reading data
        if (nv /= nvars .or. nc /= nclasses ) then 
-          ! n. of variables/classes are inconsisten with data
+          ! n. of variables/classes are inconsistent with data
           ! => exit
           error_code = 25
           return
@@ -366,7 +363,7 @@ contains
   end subroutine dump_fasta
 
   subroutine read_rst_unit(unt,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,&
-                           fmodel,error_code)
+                           error_code)
     ! read a restart file 
     use random, only: random_seq
     integer,          intent(in)                 :: unt
@@ -377,7 +374,6 @@ contains
     integer,          intent(inout), allocatable :: seq(:)
     integer,          intent(inout), allocatable :: seqs_table(:,:)
     real(kflt),       intent(inout), allocatable :: prm(:)
-    real(kflt),       intent(inout), allocatable :: fmodel(:)
     integer,          intent(out) :: error_code
     integer, allocatable    :: dummy(:)
     integer                 :: p,np,err
@@ -395,7 +391,7 @@ contains
        nclasses = nc
        ! no data have been read
        ! => allocate and initialize
-       if (allocated(seq) .or. allocated(prm) .or. allocated(fmodel)) then 
+       if (allocated(seq) .or. allocated(prm)) then 
           ! arrays are already allocated
           ! => exit
           error_code = 33
@@ -404,11 +400,9 @@ contains
        allocate(seq(nvars),stat=err)
        allocate(seqs_table(nvars,nproc),stat=err)
        allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
-       allocate(fmodel(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
        seq = 0 
        seqs_table = 0
        prm = 0.0_kflt
-       fmodel = 0.0_kflt
     else 
        ! after reading data
        if (nv /= nvars .or. nc /= nclasses ) then 
@@ -446,7 +440,7 @@ contains
   end subroutine read_rst_unit
 
   subroutine read_rst_file(filename,data_format,nvars,nclasses,iproc,nproc,seq,&
-                           seqs_table,prm,fmodel,error_code)
+                           seqs_table,prm,error_code)
     ! should read both a filename or a unit
     use random, only: random_seq
     character(len=*), intent(in)                 :: filename
@@ -457,7 +451,6 @@ contains
     integer,          intent(inout), allocatable :: seq(:)
     integer,          intent(inout), allocatable :: seqs_table(:,:)
     real(kflt),       intent(inout), allocatable :: prm(:)
-    real(kflt),       intent(inout), allocatable :: fmodel(:)
     integer,          intent(out)                :: error_code
     integer :: unt,err
 
@@ -469,7 +462,7 @@ contains
        return
     end if
 
-    call read_rst_unit(unt,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,fmodel,error_code)
+    call read_rst_unit(unt,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,error_code)
     
     close(unt)
     
