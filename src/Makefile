@@ -9,9 +9,14 @@ FFLAGS = -O2 -fconvert=little-endian
 LDFLAGS = -s 
 SRCS = main.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90
 OBJS = main.o units.o random.o mcmc.o kinds.o data.o command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o
+SRCS-eval = eval.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 eval_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90
+OBJS-eval = eval.o units.o random.o mcmc.o kinds.o data.o eval_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o
 
-$(EXE): $(OBJS) 
+all: mcdca mcdca-eval
+mcdca: $(OBJS) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+mcdca-eval: $(OBJS-eval) 
+	$(FC) $(LDFLAGS) -o $@ $(OBJS-eval) $(LIBS)
 
 .SUFFIXES: $(SUFFIXES) .f90 .f
 
@@ -38,6 +43,7 @@ dump.o: dump.f90 kinds.o units.o random.o parser.o constants.o fasta.o
 cost.o: cost.f90 kinds.o
 errors.o: errors.f90 kinds.o constants.o
 command_line.o: command_line.f90 kinds.o units.o constants.o
+eval_command_line.o: eval_command_line.f90 kinds.o units.o constants.o
 scoring.o: scoring.f90 kinds.o constants.o 
 data.o: data.f90 kinds.o parser.o constants.o fasta.o units.o 
 averages.o: averages.f90 kinds.o
@@ -45,6 +51,7 @@ mcmc.o: mcmc.f90 kinds.o dump.o constants.o averages.o
 mpi_wrapper.o: mpi_wrapper.f90 kinds.o #mpi
 map.o: map.f90 units.o kinds.o mpi_wrapper.o mcmc.o dump.o data.o constants.o cost.o # mpi
 main.o: main.f90 command_line.o mpi_wrapper.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o errors.o mcmc.o #mpi
+eval.o: eval.f90 eval_command_line.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o errors.o mcmc.o #mpi
 
 .PHONY: default clean realclean debug showtargets
 
@@ -54,7 +61,7 @@ clean:
 
 # realclean: remove all regenerable files, including executables
 realclean: clean
-	$(RM) $(EXE) $(OBJS)
+	$(RM) $(EXE) $(OBJS) $(OBJS-eval)
 
 # debug: debug options (enable D comments lines, disable -O for ABSOFT)
 debug:

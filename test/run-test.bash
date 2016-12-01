@@ -55,7 +55,7 @@ echo "sampling sequences from the model distribution...(dumps: 0.trj,SIM.log)"
 $EXE -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1; 
 
 echo "checking data energies...(dumps: 0.ene,EVAL.log)"
-$EXE -r rst --fasta $DATA --random_seed 123 >> log 2>&1; 
+$EXE\-eval -r rst --fasta $DATA --random_seed 123 >> log 2>&1; 
 
 if [ $NITER -eq 2000 ] && [ $NS -eq 1000 ] && [ $NPROC -eq 4 ] && [ $DATA == '10.fa' ]
 then 
