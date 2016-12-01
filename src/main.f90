@@ -128,6 +128,7 @@ program main
   if (urst > 0) then
      ! read nvars,nclasses
      call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
+     allocate(seqs_table(nvars,nproc),stat=err)
      seqs_table(:,iproc+1) = seq
      CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
 
