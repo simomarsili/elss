@@ -30,7 +30,6 @@ program eval
   integer,    allocatable :: seqs(:,:) ! data matrix
   integer,    allocatable :: seqs0(:,:)
   real(kflt), allocatable :: prm(:)       ! parameters array
-  integer, allocatable    :: seqs_table(:,:)
   ! command line parameters
   integer                    :: udata        ! data unit
   character(len=string_size) :: data_format  ! data format ('raw', 'table', 'protein')
@@ -95,7 +94,7 @@ program eval
   !================================================ read restart file
 
   if (urst > 0) then
-     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,err)
+     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
         if (iproc == 0) call dump_error(err,'')
         stop
@@ -123,10 +122,8 @@ program eval
         dim2 = nvars * (nvars - 1) * nclasses**2 / 2
         allocate(seq(nvars),stat=err)
         allocate(prm(dim1+dim2),stat=err)
-        allocate(seqs_table(nvars,nproc),stat=err)
         seq = 0
         prm = 0.0_kflt
-        seqs_table = 0
 
         !================================================ initialize system configuration
 
