@@ -20,9 +20,7 @@ program eval
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
   use random,      only: random_initialize,random_seq
-  use map,         only: map_learn
-  use scoring,     only: gauge,compute_scores,print_scores
-  use mcmc,        only: mcmc_simulate,mcmc_compute_energy
+  use mcmc,        only: mcmc_compute_energy
   implicit none
   integer                 :: nvars        ! total number of variables
   integer                 :: nclasses     ! total number of classes
@@ -33,8 +31,6 @@ program eval
   integer,    allocatable :: seqs0(:,:)
   real(kflt), allocatable :: prm(:)       ! parameters array
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
-  real(kflt), allocatable :: fdata(:)     ! empirical frequencies
-  real(kflt), allocatable :: scores(:,:)  ! final scores
   integer, allocatable    :: seqs_table(:,:)
   ! command line parameters
   integer                    :: udata        ! data unit
@@ -43,25 +39,16 @@ program eval
   real(kflt)                 :: wid          ! %id for weights calculation
   integer                    :: uprm         ! prm unit
   integer                    :: urst         ! rst unit
-  integer                    :: useq         ! seq unit
-  integer                    :: mc_nsweeps   ! number of MC sweeps per gradient estimate
-  integer                    :: nupdate      ! stride for averages aupdate
-  integer                    :: niter_agd    ! number of iter. (Nesterov alg.)
-  integer                    :: niter_gd     ! number of iter. (gradient descent)
-  real(kflt)                 :: lambda       ! Gaussian prior hyperparameter
   character(len=string_size) :: mode         ! run mode: EVAL, SIM, LEARN
   integer                    :: rseed        ! random seed
-  real(kflt)                 :: beta         ! temperature of the run
   integer                         :: iproc=0,nproc=1
   integer                         :: err
   character(long_string_size)     :: err_string
   integer                         :: dim1,dim2
-  integer                         :: utrj,uene,ulog
+  integer                         :: uene,ulog
   character(len=long_string_size) :: filename
-  real(kflt)                      :: facc
   integer                         :: j
   real(kflt)                      :: etot,efields,ecouplings
-  logical                         :: hot_start
 
   !================================================ set defaults
 
@@ -73,15 +60,8 @@ program eval
   wid = -1
   uprm = 0
   urst = 0
-  useq = 0
-  mc_nsweeps = 0
-  nupdate = 10
-  niter_gd = 0
-  niter_agd = 0
-  lambda = 0.01_kflt
   mode = 'EVAL'
   rseed = 0
-  beta = 1.0_kflt
 
   !================================================ init. unit identifiers
 
@@ -169,7 +149,7 @@ program eval
 
 
   !================================================ print a header
-
+  
   if ( iproc == 0 ) then
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#==========================================='
@@ -185,26 +165,6 @@ program eval
      write(ulog,'(a,1x,i8)')   '#  n. of variables              = ', nvars
      write(ulog,'(a,1x,i8)')   '#  n. of classes                = ', nclasses
      write(ulog,'(a,1x,i8)')   '#  n. of seqs                   = ', nseqs
-     write(ulog,'(a,1x,i8)')   '#  stride (sweeps) for updates  = ', nupdate
-     if (trim(mode) == 'SIM') &
-          write(ulog,'(a,1x,i8)')   '#  n. of MC sweeps              = ', mc_nsweeps
-     write(ulog,'(a,1x,f8.1)') '#  temperature factor           = ', 1.0_kflt / beta
-     if (trim(mode) == 'LEARN') then
-        if (wid > 0.0 .or. uwgt > 0.0) then
-           if (wid > 0.0) then
-              write(ulog,'(a,1x,f8.1)') &
-                   '#  %id for reweighting          = ', wid
-           else if (uwgt > 0.0) then
-              write(ulog,'(a)') &
-                   '#  reading weights from file...    '
-           end if
-           write(ulog,'(a,1x,f8.1)') '#  effective n. of seqs         = ', neff
-        end if
-        write(ulog,'(a,1x,f8.3)') '#  scaled prior (hyper-)parameter  = ', lambda
-        write(ulog,'(a,1x,i8)')   '#  MC sweeps per gradient est.  = ', mc_nsweeps
-        write(ulog,'(a,1x,i8)')   '#  n. of iterations (GD)        = ', niter_gd
-        write(ulog,'(a,1x,i8)')   '#  n. of iterations (AGD)       = ', niter_agd
-     end if
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#==========================================='
      write(ulog,'(a)')         '#'
