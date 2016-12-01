@@ -85,7 +85,7 @@ program eval
 
   if (uprm > 0) then
      call read_prm_unit(uprm,nvars,nclasses,&
-          prm,fmodel,data_format,err)
+          prm,data_format,err)
      if (err /= 0) then
         if (iproc == 0) call dump_error(err,'')
         stop
@@ -96,7 +96,7 @@ program eval
   !================================================ read restart file
 
   if (urst > 0) then
-     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,fmodel,err)
+     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,err)
      if (err /= 0) then
         if (iproc == 0) call dump_error(err,'')
         stop
