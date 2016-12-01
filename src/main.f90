@@ -127,7 +127,10 @@ program main
 
   if (urst > 0) then
      ! read nvars,nclasses
-     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,err)
+     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
+     seqs_table(:,iproc+1) = seq
+     CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
+
      ! now we can allocate fmodel
      if (.not. allocated(fmodel)) then
         allocate(fmodel(nvars*nclasses + nvars*(nvars-1)*nclasses**2/2),stat=err)
@@ -172,6 +175,9 @@ program main
         !================================================ initialize system configuration
 
         call random_seq(nvars,nclasses,seq)
+        seqs_table(:,iproc+1) = seq
+        CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
+
 
      end if
      close(udata)
@@ -290,7 +296,6 @@ program main
           fmodel(1:dim1),fmodel(dim1+1:dim1+dim2),&
           beta,mc_nsweeps,hot_start,nupdate,utrj,facc)
 
-     ! update seqs_table
      seqs_table(:,iproc+1) = seq
      CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
 
