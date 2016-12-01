@@ -30,7 +30,6 @@ program eval
   integer,    allocatable :: seqs(:,:) ! data matrix
   integer,    allocatable :: seqs0(:,:)
   real(kflt), allocatable :: prm(:)       ! parameters array
-  real(kflt), allocatable :: fmodel(:)    ! model frequencies
   integer, allocatable    :: seqs_table(:,:)
   ! command line parameters
   integer                    :: udata        ! data unit
@@ -124,11 +123,9 @@ program eval
         dim2 = nvars * (nvars - 1) * nclasses**2 / 2
         allocate(seq(nvars),stat=err)
         allocate(prm(dim1+dim2),stat=err)
-        allocate(fmodel(dim1+dim2),stat=err)
         allocate(seqs_table(nvars,nproc),stat=err)
         seq = 0
         prm = 0.0_kflt
-        fmodel = 0.0_kflt
         seqs_table = 0
 
         !================================================ initialize system configuration
