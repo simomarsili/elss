@@ -362,8 +362,7 @@ contains
     
   end subroutine dump_fasta
 
-  subroutine read_rst_unit(unt,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,&
-                           error_code)
+  subroutine read_rst_unit(unt,data_format,nvars,nclasses,iproc,nproc,seq,prm,error_code)
     ! read a restart file 
     use random, only: random_seq
     integer,          intent(in)                 :: unt
@@ -372,7 +371,6 @@ contains
     integer,          intent(in)                 :: iproc
     integer,          intent(in)                 :: nproc
     integer,          intent(inout), allocatable :: seq(:)
-    integer,          intent(inout), allocatable :: seqs_table(:,:)
     real(kflt),       intent(inout), allocatable :: prm(:)
     integer,          intent(out) :: error_code
     integer, allocatable    :: dummy(:)
@@ -398,10 +396,8 @@ contains
           return
        end if
        allocate(seq(nvars),stat=err)
-       allocate(seqs_table(nvars,nproc),stat=err)
        allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
        seq = 0 
-       seqs_table = 0
        prm = 0.0_kflt
     else 
        ! after reading data
@@ -440,7 +436,7 @@ contains
   end subroutine read_rst_unit
 
   subroutine read_rst_file(filename,data_format,nvars,nclasses,iproc,nproc,seq,&
-                           seqs_table,prm,error_code)
+                           prm,error_code)
     ! should read both a filename or a unit
     use random, only: random_seq
     character(len=*), intent(in)                 :: filename
@@ -449,7 +445,6 @@ contains
     integer,          intent(in)                 :: iproc
     integer,          intent(in)                 :: nproc
     integer,          intent(inout), allocatable :: seq(:)
-    integer,          intent(inout), allocatable :: seqs_table(:,:)
     real(kflt),       intent(inout), allocatable :: prm(:)
     integer,          intent(out)                :: error_code
     integer :: unt,err
@@ -462,7 +457,7 @@ contains
        return
     end if
 
-    call read_rst_unit(unt,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,error_code)
+    call read_rst_unit(unt,data_format,nvars,nclasses,iproc,nproc,seq,prm,error_code)
     
     close(unt)
     
