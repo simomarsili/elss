@@ -28,7 +28,6 @@ program eval
   real(kflt)              :: neff         ! effective number of seqs
   integer,    allocatable :: seq(:)    ! seq array
   integer,    allocatable :: seqs(:,:) ! data matrix
-  integer,    allocatable :: seqs0(:,:)
   real(kflt), allocatable :: prm(:)       ! parameters array
   ! command line parameters
   integer                    :: udata        ! data unit
