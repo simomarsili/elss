@@ -110,7 +110,11 @@ program main
 
   if (uprm > 0) then
      call read_prm_unit(uprm,nvars,nclasses,&
-          prm,fmodel,data_format,err)
+          prm,data_format,err)
+     if (.not. allocated(fmodel)) then
+        allocate(fmodel(nvars*nclasses + nvars*(nvars-1)*nclasses**2/2),stat=err)
+        fmodel = 0.0_kflt        
+     end if
      if (err /= 0) then
         if (iproc == 0) call dump_error(err,'')
         call mpi_wrapper_finalize(err)
@@ -122,7 +126,13 @@ program main
   !================================================ read restart file
 
   if (urst > 0) then
-     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,fmodel,err)
+     ! read nvars,nclasses
+     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,seqs_table,prm,err)
+     ! now we can allocate fmodel
+     if (.not. allocated(fmodel)) then
+        allocate(fmodel(nvars*nclasses + nvars*(nvars-1)*nclasses**2/2),stat=err)
+        fmodel = 0.0_kflt        
+     end if
      if (err /= 0) then
         if (iproc == 0) call dump_error(err,'')
         call mpi_wrapper_finalize(err)
