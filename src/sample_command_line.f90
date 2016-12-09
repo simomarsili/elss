@@ -19,7 +19,7 @@ module sample_command_line
 
 contains
 
-  subroutine command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,&
+  subroutine command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
                                error_code,error_string)
     use units, only: units_open,units_open_unf
     integer,                    intent(inout) :: uprm
@@ -28,6 +28,7 @@ contains
     integer,                    intent(inout) :: rseed
     real(kflt),                 intent(inout) :: beta
     integer,                    intent(inout) :: mc_nsweeps
+    integer,                    intent(inout) :: nupdate
     integer,                    intent(out)   :: error_code
     character(len=*),           intent(out)   :: error_string
     integer                         :: err
@@ -130,6 +131,15 @@ contains
           read(arg,*,iostat=err) rseed
           if ( err/= 0 ) then
              error_code = 44
+             write(error_string,*) trim(arg)
+             return
+          end if
+       case('-u','--nupdate')
+          iarg = iarg + 1
+          call get_command_argument(iarg,arg)
+          read(arg,*,iostat=err) nupdate
+          if ( err/= 0 .or. nupdate < 1) then
+             error_code = 15
              write(error_string,*) trim(arg)
              return
           end if
