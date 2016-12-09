@@ -152,7 +152,12 @@ contains
     end do args_loop
 
     if (prm_file /= "" .and. rst_file /= "") then
-       error_code = 35
+       error_code = 46
+       return
+    end if
+
+    if (prm_file == "" .and. rst_file == "") then
+       error_code = 46
        return
     end if
 
