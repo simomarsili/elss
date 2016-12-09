@@ -36,7 +36,7 @@ fi
 	make realclean; 
 	make; 
     fi
-) &> log ; 
+) &> log ;
 
 EXE=$src_dir/mcdca
 
@@ -46,34 +46,45 @@ Running tests...
 ================
 '
 
+rm 0.trj 0.ene
+
 command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
 
 echo "estimating model parameters... (dump: rst,prm,LEARN.log)"
-mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DATA --learn-agd $NITER --random_seed 123 --lambda 0.01>> log 2>&1; 
+mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DATA --learn-agd $NITER --random_seed 123 --lambda 0.01>> log 2>&1;
+#mpiexec -n $NPROC $EXE --nsweeps 100 --fasta $DATA --learn-agd $NITER --random_seed 123 --lambda 0.01>> log 2>&1; 
 
 echo "sampling sequences from the model distribution...(dumps: 0.trj,SIM.log)"
-$EXE -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1;
-#$EXE\-sample -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1; 
+#$EXE -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1;
+$EXE\-sample -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1; 
 
 echo "checking data energies...(dumps: 0.ene,EVAL.log)"
-$EXE -r rst --fasta $DATA --random_seed 123 >> log 2>&1; 
-#$EXE\-eval -r rst --fasta $DATA --random_seed 123 >> log 2>&1; 
+#$EXE -r rst --fasta $DATA >> log 2>&1; 
+$EXE\-eval -r rst --fasta $DATA >> log 2>&1; 
 
 if [ $NITER -eq 2000 ] && [ $NS -eq 1000 ] && [ $NPROC -eq 4 ] && [ $DATA == '10.fa' ]
 then 
-echo '
+    echo '
 ================
 Checking results
 ================
 '
-    # check diffs 
+    # check diffs
+    tests_ok=true
+    
     if ! cmp 0.trj 0.TRJ >/dev/null 2>&1; then
 	echo "0.trj: RESULTS DIFFER..."
 	echo "check files 0.TRJ and 0.trj for minor numerical diffs and log file"
-    elif ! cmp 0.trj 0.TRJ >/dev/null 2>&1; then
+	tests_ok=false
+    fi
+    
+    if ! cmp 0.ene 0.ENE >/dev/null 2>&1; then
 	echo "0.ene: RESULTS DIFFER..."
 	echo "check files 0.ENE and 0.ene for minor numerical diffs and log file"
-    else
+	tests_ok=false
+    fi
+
+    if [ "$tests_ok" = true ] ; then
 	echo "!!! TESTS OK !!!"
     fi
 fi 
