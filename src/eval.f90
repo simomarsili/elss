@@ -103,7 +103,7 @@ program eval
 
   !================================================ read data
 
-  if (udata > 0) then
+  if (udata > 0) then ! TODO: udata should always be > 0 for eval; check in command line and remove if then
 
      call data_read(iproc,udata,data_format,uwgt,wid,&
           nvars,nclasses,nseqs,neff,seqs,err,err_string)
@@ -154,7 +154,6 @@ program eval
           '#  reading restart file           '
      if (uprm > 0) write(ulog,'(a)')&
           '#  reading parameter file         '
-     write(ulog,'(a,1x,i8)')   '#  n. of procs                  = ', nproc
      write(ulog,'(a,1x,i8)')   '#  n. of variables              = ', nvars
      write(ulog,'(a,1x,i8)')   '#  n. of classes                = ', nclasses
      write(ulog,'(a,1x,i8)')   '#  n. of seqs                   = ', nseqs
