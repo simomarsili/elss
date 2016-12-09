@@ -105,10 +105,6 @@ program sample
 
   !================================================ allocate memory for the run and initialize
 
-  ! TODO: sample should read at least one file between restart/parameters file; check in command line
-  ! TODO: read_prm allocates prm
-  ! TODO: read_rst allocates prm,seq
-
   dim1 = nvars * nclasses
   dim2 = nvars * (nvars - 1) * nclasses**2 / 2
   if (urst == 0) then

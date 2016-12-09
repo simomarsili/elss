@@ -68,7 +68,7 @@ module errors
        ' https://github.com/simomarsili/mcDCA                                                           '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        '                                                                                                    '
-  character(len=string_size), dimension(-1:45) :: err_msg = & 
+  character(len=string_size), dimension(-1:46) :: err_msg = & 
        [ &
        ! -1 print syntax only
        '                                                                                          ', & 
@@ -163,7 +163,9 @@ module errors
        !  44
        'mcDCA: please check random seed value (--random_seed <rseed>)                             ', & 
        !  45
-       'mcDCA: check temperature factor [-t|--temp] <temp>)                                       ' & 
+       'mcDCA: check temperature factor [-t|--temp] <temp>                                        ', &
+       !  46
+       'mcdca-sample: needs one between rst file (-r <rst>) or prm file (-p <prm>) as argument    ' & 
        ]
 
 contains
