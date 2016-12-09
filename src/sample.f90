@@ -10,14 +10,14 @@
 ! A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 ! ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-program main
+program sample
   use kinds
   use constants
   use fasta,       only : fasta_read
   use errors
   use mpi_wrapper
   use dump,        only: read_rst,read_prm_unit,dump_energies,dump_rst
-  use command_line
+  use sample_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
   use random,      only: random_initialize,random_seq
@@ -79,7 +79,7 @@ program main
   niter_gd = 0
   niter_agd = 0
   lambda = 0.01_kflt
-  mode = ''
+  mode = 'SAMPLE'
   rseed = 0
   beta = 1.0_kflt
 
@@ -89,9 +89,8 @@ program main
 
   !================================================ read args
 
-  call command_line_read(udata,data_format,uwgt,&
-       wid,uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
-       niter_gd,lambda,mode,err,err_string)
+  call command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,&
+       err,err_string)
 
   if (err /= 0) then
      call dump_error(err,err_string)
@@ -341,4 +340,4 @@ program main
 
   call mpi_wrapper_finalize(err)
 
-end program main
+end program sample

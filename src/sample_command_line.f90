@@ -10,7 +10,7 @@
 ! A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
 ! ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-module command_line
+module sample_command_line
   use kinds
   use constants
   implicit none
@@ -19,30 +19,18 @@ module command_line
 
 contains
 
-  subroutine command_line_read(udata,data_format,uwgt,wid,uprm,urst,useq,&
-                               rseed,beta,mc_nsweeps,nupdate,niter_agd,niter_gd,&
-                               lambda,mode,error_code,error_string)
+  subroutine command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,&
+                               error_code,error_string)
     use units, only: units_open,units_open_unf
-    integer,                    intent(inout) :: udata
-    character(len=*),           intent(inout) :: data_format
-    integer,                    intent(inout) :: uwgt
-    real(kflt),                 intent(inout) :: wid
     integer,                    intent(inout) :: uprm
     integer,                    intent(inout) :: urst
     integer,                    intent(inout) :: useq
     integer,                    intent(inout) :: rseed
     real(kflt),                 intent(inout) :: beta
     integer,                    intent(inout) :: mc_nsweeps
-    integer,                    intent(inout) :: nupdate
-    integer,                    intent(inout) :: niter_agd
-    integer,                    intent(inout) :: niter_gd
-    real(kflt),                 intent(inout) :: lambda
-    character(len=string_size), intent(inout) :: mode
-    integer,                    intent(out) :: error_code
-    character(len=*),           intent(out) :: error_string
+    integer,                    intent(out)   :: error_code
+    character(len=*),           intent(out)   :: error_string
     integer                         :: err
-    character(len=long_string_size) :: data_file
-    character(len=long_string_size) :: ww_file
     character(len=long_string_size) :: prm_file
     character(len=long_string_size) :: rst_file
     character(len=long_string_size) :: seq_file
@@ -65,8 +53,6 @@ contains
     end if
 
     ! default 
-    data_file = ''
-    ww_file = ''
     prm_file = ''
     rst_file = ''
     seq_file = ''
@@ -80,27 +66,6 @@ contains
           iarg = iarg + 1
           error_code = -1
           return
-       case('-i','--raw','--table','--fasta')
-          ! input file
-          if ( data_file /= "" ) then
-             error_code = 16
-             return
-          end if
-          select case(trim(arg))
-          case('-i','--raw')
-             data_format = 'raw'
-          case('--table')
-             data_format = 'table'
-          case('--fasta')
-             data_format = 'protein'
-          end select
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          data_file = arg
-          if( data_file(1:1) == '-' ) then
-             error_code = 4
-             return
-          end if
        case('-p','--prm')
           ! prm file
           if (prm_file /= "") then
@@ -140,24 +105,6 @@ contains
              error_code = 41
              return
           end if
-       case('-w','--weights')
-          ! input file
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          ww_file = arg
-          if( ww_file(1:1) == '-' ) then
-             error_code = 5
-             return
-          end if
-       case('--wid')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) wid ! wid threshold for reweighting
-          if ( wid < 0.0 .or. wid > 100.0 ) then
-             error_code = 13
-             write(error_string,*) trim(arg)
-             return
-          end if
        case('-t','--temp')
           iarg = iarg + 1
           call get_command_argument(iarg,arg)
@@ -186,41 +133,6 @@ contains
              write(error_string,*) trim(arg)
              return
           end if
-       case('-u','--nupdate')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) nupdate
-          if ( err/= 0 .or. nupdate < 1) then
-             error_code = 15
-             write(error_string,*) trim(arg)
-             return
-          end if
-       case('--learn','--learn-agd')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) niter_agd
-          if ( err/= 0 ) then
-             error_code = 11
-             write(error_string,*) trim(arg)
-             return
-          end if
-       case('--learn-gd')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) niter_gd
-          if ( err/= 0 ) then
-             error_code = 12
-             write(error_string,*) trim(arg)
-             return
-          end if
-       case('-l','--lambda')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) lambda ! 
-          if ( lambda <= 0.0) then
-             error_code = 38
-             return
-          end if
        case default
           error_code = 2
           write(error_string,*) trim(arg)
@@ -230,7 +142,6 @@ contains
     end do args_loop
 
     if (prm_file /= "" .and. rst_file /= "") then
-       ! cannot read both rst and prm 
        error_code = 35
        return
     end if
@@ -280,106 +191,14 @@ contains
        end if
     end if
 
-
-    !----------- run mode decision tree
-    !
-    !         has niter?
-    !           /   \
-    !      yes /     \ no
-    !         /       \
-    !       LEARN   has nsweeps?
-    !                /   \
-    !           yes /     \ no
-    !              /       \
-    !         SIM     EVAL
-    !
-
-    if (niter_gd > 0 .or. niter_agd > 0) then
-
-       mode = 'LEARN'
-
-       ! LEARN mode needs niter, nsweeps and data. prm/rst is optional
-
-       if ( mc_nsweeps <= 0 ) then
-          error_code = 10
-          write(error_string,*) mc_nsweeps
-          return
-       end if
-
-       if ( ww_file /= "" ) then
-          inquire( file = ww_file, exist = file_exists )
-          if ( .not. file_exists ) then
-             error_code = 8
-             write(error_string,*) trim(ww_file)
-             return
-          end if
-          call units_open(ww_file,'old',uwgt,err)
-          if( err /= 0 ) then
-             error_code = 19
-             write(error_string,*) trim(ww_file)
-             return
-          end if
-       end if
-
-       if ( uwgt > 0 .and. wid >= 0.0_kflt ) then
-          error_code = 14
-          return
-       end if
-
-    else
-
-       if (mc_nsweeps > 0) then
-
-          mode = 'SIM'
-
-          ! simulation mode needs nsweeps and prm/rst. data is optional (wont read data). niter is incompatible.
-
-       else
-
-          mode = 'EVAL'
-
-          ! EVAL mode needs data and prm/rst. nsweeps and niter are incompatible.
-
-       end if
-
-    end if
-
     if (uprm == 0 .and. urst == 0) then
        
-       if (trim(mode) == 'EVAL' .or. trim(mode) == 'SIM') then 
-          ! SIM / EVAL need at least one between prm and rst
-          error_code = 36
-          return
-       end if
+       ! need at least one between prm and rst
+       error_code = 36
+       return
        
-    end if
-
-    if( data_file == '' ) then
-
-       if (trim(mode) == 'EVAL' .or. trim(mode) == 'LEARN') then 
-          error_code = 3
-          return
-       end if
-
-    else
-
-       inquire( file = data_file, exist = file_exists )
-       if ( .not. file_exists ) then
-          error_code = 7
-          write(error_string,*) trim(data_file)
-          return
-       end if
-
-       ! open data file
-       call units_open(data_file,'old',udata,err)
-       if( err /= 0 ) then
-          error_code = 19
-          write(error_string,*) trim(data_file)
-          return
-       end if
-
     end if
 
   end subroutine command_line_read
 
-end module command_line
+end module sample_command_line
