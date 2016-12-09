@@ -211,7 +211,7 @@ program sample
      write(ulog,'(a,1x,i8)')   '#  n. of classes                = ', nclasses
      write(ulog,'(a,1x,i8)')   '#  n. of seqs                   = ', nseqs
      write(ulog,'(a,1x,i8)')   '#  stride (sweeps) for updates  = ', nupdate
-     if (trim(mode) == 'SIM') &
+     if (trim(mode) == 'SAMPLE') &
           write(ulog,'(a,1x,i8)')   '#  n. of MC sweeps              = ', mc_nsweeps
      write(ulog,'(a,1x,f8.1)') '#  temperature factor           = ', 1.0_kflt / beta
      if (trim(mode) == 'LEARN') then
@@ -255,7 +255,7 @@ program sample
         call dump_energies(uene,etot,efields,ecouplings)
      end do
 
-  case('SIM')
+  case('SAMPLE')
 
      !================================================ run a simulation
 
