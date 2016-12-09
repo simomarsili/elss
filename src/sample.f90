@@ -157,7 +157,6 @@ program sample
      case('raw')
         read(useq,*) seq
      case('protein')
-        ! TODO: reintroduce seqs0 (sequences in rst)
         call fasta_read(useq,seqs0,err,err_string)
         if (err > 0) then
            if (iproc == 0) call dump_error(err,err_string)
