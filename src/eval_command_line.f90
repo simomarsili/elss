@@ -26,8 +26,8 @@ contains
     character(len=*),           intent(inout) :: data_format
     integer,                    intent(inout) :: uprm
     integer,                    intent(inout) :: urst
-    integer,                    intent(out) :: error_code
-    character(len=*),           intent(out) :: error_string
+    integer,                    intent(out)   :: error_code
+    character(len=*),           intent(out)   :: error_string
     integer                         :: err
     character(len=long_string_size) :: data_file
     character(len=long_string_size) :: prm_file
