@@ -206,14 +206,6 @@ contains
        end if
     end if
 
-    if (uprm == 0 .and. urst == 0) then
-       
-       ! need at least one between prm and rst
-       error_code = 36
-       return
-       
-    end if
-
   end subroutine command_line_read
 
 end module sample_command_line
