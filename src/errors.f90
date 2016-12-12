@@ -68,7 +68,7 @@ module errors
        ' https://github.com/simomarsili/mcDCA                                                           '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        '                                                                                                    '
-  character(len=string_size), dimension(-1:46) :: err_msg = & 
+  character(len=string_size), dimension(-1:47) :: err_msg = & 
        [ &
        ! -1 print syntax only
        '                                                                                          ', & 
@@ -165,7 +165,9 @@ module errors
        !  45
        'mcDCA: check temperature factor [-t|--temp] <temp>                                        ', &
        !  46
-       'mcdca-sample: needs one between rst file (-r <rst>) or prm file (-p <prm>) as argument    ' & 
+       'mcdca-sample: either a rst file (-r <rst>) or a prm file (-p <prm>) is needed (XOR)       ', &
+       !  47
+       'mcdca-learn: cant read both a rst file (-r <rst>) and prm file (-p <prm>)                 ' & 
        ]
 
 contains
