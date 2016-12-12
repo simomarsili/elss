@@ -57,7 +57,7 @@ mpi_wrapper.o: mpi_wrapper.f90 kinds.o #mpi
 map.o: map.f90 units.o kinds.o mpi_wrapper.o mcmc.o dump.o data.o constants.o cost.o # mpi
 main.o: main.f90 command_line.o mpi_wrapper.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o errors.o mcmc.o #mpi
 eval.o: eval.f90 eval_command_line.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o errors.o mcmc.o 
-sample.o: sample.f90 sample_command_line.o mpi_wrapper.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o errors.o mcmc.o #mpi
+sample.o: sample.f90 sample_command_line.o random.o kinds.o units.o dump.o constants.o errors.o mcmc.o
 
 .PHONY: default clean realclean debug showtargets
 
