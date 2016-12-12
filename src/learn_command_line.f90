@@ -21,7 +21,7 @@ contains
 
   subroutine command_line_read(udata,data_format,uwgt,wid,uprm,urst,useq,&
                                rseed,beta,mc_nsweeps,nupdate,niter_agd,niter_gd,&
-                               lambda,mode,error_code,error_string)
+                               lambda,error_code,error_string)
     use units, only: units_open,units_open_unf
     integer,                    intent(inout) :: udata
     character(len=*),           intent(inout) :: data_format
@@ -37,7 +37,6 @@ contains
     integer,                    intent(inout) :: niter_agd
     integer,                    intent(inout) :: niter_gd
     real(kflt),                 intent(inout) :: lambda
-    character(len=string_size), intent(inout) :: mode
     integer,                    intent(out) :: error_code
     character(len=*),           intent(out) :: error_string
     integer                         :: err
@@ -279,8 +278,6 @@ contains
        end if
     end if
 
-    mode = 'LEARN'
-    
     if ( mc_nsweeps <= 0 ) then
        error_code = 10
        write(error_string,*) mc_nsweeps
