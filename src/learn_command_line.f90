@@ -279,86 +279,38 @@ contains
        end if
     end if
 
-
-    !----------- run mode decision tree
-    !
-    !         has niter?
-    !           /   \
-    !      yes /     \ no
-    !         /       \
-    !       LEARN   has nsweeps?
-    !                /   \
-    !           yes /     \ no
-    !              /       \
-    !         SIM     EVAL
-    !
-
-    if (niter_gd > 0 .or. niter_agd > 0) then
-
-       mode = 'LEARN'
-
-       ! LEARN mode needs niter, nsweeps and data. prm/rst is optional
-
-       if ( mc_nsweeps <= 0 ) then
-          error_code = 10
-          write(error_string,*) mc_nsweeps
-          return
-       end if
-
-       if ( ww_file /= "" ) then
-          inquire( file = ww_file, exist = file_exists )
-          if ( .not. file_exists ) then
-             error_code = 8
-             write(error_string,*) trim(ww_file)
-             return
-          end if
-          call units_open(ww_file,'old',uwgt,err)
-          if( err /= 0 ) then
-             error_code = 19
-             write(error_string,*) trim(ww_file)
-             return
-          end if
-       end if
-
-       if ( uwgt > 0 .and. wid >= 0.0_kflt ) then
-          error_code = 14
-          return
-       end if
-
-    else
-
-       if (mc_nsweeps > 0) then
-
-          mode = 'SIM'
-
-          ! simulation mode needs nsweeps and prm/rst. data is optional (wont read data). niter is incompatible.
-
-       else
-
-          mode = 'EVAL'
-
-          ! EVAL mode needs data and prm/rst. nsweeps and niter are incompatible.
-
-       end if
-
+    mode = 'LEARN'
+    
+    if ( mc_nsweeps <= 0 ) then
+       error_code = 10
+       write(error_string,*) mc_nsweeps
+       return
     end if
-
-    if (uprm == 0 .and. urst == 0) then
-       
-       if (trim(mode) == 'EVAL' .or. trim(mode) == 'SIM') then 
-          ! SIM / EVAL need at least one between prm and rst
-          error_code = 36
+    
+    if ( ww_file /= "" ) then
+       inquire( file = ww_file, exist = file_exists )
+       if ( .not. file_exists ) then
+          error_code = 8
+          write(error_string,*) trim(ww_file)
           return
        end if
-       
+       call units_open(ww_file,'old',uwgt,err)
+       if( err /= 0 ) then
+          error_code = 19
+          write(error_string,*) trim(ww_file)
+          return
+       end if
+    end if
+    
+    if ( uwgt > 0 .and. wid >= 0.0_kflt ) then
+       error_code = 14
+       return
     end if
 
     if( data_file == '' ) then
 
-       if (trim(mode) == 'EVAL' .or. trim(mode) == 'LEARN') then 
-          error_code = 3
-          return
-       end if
+       error_code = 3
+       return
 
     else
 
@@ -368,7 +320,7 @@ contains
           write(error_string,*) trim(data_file)
           return
        end if
-
+       
        ! open data file
        call units_open(data_file,'old',udata,err)
        if( err /= 0 ) then
@@ -376,7 +328,7 @@ contains
           write(error_string,*) trim(data_file)
           return
        end if
-
+       
     end if
 
   end subroutine command_line_read
