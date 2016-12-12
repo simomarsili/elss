@@ -79,7 +79,7 @@ program learn
   niter_gd = 0
   niter_agd = 0
   lambda = 0.01_kflt
-  mode = 'MAP'
+  mode = 'LEARN'
   rseed = 0
   beta = 1.0_kflt
 
