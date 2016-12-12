@@ -17,7 +17,7 @@ program learn
   use errors
   use mpi_wrapper
   use dump,        only: read_rst,read_prm_unit,dump_energies,dump_rst
-  use command_line
+  use learn_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
   use random,      only: random_initialize,random_seq
