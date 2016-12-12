@@ -46,7 +46,7 @@ Running tests...
 ================
 '
 
-rm 0.trj 0.ene
+rm rst 0.trj 0.ene
 
 command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
 
