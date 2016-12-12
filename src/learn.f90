@@ -79,7 +79,7 @@ program learn
   niter_gd = 0
   niter_agd = 0
   lambda = 0.01_kflt
-  mode = 'LEARN'
+  mode = ''
   rseed = 0
   beta = 1.0_kflt
 
@@ -91,7 +91,7 @@ program learn
 
   call command_line_read(udata,data_format,uwgt,&
        wid,uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
-       niter_gd,lambda,err,err_string)
+       niter_gd,lambda,mode,err,err_string)
 
   if (err /= 0) then
      call dump_error(err,err_string)
