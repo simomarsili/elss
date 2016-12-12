@@ -15,11 +15,11 @@ program sample
   use constants
   use fasta,       only : fasta_read
   use errors
-  use dump,        only: read_rst,read_prm_unit,dump_energies
+  use dump,        only: read_rst,read_prm_unit
   use sample_command_line
   use units,       only: units_initialize,units_open
   use random,      only: random_initialize,random_seq
-  use mcmc,        only: mcmc_simulate,mcmc_compute_energy
+  use mcmc,        only: mcmc_simulate
   implicit none
   integer                 :: nvars        ! total number of variables
   integer                 :: nclasses     ! total number of classes
