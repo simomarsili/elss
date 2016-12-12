@@ -111,10 +111,6 @@ program learn
   if (uprm > 0) then
      call read_prm_unit(uprm,nvars,nclasses,&
           prm,data_format,err)
-     if (.not. allocated(fmodel)) then
-        allocate(fmodel(nvars*nclasses + nvars*(nvars-1)*nclasses**2/2),stat=err)
-        fmodel = 0.0_kflt        
-     end if
      if (err /= 0) then
         if (iproc == 0) call dump_error(err,'')
         call mpi_wrapper_finalize(err)
@@ -124,19 +120,9 @@ program learn
   end if
 
   !================================================ read restart file
-
+  
   if (urst > 0) then
-     ! read nvars,nclasses
      call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
-     allocate(seqs_table(nvars,nproc),stat=err)
-     seqs_table(:,iproc+1) = seq
-     CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
-
-     ! now we can allocate fmodel
-     if (.not. allocated(fmodel)) then
-        allocate(fmodel(nvars*nclasses + nvars*(nvars-1)*nclasses**2/2),stat=err)
-        fmodel = 0.0_kflt        
-     end if
      if (err /= 0) then
         if (iproc == 0) call dump_error(err,'')
         call mpi_wrapper_finalize(err)
@@ -147,42 +133,39 @@ program learn
 
   !================================================ read data
 
-  if (udata > 0) then
+  call data_read(iproc,udata,data_format,uwgt,wid,&
+       nvars,nclasses,nseqs,neff,seqs,err,err_string)
 
-     call data_read(iproc,udata,data_format,uwgt,wid,&
-          nvars,nclasses,nseqs,neff,seqs,err,err_string)
-
-     if (err /= 0) then
-        if (iproc == 0) call dump_error(err,err_string)
-        call mpi_wrapper_finalize(err)
-        stop
-     end if
-
-     !================================================ allocate memory for the run and initialize
-
-     if (uprm == 0 .and. urst == 0) then
-
-        dim1 = nvars * nclasses
-        dim2 = nvars * (nvars - 1) * nclasses**2 / 2
-        allocate(seq(nvars),stat=err)
-        allocate(prm(dim1+dim2),stat=err)
-        allocate(fmodel(dim1+dim2),stat=err)
-        allocate(seqs_table(nvars,nproc),stat=err)
-        seq = 0
-        prm = 0.0_kflt
-        fmodel = 0.0_kflt
-        seqs_table = 0
-
-        !================================================ initialize system configuration
-
-        call random_seq(nvars,nclasses,seq)
-        seqs_table(:,iproc+1) = seq
-        CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
-
-
-     end if
-     close(udata)
+  if (err /= 0) then
+     if (iproc == 0) call dump_error(err,err_string)
+     call mpi_wrapper_finalize(err)
+     stop
   end if
+
+  !================================================ allocate memory for the run and initialize
+
+  dim1 = nvars * nclasses
+  dim2 = nvars * (nvars - 1) * nclasses**2 / 2
+  if (uprm == 0 .and. urst == 0) then
+     allocate(prm(dim1+dim2),stat=err)
+     prm = 0.0_kflt
+  end if
+  if (urst == 0) then
+     ! allocate seq
+     allocate(seq(nvars),stat=err)
+     seq = 0
+     call random_seq(nvars,nclasses,seq)
+  end if
+  ! allocate and fill up seqs_table
+  allocate(seqs_table(nvars,nproc),stat=err)
+  seqs_table = 0
+  seqs_table(:,iproc+1) = seq
+  CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
+  ! allocate model frequencies
+  allocate(fmodel(dim1+dim2),stat=err)
+  fmodel = 0.0_kflt
+  
+  close(udata)
 
   ! open output
 
