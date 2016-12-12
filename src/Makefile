@@ -9,8 +9,8 @@ FFLAGS = -O2 -fconvert=little-endian
 LDFLAGS = -s 
 SRCS = main.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90
 OBJS = main.o units.o random.o mcmc.o kinds.o data.o command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o
-SRCS-learn = main.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 learn_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90
-OBJS-learn = main.o units.o random.o mcmc.o kinds.o data.o learn_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o
+SRCS-learn = learn.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 learn_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90
+OBJS-learn = learn.o units.o random.o mcmc.o kinds.o data.o learn_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o
 SRCS-eval = eval.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 eval_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90
 OBJS-eval = eval.o units.o random.o mcmc.o kinds.o data.o eval_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o
 SRCS-sample = sample.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 sample_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90
