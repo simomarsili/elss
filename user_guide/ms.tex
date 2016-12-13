@@ -64,7 +64,8 @@ From a Unix terminal, type \verb|make| in the \verb|src| directory:
 >> cd src
 >> make
 \end{verbatim}
-To install mcDCA in \verb|/usr/local/bin|, type:
+After compiling, you should see three binary files: \verb|mcdca-learn|, \verb|mcdca-eval| and \verb|mcdca-learn| in the \verb|src| directory. 
+To install the binaries mcDCA in \verb|/usr/local/bin|, type:
 \begin{verbatim}
 >> make install
 \end{verbatim}
@@ -75,11 +76,8 @@ e.g. :
 >> make install INSTALLDIR=~/.local/bin
 \end{verbatim}
 
-\section{The mcDCA }
-\label{sec:executables}
-After compiling, you should see three binary files: \verb|mcdca-learn|, \verb|mcdca-eval| and \verb|mcdca-learn|.
-
-\section{Learning a model: mcdca-learn}
+\section{mcdca-learn}
+\label{sec:mcdca-learn}
 \verb|mcdca-learn| implements the \verb|mcdca| routines for statistical inference.
 Given a MSA file in FASTA format, \verb|msa.fa|, we can retrieve the parameters of a pairwise model for the sequence distribution. 
 \begin{verbatim}
@@ -94,6 +92,14 @@ Given a MSA file in FASTA format, \verb|msa.fa|, we can retrieve the parameters 
 \begin{verbatim}
 >> mpiexec -n 4 mcdca-learn --nsweeps $NS --fasta msa.fa --learn-agd $NITER --lambda 0.01
 \end{verbatim}
+From a Unix terminal, type \verb|make| in the \verb|src| directory:
+
+\section{mcdca-eval}
+\label{sec:mcdca-eval}
+From a Unix terminal, type \verb|make| in the \verb|src| directory:
+
+\section{mcdca-sample}
+\label{sec:mcdca-sample}
 From a Unix terminal, type \verb|make| in the \verb|src| directory:
 
 \section{System Model}
