@@ -77,10 +77,23 @@ e.g. :
 
 \section{The mcDCA }
 \label{sec:executables}
-After compiling, you should see three binary files: \verb|mcdca-learn|, \verb|mcdca-eval| and \verb|mcdca-learn|,
-that different parts of sequence analysis.
+After compiling, you should see three binary files: \verb|mcdca-learn|, \verb|mcdca-eval| and \verb|mcdca-learn|.
 
 \section{Learning a model: mcdca-learn}
+\verb|mcdca-learn| implements the \verb|mcdca| routines for statistical inference.
+Given a MSA file in FASTA format, \verb|msa.fa|, we can retrieve the parameters of a pairwise model for the sequence distribution. 
+\begin{verbatim}
+>> mcdca-learn --fasta msa.fa --learn-agd 100 --nsweeps 1000 --lambda 0.01
+\end{verbatim}
+\begin{itemize}
+\item \verb|--fasta msa.fa|: read sequence data from file \verb|msa.fa|
+\item \verb|--learn-agd 100|: perform 100 iterations of accelerated gradient descent of the cost function
+\item \verb|--nsweeps 1000|: at each iteration, the gradient of the cost function is estimated from a $1000-$sweeps long MCMC trajectory
+\item \verb|--lambda 0.01|: the cost function contains a $l_2$ regularization term: higher values of \verb|--lambda| correspond to more strongly regularized solutions
+\end{itemize}
+\begin{verbatim}
+>> mpiexec -n 4 mcdca-learn --nsweeps $NS --fasta msa.fa --learn-agd $NITER --lambda 0.01
+\end{verbatim}
 From a Unix terminal, type \verb|make| in the \verb|src| directory:
 
 \section{System Model}
