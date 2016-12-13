@@ -1,0 +1,109 @@
+\documentclass[a4paper,onecolumn]{article}
+\usepackage{hyperref}
+% for setting the linespace (\setstretch)
+%\usepackage{setspace}
+% distance between the columns
+%\setlength{\columnsep}{1cm}
+% for comments
+\usepackage{verbatim}
+% filling with lipsum text
+\usepackage{lipsum}
+% ams
+\usepackage{amssymb,amsfonts,amsmath,bm}
+\usepackage[pdftex]{graphicx}
+\bibliographystyle{plain}
+
+\usepackage[top=2cm, bottom=2cm, left=3cm, right=3cm]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+\title{mcDCA v0.3.1}
+\author{
+        Simone Marsili \\
+        simo.marsili@gmail.com
+}
+\date{\today}
+
+
+\begin{document}
+\maketitle
+%\abstract{\lipsum[78]}
+
+Thanks for donwloading the mcDCA source code.
+
+\section{Requirements}
+\label{sec:requirements}
+
+In order to compile mcDCA, you will need to have a Fortran compiler installed on your machine.   
+If you are using Debian or a Debian derivative such as Ubuntu, you can install the gfortran compiler using the following command:
+\begin{verbatim}
+>> sudo apt-get install gfortran
+\end{verbatim}
+
+The inference algorithm works by simulating a swarm of persistent Markov chains. 
+To compile mcDCA with support for parallel runs on a distributed-memory architecture,
+you will need to have a valid MPI implementation installed on your machine. 
+The code has been tested and is known to work with the latest versions of both OpenMPI and MPICH.   
+OpenMPI (recommended) can be installed on Debian derivatives typing:
+\begin{verbatim}
+sudo apt-get install openmpi-bin libopenmpi1.10 libopenmpi-dev
+\end{verbatim}
+(For details on running MPI jobs with OpenMPI see \href{https://www.open-mpi.org/faq/?category=running}{this link}).
+\\\
+
+The compiling and linking of source files is handled by Gnu Make. 
+If you are using Debian or a Debian derivative such as Ubuntu, you should find 4.1 already installed.
+
+\section{Compiling}
+\label{sec:compiling}
+From a Unix terminal, type \verb|make| in the \verb|src| directory:
+\begin{verbatim}
+>> cd src
+>> make
+\end{verbatim}
+To install mcDCA in \verb|/usr/local/bin|, type:
+\begin{verbatim}
+>> make install
+\end{verbatim}
+and \verb|make uninstall| to uninstall.
+The install path can be specified on the make command line as an absolute path,
+e.g. :
+\begin{verbatim}
+>> make install INSTALLDIR=~/.local/bin
+\end{verbatim}
+
+\section{The mcDCA }
+\label{sec:executables}
+After compiling, you should see three binary files: \verb|mcdca-learn|, \verb|mcdca-eval| and \verb|mcdca-learn|,
+that different parts of sequence analysis.
+
+\section{Learning a model: mcdca-learn}
+From a Unix terminal, type \verb|make| in the \verb|src| directory:
+
+\section{System Model}
+\label{sec:system-model}
+
+\subsection{Concept}
+\lipsum[1]\cite{asimov1951foundation}
+
+\begin{itemize}
+	\item \lipsum[53]
+	\item \lipsum[11]
+\end{itemize}
+
+\lipsum[43]
+
+\subsection{Implementation}
+\lipsum[2]
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+\lipsum[9-10]
+
+\bibliography{ms}
+
+\end{document}
