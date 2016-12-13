@@ -1,3 +1,6 @@
+#INSTALLDIR=/usr/local/bin
+INSTALLDIR=~/.local/bin
+
 EXE = mcdca-eval mcdca-sample mcdca-learn
 FC = mpif90
 FFLAGS = -O2 -fconvert=little-endian
@@ -49,7 +52,14 @@ learn.o: learn.f90 learn_command_line.o mpi_wrapper.o random.o kinds.o units.o d
 eval.o: eval.f90 eval_command_line.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o errors.o mcmc.o 
 sample.o: sample.f90 sample_command_line.o random.o kinds.o units.o dump.o constants.o errors.o mcmc.o
 
-.PHONY: default clean realclean debug showtargets
+.PHONY: default install uninstall clean realclean debug showtargets
+
+install: $(EXE)
+	mkdir -p $(INSTALLDIR)
+	cp mcdca-* $(INSTALLDIR)
+
+uninstall:
+	rm -f $(INSTALLDIR)/mcdca-*
 
 # clean: remove useless files, but keep executables
 clean:
