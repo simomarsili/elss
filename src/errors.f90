@@ -68,7 +68,7 @@ module errors
        ' https://github.com/simomarsili/mcDCA                                                           '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        '                                                                                                    '
-  character(len=string_size), dimension(-1:47) :: err_msg = & 
+  character(len=string_size), dimension(-1:48) :: err_msg = & 
        [ &
        ! -1 print syntax only
        '                                                                                          ', & 
@@ -165,9 +165,11 @@ module errors
        !  45
        'mcDCA: check temperature factor [-t|--temp] <temp>                                        ', &
        !  46
-       'mcdca-sample: either a rst file (-r <rst>) or a prm file (-p <prm>) is needed (XOR)       ', &
+       'mcdca-sample: either a rst file (-r <rst>) or a prm file (-p <prm>) is needed             ', &
        !  47
-       'mcdca-learn: cant read both a rst file (-r <rst>) and prm file (-p <prm>)                 ' & 
+       'mcdca: cant read both a rst file (-r <rst>) and prm file (-p <prm>)                       ', &
+       !  48
+       'mcdca: missing argument [--prefix <prefix>]                                               ' & 
        ]
 
 contains
