@@ -37,6 +37,7 @@ program sample
   character(len=string_size) :: mode         ! run mode: EVAL, SIM, LEARN
   integer                    :: rseed        ! random seed
   real(kflt)                 :: beta         ! temperature of the run
+  character(len=long_string_size) :: prefix
   integer                         :: iproc=0,nproc=1
   integer                         :: err
   character(long_string_size)     :: err_string
@@ -61,6 +62,7 @@ program sample
   mode = 'SAMPLE'
   rseed = 0
   beta = 1.0_kflt
+  prefix = ''
 
   !================================================ init. unit identifiers
 
