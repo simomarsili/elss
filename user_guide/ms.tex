@@ -32,20 +32,18 @@
 \maketitle
 %\abstract{\lipsum[78]}
 
-Thanks for donwloading the mcDCA source code.
-
 \section{Requirements}
 \label{sec:requirements}
 
-In order to compile mcDCA, you will need to have a Fortran compiler installed on your machine.   
-If you are using Debian or a Debian derivative such as Ubuntu, you can install the gfortran compiler using the following command:
+In order to compile \verb|mcdca|, you will need a Fortran compiler installed on your machine.   
+If you are using Debian or a Debian derivative such as Ubuntu, you can install the \verb|gfortran| compiler using the following command:
 \begin{verbatim}
 >> sudo apt-get install gfortran
 \end{verbatim}
 
 The inference algorithm works by simulating a swarm of persistent Markov chains. 
-To compile mcDCA with support for parallel runs on a distributed-memory architecture,
-you will need to have a valid MPI implementation installed on your machine. 
+To compile \verb|mcdca| with support for parallel runs on a distributed-memory architecture,
+you will need a valid MPI implementation installed on your machine. 
 The code has been tested and is known to work with the latest versions of both OpenMPI and MPICH.   
 OpenMPI (recommended) can be installed on Debian derivatives typing:
 \begin{verbatim}
@@ -54,7 +52,7 @@ sudo apt-get install openmpi-bin libopenmpi1.10 libopenmpi-dev
 (For details on running MPI jobs with OpenMPI see \href{https://www.open-mpi.org/faq/?category=running}{this link}).
 \\\
 
-The compiling and linking of source files is handled by Gnu Make. 
+The compiling and linking of source files is handled by the Gnu \verb|make|. 
 If you are using Debian or a Debian derivative such as Ubuntu, you should find 4.1 already installed.
 
 \section{Compiling}
@@ -64,31 +62,39 @@ From a Unix terminal, type \verb|make| in the \verb|src| directory:
 >> cd src
 >> make
 \end{verbatim}
-After compiling, you should see three binary files: \verb|mcdca-learn|, \verb|mcdca-eval| and \verb|mcdca-learn| in the \verb|src| directory. 
+After compiling, you should see these binary files in the \verb|src| directory:\\
+\verb|mcdca-learn|, \verb|mcdca-eval| and \verb|mcdca-sample|. \\
 To install the binaries mcDCA in \verb|/usr/local/bin|, type:
 \begin{verbatim}
 >> make install
 \end{verbatim}
-and \verb|make uninstall| to uninstall.
+and \verb|make uninstall| to uninstall.\\
 The install path can be specified on the make command line as an absolute path,
 e.g. :
 \begin{verbatim}
->> make install INSTALLDIR=~/.local/bin
+>> make install INSTALLDIR=$HOME/.local/bin
 \end{verbatim}
 
 \section{mcdca-learn}
 \label{sec:mcdca-learn}
-\verb|mcdca-learn| implements the \verb|mcdca| routines for statistical inference.
-Given a MSA file in FASTA format, \verb|msa.fa|, we can retrieve the parameters of a pairwise model for the sequence distribution. 
+Starting from a MSA file in FASTA format, \verb|msa.fa|, the maximum likelihood parameters of a pairwise model for the sequence distribution
+can be computed using \verb|mcdca-learn|, that implements the \verb|mcdca| routines for statistical inference.
 \begin{verbatim}
 >> mcdca-learn --fasta msa.fa --learn-agd 100 --nsweeps 1000 --lambda 0.01
 \end{verbatim}
 \begin{itemize}
-\item \verb|--fasta msa.fa|: read sequence data from file \verb|msa.fa|
+\item \verb|--fasta msa.fa|: read sequences from file \verb|msa.fa|
 \item \verb|--learn-agd 100|: perform 100 iterations of accelerated gradient descent of the cost function
 \item \verb|--nsweeps 1000|: at each iteration, the gradient of the cost function is estimated from a $1000-$sweeps long MCMC trajectory
 \item \verb|--lambda 0.01|: the cost function contains a $l_2$ regularization term: higher values of \verb|--lambda| correspond to more strongly regularized solutions
 \end{itemize}
+
+
+The most simple way to run \verb|mcdca-learn| is to use the default values for the parameters of the run:
+\begin{verbatim}
+>> mcdca-learn --fasta msa.fa
+\end{verbatim}
+To increase the accuracy in gradient estimation (without simulating longer Markov chains in sequence space)
 \begin{verbatim}
 >> mpiexec -n 4 mcdca-learn --nsweeps $NS --fasta msa.fa --learn-agd $NITER --lambda 0.01
 \end{verbatim}
