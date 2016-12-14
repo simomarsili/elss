@@ -38,6 +38,7 @@ program eval
   integer                    :: urst         ! rst unit
   character(len=string_size) :: mode         ! run mode: EVAL, SIM, LEARN
   integer                    :: rseed        ! random seed
+  character(len=long_string_size) :: prefix  ! prefix for output file
   integer                         :: iproc=0,nproc=1
   integer                         :: err
   character(long_string_size)     :: err_string
@@ -59,6 +60,7 @@ program eval
   urst = 0
   mode = 'EVAL'
   rseed = 0
+  prefix = ''
 
   !================================================ init. unit identifiers
 
