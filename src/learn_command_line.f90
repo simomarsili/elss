@@ -21,7 +21,7 @@ contains
 
   subroutine command_line_read(udata,data_format,uwgt,wid,uprm,urst,useq,&
                                rseed,beta,mc_nsweeps,nupdate,niter_agd,niter_gd,&
-                               lambda,error_code,error_string)
+                               lambda,prefix,error_code,error_string)
     use units, only: units_open,units_open_unf
     integer,                    intent(inout) :: udata
     character(len=*),           intent(inout) :: data_format
@@ -37,6 +37,7 @@ contains
     integer,                    intent(inout) :: niter_agd
     integer,                    intent(inout) :: niter_gd
     real(kflt),                 intent(inout) :: lambda
+    character(len=*),           intent(out) :: prefix
     integer,                    intent(out) :: error_code
     character(len=*),           intent(out) :: error_string
     integer                         :: err
@@ -96,7 +97,7 @@ contains
           iarg = iarg + 1
           call get_command_argument(iarg,arg)
           data_file = arg
-          if( data_file(1:1) == '-' ) then
+          if( data_file(1:1) == '-' .or. iarg > nargs) then
              error_code = 4
              return
           end if
@@ -109,7 +110,7 @@ contains
           iarg = iarg + 1
           call get_command_argument(iarg,arg)
           prm_file = arg
-          if( prm_file(1:1) == '-' ) then
+          if( prm_file(1:1) == '-' .or. iarg > nargs) then
              error_code = 27
              return
           end if
@@ -122,7 +123,7 @@ contains
           iarg = iarg + 1
           call get_command_argument(iarg,arg)
           rst_file = arg
-          if( rst_file(1:1) == '-' ) then
+          if( rst_file(1:1) == '-' .or. iarg > nargs) then
              error_code = 6
              return
           end if
@@ -135,7 +136,7 @@ contains
           iarg = iarg + 1
           call get_command_argument(iarg,arg)
           seq_file = arg
-          if(seq_file(1:1) == '-') then
+          if(seq_file(1:1) == '-' .or. iarg > nargs) then
              error_code = 41
              return
           end if
@@ -144,7 +145,7 @@ contains
           iarg = iarg + 1
           call get_command_argument(iarg,arg)
           ww_file = arg
-          if( ww_file(1:1) == '-' ) then
+          if( ww_file(1:1) == '-' .or. iarg > nargs) then
              error_code = 5
              return
           end if
@@ -218,6 +219,15 @@ contains
           read(arg,*,iostat=err) lambda ! 
           if ( lambda <= 0.0) then
              error_code = 38
+             return
+          end if
+       case('--prefix')
+          ! prefix
+          iarg = iarg + 1
+          call get_command_argument(iarg,arg)
+          prefix = arg
+          if( prefix(1:1) == '-' .or. iarg > nargs) then
+             error_code = 48
              return
           end if
        case default
