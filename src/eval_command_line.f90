@@ -121,7 +121,7 @@ contains
           end select
           call read_arg(iarg,nargs,data_file,err)
           if (err == 1) then
-             write(0,*) '# ERROR # missing argument: '//trim(arg)//' <filename>'
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
              return
           end if
@@ -129,7 +129,7 @@ contains
           ! prm file
           call read_arg(iarg,nargs,prm_file,err)
           if (err == 1) then
-             write(0,*) '# ERROR # missing argument: '//trim(arg)//' <filename>'
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
              return
           end if
@@ -137,19 +137,19 @@ contains
           ! rst file
           call read_arg(iarg,nargs,rst_file,err)
           if (err == 1) then
-             write(0,*) '# ERROR # missing argument: '//trim(arg)//' <filename>'
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
              return
           end if
        case default
-          write(0,*) '# ERROR # invalid option '//trim(arg)
+          write(0,*) 'ERROR ! invalid option '//trim(arg)
           error_code = 1
           return
        end select
     end do args_loop
 
     if (prm_file /= "" .and. rst_file /= "") then
-       write(0,*) '# ERROR # either a rst or a prm file'
+       write(0,*) 'ERROR ! either a rst or a prm file'
        error_code = 1
        return
     end if
@@ -157,13 +157,13 @@ contains
     if ( prm_file /= "" ) then
        inquire( file = prm_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(0,*) '# ERROR # cannot access '//trim(prm_file)
+          write(0,*) 'ERROR ! cannot access '//trim(prm_file)
           error_code = 1
           return
        end if
        call units_open(prm_file,'old',uprm,err)
        if( err /= 0 ) then
-          write(0,*) '# ERROR # error opening file '//trim(prm_file)
+          write(0,*) 'ERROR ! error opening file '//trim(prm_file)
           error_code = 1
           return
        end if
@@ -172,39 +172,39 @@ contains
     if ( rst_file /= "" ) then
        inquire( file = rst_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(0,*) '# ERROR # cannot access '//trim(rst_file)
+          write(0,*) 'ERROR ! cannot access '//trim(rst_file)
           error_code = 1
           return
        end if
        call units_open_unf(rst_file,'old',urst,err)
        if( err /= 0 ) then
-          write(0,*) '# ERROR # error opening file '//trim(rst_file)
+          write(0,*) 'ERROR ! error opening file '//trim(rst_file)
           error_code = 1
           return
        end if
     end if
 
     if (uprm == 0 .and. urst == 0) then
-       write(0,*) '# ERROR # either a rst or a prm file'
+       write(0,*) 'ERROR ! either a rst or a prm file'
        error_code = 1
        return
     end if
 
     if( data_file == '' ) then
-       write(0,*) '# ERROR # missing datafile'
+       write(0,*) 'ERROR ! missing datafile'
        error_code = 1
        return
     else
        inquire( file = data_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(0,*) '# ERROR # cannot access '//trim(data_file)
+          write(0,*) 'ERROR ! cannot access '//trim(data_file)
           error_code = 1
           return
        end if
        ! open data file
        call units_open(data_file,'old',udata,err)
        if( err /= 0 ) then
-          write(0,*) '# ERROR # error opening file '//trim(data_file)
+          write(0,*) 'ERROR ! error opening file '//trim(data_file)
           error_code = 1
           return
        end if
