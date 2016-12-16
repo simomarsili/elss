@@ -114,7 +114,6 @@ program learn
      call read_prm_unit(uprm,nvars,nclasses,&
           prm,data_format,err)
      if (err /= 0) then
-        if (iproc == 0) call dump_error(err,'')
         call mpi_wrapper_finalize(err)
         stop
      end if
@@ -126,7 +125,6 @@ program learn
   if (urst > 0) then
      call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
-        if (iproc == 0) call dump_error(err,'')
         call mpi_wrapper_finalize(err)
         stop
      end if
@@ -139,7 +137,6 @@ program learn
        nvars,nclasses,nseqs,neff,seqs,err,err_string)
 
   if (err /= 0) then
-     if (iproc == 0) call dump_error(err,err_string)
      call mpi_wrapper_finalize(err)
      stop
   end if
