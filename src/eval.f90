@@ -14,7 +14,6 @@ program eval
   use kinds
   use constants
   use fasta,       only : fasta_read
-  use errors
   use dump,        only: read_rst,read_prm_unit,dump_energies,dump_rst
   use eval_command_line
   use units,       only: units_initialize,units_open
@@ -81,7 +80,6 @@ program eval
      call read_prm_unit(uprm,nvars,nclasses,&
           prm,data_format,err)
      if (err /= 0) then
-        if (iproc == 0) call dump_error(err,'')
         stop
      end if
      close(uprm)
@@ -92,7 +90,6 @@ program eval
   if (urst > 0) then
      call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
-        if (iproc == 0) call dump_error(err,'')
         stop
      end if
      close(urst)
@@ -106,7 +103,6 @@ program eval
           nvars,nclasses,nseqs,neff,seqs,err,err_string)
 
      if (err /= 0) then
-        if (iproc == 0) call dump_error(err,err_string)
         stop
      end if
 

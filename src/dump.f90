@@ -71,8 +71,9 @@ contains
        end if
     end do
 
-    if (trim(data_format) == 'protein' .and. nc /= 21) then 
-       error_code = 39
+    if (trim(data_format) == 'protein' .and. nc /= 21) then
+       write(0,*) 'ERROR ! in prm file, num. of classes must be 21'
+       error_code = 1
        return
     end if
 
@@ -84,7 +85,8 @@ contains
        if (allocated(prm)) then 
           ! arrays are already allocated
           ! => exit
-          error_code = 33
+          write(0,*) 'ERROR ! prm is already allocated'
+          error_code = 1
           return
        end if
        allocate(prm(nvars*nclasses + nvars*(nvars-1)*nclasses**2/2),stat=err)
@@ -94,7 +96,8 @@ contains
        if (nv /= nvars .or. nc /= nclasses ) then 
           ! n. of variables/classes are inconsistent with data
           ! => exit
-          error_code = 25
+          write(0,*) 'ERROR ! inconsistent dimensionality nvars'
+          error_code = 1
           return
        end if
     end if
@@ -109,9 +112,9 @@ contains
        case(3)
           read(line,*,iostat=err) iv,is,x
           if (err < 0) exit
-          if (err > 0) then 
-             error_code = 29
-             return
+          if (err > 0) then
+             write(0,*) 'ERROR ! reading fields in prm file'
+             error_code = 1
           end if
           index = (iv-1)*nclasses + is
           prm(index) = x
@@ -119,8 +122,9 @@ contains
           ! k = (2n-j)*(j-1)+i-j
           read(line,*,iostat=err) iv,jv,is,js,x
           if (err < 0) exit
-          if (err > 0) then 
-             error_code = 30
+          if (err > 0) then
+             write(0,*) 'ERROR ! reading couplings in prm file'
+             error_code = 1
              return
           end if
           if (jv > iv) then 
@@ -135,7 +139,8 @@ contains
           index = nvars*nclasses + (k-1)*nclasses**2 + (js-1)*nclasses + is
           prm(index) = x
        case default
-          error_code = 31
+          write(0,*) 'ERROR ! inconsistent num. of lines in prm file'
+          error_code = 1
           return
        end select
     end do
@@ -156,8 +161,9 @@ contains
 
     call units_open(filename,'unknown',unt,err)
 
-    if( err /= 0 ) then 
-       error_code = 32
+    if( err /= 0 ) then
+       write(0,*) 'ERROR ! error opening file '//trim(filename)
+       error_code = 1
        return
     end if
 
@@ -251,8 +257,9 @@ contains
     error_code = 0
 
     call units_open(filename,'unknown',unt,err)
-    if( err /= 0 ) then 
-       error_code = 32
+    if( err /= 0 ) then
+       write(0,*) 'ERROR ! error opening file '//trim(filename)
+       error_code = 1
        return
     end if
 
@@ -309,8 +316,9 @@ contains
 
     call units_open(filename,'unknown',unt,err)
 
-    if( err /= 0 ) then 
-       error_code = 32
+    if( err /= 0 ) then
+       write(0,*) 'ERROR ! error opening file '//trim(filename)
+       error_code = 1
        return
     end if
 
@@ -392,7 +400,8 @@ contains
        if (allocated(seq) .or. allocated(prm)) then 
           ! arrays are already allocated
           ! => exit
-          error_code = 33
+          write(0,*) 'ERROR ! arrays are already allocated'
+          error_code = 1
           return
        end if
        allocate(seq(nvars),stat=err)
@@ -404,7 +413,8 @@ contains
        if (nv /= nvars .or. nc /= nclasses ) then 
           ! n. of variables/classes are inconsistent with data
           ! => exit
-          error_code = 25
+          write(0,*) 'ERROR ! n. of variables/classes is inconsistent with data'
+          error_code = 1
           return
        end if
     end if
@@ -452,8 +462,9 @@ contains
     error_code = 0
 
     call units_open_unf(filename,'old',unt,err)
-    if( err /= 0 ) then 
-       error_code = 34
+    if( err /= 0 ) then
+       write(0,*) 'ERROR ! error opening file '//trim(filename)
+       error_code = 1
        return
     end if
 
@@ -502,8 +513,9 @@ contains
     error_code = 0
 
     call units_open_unf(filename,status,unt,err)
-    if( err /= 0 ) then 
-       error_code = 34
+    if( err /= 0 ) then
+       write(0,*) 'ERROR ! error opening file '//trim(filename)
+       error_code = 1
        return
     end if
 
