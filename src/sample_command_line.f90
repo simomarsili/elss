@@ -16,11 +16,55 @@ module sample_command_line
   implicit none
   private
   public :: command_line_read
-
+  character(len=1), parameter                  :: nl=achar(10)
+  character(len=long_string_size)              :: syntax = nl//& 
+       '                                       mcdca-sample (v0.3.1)                                   '//nl//&
+       '                                    ==========================                                 '//nl//&
+       nl//&
+       nl//&
+       'Option                         Description                                     (Default Value)  '//nl//&
+       '------------------------------------------------------------------------------------------------'//nl//&
+       ' (-h|--help)                   print this help message                         (None)           '//nl//&
+       nl//&
+       ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
+       '        OR'//nl//&   
+       ' (-r|--rst) <path_to_file>     restart file                                    (None)           '//nl//&   
+       nl//&
+       ' (-n|--nsweeps) <int>          num. of MC sweeps                               (0)              '//nl//&
+       nl//&
+       ' (-u|--nupdate) <int>          stride (as num. of sweeps) for averages updates (10)             '//nl//&
+       nl//&
+       ' --fasta <path_to_file>        data file (MSA format)                          (None)           '//nl//&
+       '        OR'//nl//&   
+       ' --raw <path_to_file>          data file ("raw" format)                        (None)           '//nl//&
+       !       '        OR'//nl//&   
+       !       ' --table <path_to_file>        data file ("table" format)                      (None)           '//nl//&
+       nl//&
+       ' (-w|--weights) <path_to_file> weights file                                    (None)           '//nl//&
+       nl//&
+       ' (-s|--seq) <path_to_file>     starting sequence file (SIM)                    (None)           '//nl//&
+       nl//&
+       ' --wid <float>                 %id threshold for weights calculation           (-1)             '//nl//&
+       nl//&
+       ' --learn-gd <int>              num. of gradient descent steps                  (0)              '//nl//&
+       nl//&
+       ' (--learn|--learn-agd) <int>   num. of accelerated gradient descent steps      (0)              '//nl//&
+       nl//&
+       ' (-l|--lambda) <float>         (scaled) regularization parameter               (0.01)           '//nl//&
+       nl//&
+       ' --random_seed <int>           initialize the random seed                      (0)              '//nl//&
+       '------------------------------------------------------------------------------------------------'//nl//&
+       nl//&
+       nl//&
+       '------------------------------------------------------------------------------------------------'//nl//&
+       ' For more information and usage examples, please check the project github repository:           '//nl//&
+       ' https://github.com/simomarsili/mcDCA                                                           '//nl//&
+       '------------------------------------------------------------------------------------------------'//nl//&
+       '                                                                                                    '
 contains
 
   subroutine command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
-                               error_code,error_string)
+                               error_code)
     use units, only: units_open,units_open_unf
     integer,                    intent(inout) :: uprm
     integer,                    intent(inout) :: urst
@@ -30,7 +74,6 @@ contains
     integer,                    intent(inout) :: mc_nsweeps
     integer,                    intent(inout) :: nupdate
     integer,                    intent(out)   :: error_code
-    character(len=*),           intent(out)   :: error_string
     integer                         :: err
     character(len=long_string_size) :: prm_file
     character(len=long_string_size) :: rst_file
@@ -42,7 +85,6 @@ contains
     logical                         :: file_exists
 
     error_code = 0
-    error_string = ''
 
     call get_command(cmd)
     nargs = command_argument_count()
@@ -112,7 +154,6 @@ contains
           read(arg,*,iostat=err) beta ! temperature for the run 
           if ( beta < 0.0) then
              error_code = 45
-             write(error_string,*) trim(arg)
              return
           end if
           beta = 1.0_kflt / beta 
@@ -122,7 +163,6 @@ contains
           read(arg,*,iostat=err) mc_nsweeps
           if ( err/= 0 ) then
              error_code = 10
-             write(error_string,*) trim(arg)
              return
           end if
        case('--random_seed')
@@ -131,7 +171,6 @@ contains
           read(arg,*,iostat=err) rseed
           if ( err/= 0 ) then
              error_code = 44
-             write(error_string,*) trim(arg)
              return
           end if
        case('-u','--nupdate')
@@ -140,12 +179,10 @@ contains
           read(arg,*,iostat=err) nupdate
           if ( err/= 0 .or. nupdate < 1) then
              error_code = 15
-             write(error_string,*) trim(arg)
              return
           end if
        case default
           error_code = 2
-          write(error_string,*) trim(arg)
           return
        end select
        iarg = iarg + 1
@@ -164,13 +201,11 @@ contains
     if ( prm_file /= "" ) then
        inquire( file = prm_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(error_string,*) trim(prm_file)
           error_code = 28
           return
        end if
        call units_open(prm_file,'old',uprm,err)
        if( err /= 0 ) then
-          write(error_string,*) trim(prm_file)
           error_code = 19
           return
        end if
@@ -179,13 +214,11 @@ contains
     if ( rst_file /= "" ) then
        inquire( file = rst_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(error_string,*) trim(rst_file)
           error_code = 9
           return
        end if
        call units_open_unf(rst_file,'old',urst,err)
        if( err /= 0 ) then
-          write(error_string,*) trim(rst_file)
           error_code = 19
           return
        end if
@@ -194,13 +227,11 @@ contains
     if ( seq_file /= "" ) then
        inquire( file = seq_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(error_string,*) trim(seq_file)
           error_code = 42
           return
        end if
        call units_open(seq_file,'old',useq,err)
        if( err /= 0 ) then
-          write(error_string,*) trim(seq_file)
           error_code = 19
           return
        end if
