@@ -7,12 +7,12 @@ FFLAGS = -O2 -fconvert=little-endian
 #FFLAGS = -fast -heap-arrays # ifort (important: use -heap-arrays)
 #FFLAGS = -O3 -ffast-math # gfortran
 LDFLAGS = -s 
-SRCS-learn = learn.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 learn_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90
-OBJS-learn = learn.o units.o random.o mcmc.o kinds.o data.o learn_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o
-SRCS-eval = eval.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 eval_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90
-OBJS-eval = eval.o units.o random.o mcmc.o kinds.o data.o eval_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o
-SRCS-sample = sample.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 sample_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90
-OBJS-sample = sample.o units.o random.o mcmc.o kinds.o data.o sample_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o
+SRCS-learn = learn.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 learn_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90 arguments.f90
+OBJS-learn = learn.o units.o random.o mcmc.o kinds.o data.o learn_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o arguments.o
+SRCS-eval = eval.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 eval_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90 arguments.f90
+OBJS-eval = eval.o units.o random.o mcmc.o kinds.o data.o eval_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o arguments.o
+SRCS-sample = sample.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 sample_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 errors.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90 arguments.f90
+OBJS-sample = sample.o units.o random.o mcmc.o kinds.o data.o sample_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o arguments.o
 
 all: $(EXE)
 mcdca-learn: $(OBJS-learn) 
@@ -33,6 +33,7 @@ mcdca-sample: $(OBJS-sample)
 kinds.o: kinds.f90
 mpi_wrapper.o: mpi_wrapper.f90 kinds.o #mpi
 constants.o: constants.f90
+arguments.o: arguments.f90 constants.o
 fasta.o: fasta.f90 constants.o
 parser.o: parser.f90
 units.o: units.f90 kinds.o
@@ -41,7 +42,7 @@ dump.o: dump.f90 kinds.o units.o random.o parser.o constants.o fasta.o
 cost.o: cost.f90 kinds.o
 errors.o: errors.f90 kinds.o constants.o
 learn_command_line.o: learn_command_line.f90 kinds.o units.o constants.o
-eval_command_line.o: eval_command_line.f90 kinds.o units.o constants.o
+eval_command_line.o: eval_command_line.f90 kinds.o units.o constants.o arguments.o
 sample_command_line.o: sample_command_line.f90 kinds.o units.o constants.o
 scoring.o: scoring.f90 kinds.o constants.o 
 data.o: data.f90 kinds.o parser.o constants.o fasta.o units.o 

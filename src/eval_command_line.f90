@@ -22,6 +22,7 @@ contains
   subroutine command_line_read(udata,data_format,uprm,urst,&
                                error_code,error_string)
     use units, only: units_open,units_open_unf
+    use arguments, only: read_opt,read_arg
     integer,                    intent(inout) :: udata
     character(len=*),           intent(inout) :: data_format
     integer,                    intent(inout) :: uprm
@@ -78,39 +79,54 @@ contains
           case('--fasta')
              data_format = 'protein'
           end select
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          data_file = arg
-          if( data_file(1:1) == '-' ) then
+          call read_arg(iarg,nargs,data_file,err)
+          if (err == 1) then
              error_code = 4
              return
           end if
+          !iarg = iarg + 1
+          !call get_command_argument(iarg,arg)
+          !data_file = arg
+          !if( data_file(1:1) == '-' ) then
+          !   error_code = 4
+          !   return
+          !end if
        case('-p','--prm')
           ! prm file
           if (prm_file /= "") then
              error_code = 26
              return
           end if
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          prm_file = arg
-          if( prm_file(1:1) == '-' ) then
+          call read_arg(iarg,nargs,prm_file,err)
+          if (err == 1) then
              error_code = 27
              return
           end if
+          !iarg = iarg + 1
+          !call get_command_argument(iarg,arg)
+          !prm_file = arg
+          !if( prm_file(1:1) == '-' ) then
+          !   error_code = 27
+          !   return
+          !end if
        case('-r','--rst')
           ! rst file
           if (rst_file /= "") then
              error_code = 18
              return
           end if
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          rst_file = arg
-          if( rst_file(1:1) == '-' ) then
+          call read_arg(iarg,nargs,rst_file,err)
+          if (err == 1) then
              error_code = 6
              return
           end if
+          !iarg = iarg + 1
+          !call get_command_argument(iarg,arg)
+          !rst_file = arg
+          !if( rst_file(1:1) == '-' ) then
+          !   error_code = 6
+          !   return
+          !end if
        case default
           error_code = 2
           write(error_string,*) trim(arg)
