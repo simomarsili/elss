@@ -81,12 +81,15 @@ contains
     integer                         :: iarg
     logical                         :: file_exists
 
+    error_code = 0
+
     call get_command(cmd)
     nargs = command_argument_count()
 
     if (nargs == 0) then
        ! no args: print syntax and stop
        write(0,*) trim(syntax)
+       error_code = 1
        stop
     end if
 

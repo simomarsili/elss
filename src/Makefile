@@ -43,7 +43,7 @@ cost.o: cost.f90 kinds.o
 errors.o: errors.f90 kinds.o constants.o
 learn_command_line.o: learn_command_line.f90 kinds.o units.o constants.o
 eval_command_line.o: eval_command_line.f90 kinds.o units.o constants.o arguments.o
-sample_command_line.o: sample_command_line.f90 kinds.o units.o constants.o
+sample_command_line.o: sample_command_line.f90 kinds.o units.o constants.o arguments.o
 scoring.o: scoring.f90 kinds.o constants.o 
 data.o: data.f90 kinds.o parser.o constants.o fasta.o units.o 
 averages.o: averages.f90 kinds.o

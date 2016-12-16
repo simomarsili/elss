@@ -66,6 +66,7 @@ contains
   subroutine command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
                                error_code)
     use units, only: units_open,units_open_unf
+    use arguments, only: read_opt,read_arg
     integer,                    intent(inout) :: uprm
     integer,                    intent(inout) :: urst
     integer,                    intent(inout) :: useq
@@ -89,9 +90,10 @@ contains
     call get_command(cmd)
     nargs = command_argument_count()
 
-    ! call with no args
     if (nargs == 0) then
-       error_code = -1
+       ! no args: print syntax and stop
+       write(0,*) trim(syntax)
+       error_code = 1
        return
     end if
 
@@ -100,113 +102,98 @@ contains
     rst_file = ''
     seq_file = ''
 
-    iarg = 1
-    args_loop: do while(iarg <= nargs)
-       call get_command_argument(iarg,arg)
+    iarg = 0
+    args_loop: do while(iarg < nargs)
+       call read_opt(iarg,nargs,arg,err)
        select case(trim(arg))
        case('-h','--help')
           ! print help and exit
-          iarg = iarg + 1
-          error_code = -1
+          write(0,*) trim(syntax)
+          error_code = 1
           return
        case('-p','--prm')
           ! prm file
-          if (prm_file /= "") then
-             error_code = 26
-             return
-          end if
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          prm_file = arg
-          if( prm_file(1:1) == '-' ) then
-             error_code = 27
+          call read_arg(iarg,nargs,prm_file,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
              return
           end if
        case('-r','--rst')
           ! rst file
-          if (rst_file /= "") then
-             error_code = 18
-             return
-          end if
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          rst_file = arg
-          if( rst_file(1:1) == '-' ) then
-             error_code = 6
+          call read_arg(iarg,nargs,rst_file,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
              return
           end if
        case('-s','--seq')
           ! seq file
-          if (seq_file /= "") then
-             error_code = 40
-             return
-          end if
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          seq_file = arg
-          if(seq_file(1:1) == '-') then
-             error_code = 41
+          call read_arg(iarg,nargs,seq_file,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
              return
           end if
        case('-t','--temp')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) beta ! temperature for the run 
+          call read_arg(iarg,nargs,beta,err)
           if ( beta < 0.0) then
-             error_code = 45
+             write(0,*) 'ERROR ! check beta'
+             error_code = 1
              return
           end if
           beta = 1.0_kflt / beta 
        case('-n','--nsweeps')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) mc_nsweeps
+          call read_arg(iarg,nargs,mc_nsweeps,err)
           if ( err/= 0 ) then
-             error_code = 10
+             write(0,*) 'ERROR ! check nsweeps'
+             error_code = 1
              return
           end if
        case('--random_seed')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) rseed
+          call read_arg(iarg,nargs,rseed,err)
           if ( err/= 0 ) then
-             error_code = 44
+             write(0,*) 'ERROR ! check random_seed'
+             error_code = 1
              return
           end if
        case('-u','--nupdate')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) nupdate
-          if ( err/= 0 .or. nupdate < 1) then
-             error_code = 15
+          call read_arg(iarg,nargs,nupdate,err)
+          if ( err/= 0 ) then
+             write(0,*) 'ERROR ! check nupdate'
+             error_code = 1
              return
           end if
        case default
-          error_code = 2
+          write(0,*) 'ERROR ! invalid option '//trim(arg)
+          error_code = 1
           return
        end select
-       iarg = iarg + 1
     end do args_loop
 
     if (prm_file /= "" .and. rst_file /= "") then
-       error_code = 46
+       write(0,*) 'ERROR ! either a rst or a prm file'
+       error_code = 1
        return
     end if
 
     if (prm_file == "" .and. rst_file == "") then
-       error_code = 46
+       write(0,*) 'ERROR ! either a rst or a prm file'
+       error_code = 1
        return
     end if
 
     if ( prm_file /= "" ) then
        inquire( file = prm_file, exist = file_exists )
        if ( .not. file_exists ) then
-          error_code = 28
+          write(0,*) 'ERROR ! cannot access '//trim(prm_file)
+          error_code = 1
           return
        end if
        call units_open(prm_file,'old',uprm,err)
        if( err /= 0 ) then
-          error_code = 19
+          write(0,*) 'ERROR ! error opening file '//trim(prm_file)
+          error_code = 1
           return
        end if
     end if
@@ -214,12 +201,14 @@ contains
     if ( rst_file /= "" ) then
        inquire( file = rst_file, exist = file_exists )
        if ( .not. file_exists ) then
-          error_code = 9
+          write(0,*) 'ERROR ! cannot access '//trim(rst_file)
+          error_code = 1
           return
        end if
        call units_open_unf(rst_file,'old',urst,err)
        if( err /= 0 ) then
-          error_code = 19
+          write(0,*) 'ERROR ! error opening file '//trim(rst_file)
+          error_code = 1
           return
        end if
     end if
@@ -227,12 +216,14 @@ contains
     if ( seq_file /= "" ) then
        inquire( file = seq_file, exist = file_exists )
        if ( .not. file_exists ) then
-          error_code = 42
+          write(0,*) 'ERROR ! cannot access '//trim(seq_file)
+          error_code = 1
           return
        end if
        call units_open(seq_file,'old',useq,err)
        if( err /= 0 ) then
-          error_code = 19
+          write(0,*) 'ERROR ! error opening file '//trim(seq_file)
+          error_code = 1
           return
        end if
     end if
