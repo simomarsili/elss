@@ -16,19 +16,67 @@ module eval_command_line
   implicit none
   private
   public :: command_line_read
-
+  character(len=1), parameter                  :: nl=achar(10)
+  character(len=long_string_size)              :: syntax = nl//& 
+       '                                       mcDCA (v0.3.1)                                          '//nl//&
+       '                                    ===================                                        '//nl//&
+       '                                                                                               '//nl//&
+       ' mcDCA  is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in  '//nl//&
+       ' protein sequence spaces. mcDAC can either be used to simulate a trajectory with a user-defined'//nl//&
+       ' energy function, or to infer a data-driven statistical model from a multiple sequence         '//nl//&
+       ' alignment (MSA) via maximum a posteriori (MAP) estimation. The energy function and its        '//nl//&
+       ' parameters control both the frequencies of amino acids at the different positions along the   '//nl//& 
+       ' chain and their correlations.                                                                 '//nl//& 
+       nl//&
+       nl//&
+       'Option                         Description                                     (Default Value)  '//nl//&
+       '------------------------------------------------------------------------------------------------'//nl//&
+       ' (-h|--help)                   print this help message                         (None)           '//nl//&
+       nl//&
+       ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
+       '        OR'//nl//&   
+       ' (-r|--rst) <path_to_file>     restart file                                    (None)           '//nl//&   
+       nl//&
+       ' (-n|--nsweeps) <int>          num. of MC sweeps                               (0)              '//nl//&
+       nl//&
+       ' (-u|--nupdate) <int>          stride (as num. of sweeps) for averages updates (10)             '//nl//&
+       nl//&
+       ' --fasta <path_to_file>        data file (MSA format)                          (None)           '//nl//&
+       '        OR'//nl//&   
+       ' --raw <path_to_file>          data file ("raw" format)                        (None)           '//nl//&
+!       '        OR'//nl//&   
+!       ' --table <path_to_file>        data file ("table" format)                      (None)           '//nl//&
+       nl//&
+       ' (-w|--weights) <path_to_file> weights file                                    (None)           '//nl//&
+       nl//&
+       ' (-s|--seq) <path_to_file>     starting sequence file (SIM)                    (None)           '//nl//&
+       nl//&
+       ' --wid <float>                 %id threshold for weights calculation           (-1)             '//nl//&
+       nl//&
+       ' --learn-gd <int>              num. of gradient descent steps                  (0)              '//nl//&
+       nl//&
+       ' (--learn|--learn-agd) <int>   num. of accelerated gradient descent steps      (0)              '//nl//&
+       nl//&
+       ' (-l|--lambda) <float>         (scaled) regularization parameter               (0.01)           '//nl//&
+       nl//&
+       ' --random_seed <int>           initialize the random seed                      (0)              '//nl//&
+       '------------------------------------------------------------------------------------------------'//nl//&
+       nl//&
+       nl//&
+       '------------------------------------------------------------------------------------------------'//nl//&
+       ' For more information and usage examples, please check the project github repository:           '//nl//&
+       ' https://github.com/simomarsili/mcDCA                                                           '//nl//&
+       '------------------------------------------------------------------------------------------------'//nl//&
+       '                                                                                                    '
 contains
   
-  subroutine command_line_read(udata,data_format,uprm,urst,&
-                               error_code,error_string)
+  subroutine command_line_read(udata,data_format,uprm,urst)
     use units, only: units_open,units_open_unf
     use arguments, only: read_opt,read_arg
     integer,                    intent(inout) :: udata
     character(len=*),           intent(inout) :: data_format
     integer,                    intent(inout) :: uprm
     integer,                    intent(inout) :: urst
-    integer,                    intent(out)   :: error_code
-    character(len=*),           intent(out)   :: error_string
     integer                         :: err
     character(len=long_string_size) :: data_file
     character(len=long_string_size) :: prm_file
@@ -39,16 +87,13 @@ contains
     integer                         :: iarg
     logical                         :: file_exists
 
-    error_code = 0
-    error_string = ''
-
     call get_command(cmd)
     nargs = command_argument_count()
 
-    ! call with no args
     if (nargs == 0) then
-       error_code = -1
-       return
+       ! no args: print syntax and stop
+       write(0,*) trim(syntax)
+       stop
     end if
 
     ! default 
@@ -56,151 +101,98 @@ contains
     prm_file = ''
     rst_file = ''
 
-    iarg = 1
-    args_loop: do while(iarg <= nargs)
-       call get_command_argument(iarg,arg)
+    iarg = 0
+    args_loop: do while(iarg < nargs)
+       call read_opt(iarg,nargs,arg,err)
        select case(trim(arg))
        case('-h','--help')
-          ! print help and exit
-          iarg = iarg + 1
-          error_code = -1
-          return
-       case('-i','--raw','--table','--fasta')
+          ! help: print syntax and exit
+          write(0,*) trim(syntax)
+          stop
+       case('-i','--raw','--fasta')
           ! input file
-          if ( data_file /= "" ) then
-             error_code = 16
-             return
-          end if
           select case(trim(arg))
           case('-i','--raw')
              data_format = 'raw'
-          case('--table')
-             data_format = 'table'
           case('--fasta')
              data_format = 'protein'
           end select
           call read_arg(iarg,nargs,data_file,err)
           if (err == 1) then
-             error_code = 4
-             return
+             write(0,*) 'ERROR -- missing argument: '//trim(arg)//' <filename>'
+             stop
           end if
-          !iarg = iarg + 1
-          !call get_command_argument(iarg,arg)
-          !data_file = arg
-          !if( data_file(1:1) == '-' ) then
-          !   error_code = 4
-          !   return
-          !end if
        case('-p','--prm')
           ! prm file
-          if (prm_file /= "") then
-             error_code = 26
-             return
-          end if
           call read_arg(iarg,nargs,prm_file,err)
           if (err == 1) then
-             error_code = 27
-             return
+             write(0,*) 'ERROR -- missing argument: '//trim(arg)//' <filename>'
+             stop
           end if
-          !iarg = iarg + 1
-          !call get_command_argument(iarg,arg)
-          !prm_file = arg
-          !if( prm_file(1:1) == '-' ) then
-          !   error_code = 27
-          !   return
-          !end if
        case('-r','--rst')
           ! rst file
-          if (rst_file /= "") then
-             error_code = 18
-             return
-          end if
           call read_arg(iarg,nargs,rst_file,err)
           if (err == 1) then
-             error_code = 6
-             return
+             write(0,*) 'ERROR -- missing argument: '//trim(arg)//' <filename>'
+             stop
           end if
-          !iarg = iarg + 1
-          !call get_command_argument(iarg,arg)
-          !rst_file = arg
-          !if( rst_file(1:1) == '-' ) then
-          !   error_code = 6
-          !   return
-          !end if
        case default
-          error_code = 2
-          write(error_string,*) trim(arg)
-          return
+          write(0,*) 'ERROR -- invalid option'
+          stop
        end select
-       iarg = iarg + 1
     end do args_loop
 
     if (prm_file /= "" .and. rst_file /= "") then
-       ! cannot read both rst and prm 
-       error_code = 35
-       return
+       write(0,*) 'ERROR -- either a rst or a prm file'
+       stop
     end if
 
     if ( prm_file /= "" ) then
        inquire( file = prm_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(error_string,*) trim(prm_file)
-          error_code = 28
-          return
+          write(0,*) 'ERROR -- cannot access '//trim(prm_file)
+          stop
        end if
        call units_open(prm_file,'old',uprm,err)
        if( err /= 0 ) then
-          write(error_string,*) trim(prm_file)
-          error_code = 19
-          return
+          write(0,*) 'ERROR -- error opening file '//trim(prm_file)
+          stop
        end if
     end if
 
     if ( rst_file /= "" ) then
        inquire( file = rst_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(error_string,*) trim(rst_file)
-          error_code = 9
-          return
+          write(0,*) 'ERROR -- cannot access '//trim(rst_file)
+          stop
        end if
        call units_open_unf(rst_file,'old',urst,err)
        if( err /= 0 ) then
-          write(error_string,*) trim(rst_file)
-          error_code = 19
-          return
+          write(0,*) 'ERROR -- error opening file '//trim(rst_file)
+          stop
        end if
     end if
 
     if (uprm == 0 .and. urst == 0) then
-       
-       ! SIM / EVAL need at least one between prm and rst
-       error_code = 36
-       return
-       
+       write(0,*) 'ERROR -- either a rst or a prm file'
+       stop
     end if
 
     if( data_file == '' ) then
-
-       error_code = 3
-       return
-
+       write(0,*) 'ERROR -- missing datafile'
+       stop
     else
-
        inquire( file = data_file, exist = file_exists )
        if ( .not. file_exists ) then
-          error_code = 7
-          write(error_string,*) trim(data_file)
-          return
+          write(0,*) 'ERROR -- cannot access '//trim(data_file)
+          stop
        end if
-
        ! open data file
        call units_open(data_file,'old',udata,err)
        if( err /= 0 ) then
-          error_code = 19
-          write(error_string,*) trim(data_file)
-          return
+          write(0,*) 'ERROR -- error opening file '//trim(data_file)
+          stop
        end if
-
     end if
 
   end subroutine command_line_read
