@@ -68,7 +68,8 @@ program eval
 
   !================================================ read args
 
-  call command_line_read(udata,data_format,uprm,urst)
+  call command_line_read(udata,data_format,uprm,urst,err)
+  if (err /= 0) stop
 
   !================================================ init. the random number generator
 

@@ -70,13 +70,14 @@ module eval_command_line
        '                                                                                                    '
 contains
   
-  subroutine command_line_read(udata,data_format,uprm,urst)
+  subroutine command_line_read(udata,data_format,uprm,urst,error_code)
     use units, only: units_open,units_open_unf
     use arguments, only: read_opt,read_arg
     integer,                    intent(inout) :: udata
     character(len=*),           intent(inout) :: data_format
     integer,                    intent(inout) :: uprm
     integer,                    intent(inout) :: urst
+    integer,                    intent(out)   :: error_code
     integer                         :: err
     character(len=long_string_size) :: data_file
     character(len=long_string_size) :: prm_file
@@ -108,7 +109,8 @@ contains
        case('-h','--help')
           ! help: print syntax and exit
           write(0,*) trim(syntax)
-          stop
+          error_code = 1
+          return
        case('-i','--raw','--fasta')
           ! input file
           select case(trim(arg))
@@ -119,79 +121,92 @@ contains
           end select
           call read_arg(iarg,nargs,data_file,err)
           if (err == 1) then
-             write(0,*) 'ERROR -- missing argument: '//trim(arg)//' <filename>'
-             stop
+             write(0,*) '# ERROR # missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
+             return
           end if
        case('-p','--prm')
           ! prm file
           call read_arg(iarg,nargs,prm_file,err)
           if (err == 1) then
-             write(0,*) 'ERROR -- missing argument: '//trim(arg)//' <filename>'
-             stop
+             write(0,*) '# ERROR # missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
+             return
           end if
        case('-r','--rst')
           ! rst file
           call read_arg(iarg,nargs,rst_file,err)
           if (err == 1) then
-             write(0,*) 'ERROR -- missing argument: '//trim(arg)//' <filename>'
-             stop
+             write(0,*) '# ERROR # missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
+             return
           end if
        case default
-          write(0,*) 'ERROR -- invalid option'
-          stop
+          write(0,*) '# ERROR # invalid option '//trim(arg)
+          error_code = 1
+          return
        end select
     end do args_loop
 
     if (prm_file /= "" .and. rst_file /= "") then
-       write(0,*) 'ERROR -- either a rst or a prm file'
-       stop
+       write(0,*) '# ERROR # either a rst or a prm file'
+       error_code = 1
+       return
     end if
 
     if ( prm_file /= "" ) then
        inquire( file = prm_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(0,*) 'ERROR -- cannot access '//trim(prm_file)
-          stop
+          write(0,*) '# ERROR # cannot access '//trim(prm_file)
+          error_code = 1
+          return
        end if
        call units_open(prm_file,'old',uprm,err)
        if( err /= 0 ) then
-          write(0,*) 'ERROR -- error opening file '//trim(prm_file)
-          stop
+          write(0,*) '# ERROR # error opening file '//trim(prm_file)
+          error_code = 1
+          return
        end if
     end if
 
     if ( rst_file /= "" ) then
        inquire( file = rst_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(0,*) 'ERROR -- cannot access '//trim(rst_file)
-          stop
+          write(0,*) '# ERROR # cannot access '//trim(rst_file)
+          error_code = 1
+          return
        end if
        call units_open_unf(rst_file,'old',urst,err)
        if( err /= 0 ) then
-          write(0,*) 'ERROR -- error opening file '//trim(rst_file)
-          stop
+          write(0,*) '# ERROR # error opening file '//trim(rst_file)
+          error_code = 1
+          return
        end if
     end if
 
     if (uprm == 0 .and. urst == 0) then
-       write(0,*) 'ERROR -- either a rst or a prm file'
-       stop
+       write(0,*) '# ERROR # either a rst or a prm file'
+       error_code = 1
+       return
     end if
 
     if( data_file == '' ) then
-       write(0,*) 'ERROR -- missing datafile'
-       stop
+       write(0,*) '# ERROR # missing datafile'
+       error_code = 1
+       return
     else
        inquire( file = data_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(0,*) 'ERROR -- cannot access '//trim(data_file)
-          stop
+          write(0,*) '# ERROR # cannot access '//trim(data_file)
+          error_code = 1
+          return
        end if
        ! open data file
        call units_open(data_file,'old',udata,err)
        if( err /= 0 ) then
-          write(0,*) 'ERROR -- error opening file '//trim(data_file)
-          stop
+          write(0,*) '# ERROR # error opening file '//trim(data_file)
+          error_code = 1
+          return
        end if
     end if
 
