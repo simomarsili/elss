@@ -71,7 +71,7 @@ program sample
   !================================================ read args
 
   call command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
-       err,err_string)
+       err)
 
   if (err /= 0) then
      call dump_error(err,err_string)

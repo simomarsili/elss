@@ -18,15 +18,8 @@ module eval_command_line
   public :: command_line_read
   character(len=1), parameter                  :: nl=achar(10)
   character(len=long_string_size)              :: syntax = nl//& 
-       '                                       mcDCA (v0.3.1)                                          '//nl//&
-       '                                    ===================                                        '//nl//&
-       '                                                                                               '//nl//&
-       ' mcDCA  is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in  '//nl//&
-       ' protein sequence spaces. mcDAC can either be used to simulate a trajectory with a user-defined'//nl//&
-       ' energy function, or to infer a data-driven statistical model from a multiple sequence         '//nl//&
-       ' alignment (MSA) via maximum a posteriori (MAP) estimation. The energy function and its        '//nl//&
-       ' parameters control both the frequencies of amino acids at the different positions along the   '//nl//& 
-       ' chain and their correlations.                                                                 '//nl//& 
+       '                                       mcdca-eval (v0.3.1)                                      '//nl//&
+       '                                    ========================                                    '//nl//&
        nl//&
        nl//&
        'Option                         Description                                     (Default Value)  '//nl//&
