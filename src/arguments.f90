@@ -1,3 +1,7 @@
+! Copyright (C) 2016, Simone Marsili 
+! All rights reserved.
+! License: BSD 3 clause
+
 module arguments
   use kinds
   use constants
