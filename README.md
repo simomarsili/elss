@@ -138,7 +138,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 If you are going to publish results obtained using the software, please cite the **mcsg** papers:
 
-From residue coevolution to protein conformational ensembles and functional dynamics  
-L. Sutto, S. Marsili, A. Valencia, F.L. Gervasio
+[From residue coevolution to protein conformational ensembles and functional dynamics](http://www.pnas.org/content/112/44/13567)  
+L. Sutto, S. Marsili, A. Valencia, F.L. Gervasio  
 Proceedings of the National Academy of Sciences 112(44):13567-13572 (2015)
 
