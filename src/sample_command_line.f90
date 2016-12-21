@@ -18,7 +18,7 @@ module sample_command_line
   public :: command_line_read
   character(len=1), parameter                  :: nl=achar(10)
   character(len=long_string_size)              :: syntax = nl//& 
-       '                                       mcdca-sample (v0.3.1)                                   '//nl//&
+       '                                       mcsg-sample (v0.3.1)                                    '//nl//&
        '                                    ==========================                                 '//nl//&
        nl//&
        nl//&
@@ -58,7 +58,7 @@ module sample_command_line
        nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        ' For more information and usage examples, please check the project github repository:           '//nl//&
-       ' https://github.com/simomarsili/mcDCA                                                           '//nl//&
+       ' https://github.com/simomarsili/mcsg                                                            '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        '                                                                                                    '
 contains

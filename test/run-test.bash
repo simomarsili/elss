@@ -32,13 +32,13 @@ fi
 (cd $src_dir && 
     if [ ! -f elss ]; then
 	command -v mpif90 >/dev/null 2>&1 || { echo >&2 "mpif90 is required but it's not installed.  Aborting."; exit 1; }
-	echo "compiling mcDCA..."
+	echo "compiling mcsg..."
 	make realclean; 
 	make; 
     fi
 ) &> log ;
 
-EXE=$src_dir/mcdca
+EXE=$src_dir/mcsg
 
 echo '
 ================

@@ -1,7 +1,7 @@
 #INSTALLDIR=/usr/local/bin
 INSTALLDIR=~/.local/bin
 
-EXE = mcdca-eval mcdca-sample mcdca-learn
+EXE = mcsg-eval mcsg-sample mcsg-learn
 FC = mpif90
 FFLAGS = -O2 -fconvert=little-endian
 #FFLAGS = -fast -heap-arrays # ifort (important: use -heap-arrays)
@@ -15,11 +15,11 @@ SRCS-sample = sample.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 sample
 OBJS-sample = sample.o units.o random.o mcmc.o kinds.o data.o sample_command_line.o dump.o parser.o scoring.o constants.o errors.o averages.o cost.o mpi_wrapper.o map.o fasta.o arguments.o
 
 all: $(EXE)
-mcdca-learn: $(OBJS-learn) 
+mcsg-learn: $(OBJS-learn) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-learn) $(LIBS)
-mcdca-eval: $(OBJS-eval) 
+mcsg-eval: $(OBJS-eval) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-eval) $(LIBS)
-mcdca-sample: $(OBJS-sample) 
+mcsg-sample: $(OBJS-sample) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-sample) $(LIBS)
 
 .SUFFIXES: $(SUFFIXES) .f90 .f
@@ -57,10 +57,10 @@ sample.o: sample.f90 sample_command_line.o random.o kinds.o units.o dump.o const
 
 install: $(EXE)
 	mkdir -p $(INSTALLDIR)
-	cp mcdca-* $(INSTALLDIR)
+	cp mcsg-* $(INSTALLDIR)
 
 uninstall:
-	rm -f $(INSTALLDIR)/mcdca-*
+	rm -f $(INSTALLDIR)/mcsg-*
 
 # clean: remove useless files, but keep executables
 clean:
