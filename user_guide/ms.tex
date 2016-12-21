@@ -20,7 +20,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
-\title{mcDCA v0.3.1}
+\title{mcsg v0.3.1}
 \author{
         Simone Marsili \\
         simo.marsili@gmail.com
@@ -35,14 +35,14 @@
 \section{Requirements}
 \label{sec:requirements}
 
-In order to compile \verb|mcdca|, you will need a Fortran compiler installed on your machine.   
+In order to compile \verb|mcsg|, you will need a Fortran compiler installed on your machine.   
 If you are using Debian or a Debian derivative such as Ubuntu, you can install the \verb|gfortran| compiler using the following command:
 \begin{verbatim}
 >> sudo apt-get install gfortran
 \end{verbatim}
 
 The inference algorithm works by simulating a swarm of persistent Markov chains. 
-To compile \verb|mcdca| with support for parallel runs on a distributed-memory architecture,
+To compile \verb|mcsg| with support for parallel runs on a distributed-memory architecture,
 you will need a valid MPI implementation installed on your machine. 
 The code has been tested and is known to work with the latest versions of both OpenMPI and MPICH.   
 OpenMPI (recommended) can be installed on Debian derivatives typing:
@@ -63,8 +63,8 @@ From a Unix terminal, type \verb|make| in the \verb|src| directory:
 >> make
 \end{verbatim}
 After compiling, you should see these binary files in the \verb|src| directory:\\
-\verb|mcdca-learn|, \verb|mcdca-eval| and \verb|mcdca-sample|. \\
-To install the binaries mcDCA in \verb|/usr/local/bin|, type:
+\verb|mcsg-learn|, \verb|mcsg-eval| and \verb|mcsg-sample|. \\
+To install the binaries mcsg in \verb|/usr/local/bin|, type:
 \begin{verbatim}
 >> make install
 \end{verbatim}
@@ -75,12 +75,12 @@ e.g. :
 >> make install INSTALLDIR=$HOME/.local/bin
 \end{verbatim}
 
-\section{mcdca-learn}
-\label{sec:mcdca-learn}
+\section{mcsg-learn}
+\label{sec:mcsg-learn}
 Starting from a MSA file in FASTA format, \verb|msa.fa|, the maximum likelihood parameters of a pairwise model for the sequence distribution
-can be computed using \verb|mcdca-learn|, that implements the \verb|mcdca| routines for statistical inference.
+can be computed using \verb|mcsg-learn|, that implements the \verb|mcsg| routines for statistical inference.
 \begin{verbatim}
->> mcdca-learn --fasta msa.fa --learn-agd 100 --nsweeps 1000 --lambda 0.01
+>> mcsg-learn --fasta msa.fa --learn-agd 100 --nsweeps 1000 --lambda 0.01
 \end{verbatim}
 \begin{itemize}
 \item \verb|--fasta msa.fa|: read sequences from file \verb|msa.fa|
@@ -90,22 +90,22 @@ can be computed using \verb|mcdca-learn|, that implements the \verb|mcdca| routi
 \end{itemize}
 
 
-The most simple way to run \verb|mcdca-learn| is to use the default values for the parameters of the run:
+The most simple way to run \verb|mcsg-learn| is to use the default values for the parameters of the run:
 \begin{verbatim}
->> mcdca-learn --fasta msa.fa
+>> mcsg-learn --fasta msa.fa
 \end{verbatim}
 To increase the accuracy in gradient estimation (without simulating longer Markov chains in sequence space)
 \begin{verbatim}
->> mpiexec -n 4 mcdca-learn --nsweeps $NS --fasta msa.fa --learn-agd $NITER --lambda 0.01
+>> mpiexec -n 4 mcsg-learn --nsweeps $NS --fasta msa.fa --learn-agd $NITER --lambda 0.01
 \end{verbatim}
 From a Unix terminal, type \verb|make| in the \verb|src| directory:
 
-\section{mcdca-eval}
-\label{sec:mcdca-eval}
+\section{mcsg-eval}
+\label{sec:mcsg-eval}
 From a Unix terminal, type \verb|make| in the \verb|src| directory:
 
-\section{mcdca-sample}
-\label{sec:mcdca-sample}
+\section{mcsg-sample}
+\label{sec:mcsg-sample}
 From a Unix terminal, type \verb|make| in the \verb|src| directory:
 
 \section{System Model}
