@@ -22,20 +22,16 @@ module learn_command_line
        '        OR'//nl//&   
        ' (-r|--rst) <path_to_file>     restart file                                    (None)           '//nl//&   
        nl//&
-       ' (-n|--nsweeps) <int>          num. of MC sweeps                               (0)              '//nl//&
+       ' (-n|--nsweeps) <int>          num. of MC sweeps per gradient estimate         (0)              '//nl//&
        nl//&
        ' (-u|--nupdate) <int>          stride (as num. of sweeps) for averages updates (10)             '//nl//&
        nl//&
        ' --fasta <path_to_file>        data file (MSA format)                          (None)           '//nl//&
        '        OR'//nl//&   
        ' --raw <path_to_file>          data file ("raw" format)                        (None)           '//nl//&
-       !       '        OR'//nl//&   
-       !       ' --table <path_to_file>        data file ("table" format)                      (None)           '//nl//&
        nl//&
        ' (-w|--weights) <path_to_file> weights file                                    (None)           '//nl//&
-       nl//&
-       ' (-s|--seq) <path_to_file>     starting sequence file (SIM)                    (None)           '//nl//&
-       nl//&
+       '        OR'//nl//&   
        ' --wid <float>                 %id threshold for weights calculation           (-1)             '//nl//&
        nl//&
        ' --learn-gd <int>              num. of gradient descent steps                  (0)              '//nl//&
@@ -44,12 +40,10 @@ module learn_command_line
        nl//&
        ' (-l|--lambda) <float>         (scaled) regularization parameter               (0.01)           '//nl//&
        nl//&
-       ' --random_seed <int>           initialize the random seed                      (0)              '//nl//&
+       ' --random_seed <int>           init. the random seed (if 0, use system_clock)  (0)              '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
-       nl//&
-       nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
-       ' For more information and usage examples, please check the project github repository:           '//nl//&
+       ' For more information and examples, please check the project github repository:                 '//nl//&
        ' https://github.com/simomarsili/mcsg                                                            '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        '                                                                                                    '
