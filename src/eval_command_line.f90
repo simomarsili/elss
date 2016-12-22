@@ -16,35 +16,14 @@ module eval_command_line
        nl//&
        'Option                         Description                                     (Default Value)  '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
-       ' (-h|--help)                   print this help message                         (None)           '//nl//&
-       nl//&
        ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
        '        OR'//nl//&   
        ' (-r|--rst) <path_to_file>     restart file                                    (None)           '//nl//&   
        nl//&
-       ' (-n|--nsweeps) <int>          num. of MC sweeps                               (0)              '//nl//&
+       ' --fasta <path_to_file>        MSA file (FASTA format)                         (None)           '//nl//&
        nl//&
-       ' (-u|--nupdate) <int>          stride (as num. of sweeps) for averages updates (10)             '//nl//&
        nl//&
-       ' --fasta <path_to_file>        data file (MSA format)                          (None)           '//nl//&
-       '        OR'//nl//&   
-       ' --raw <path_to_file>          data file ("raw" format)                        (None)           '//nl//&
-!       '        OR'//nl//&   
-!       ' --table <path_to_file>        data file ("table" format)                      (None)           '//nl//&
-       nl//&
-       ' (-w|--weights) <path_to_file> weights file                                    (None)           '//nl//&
-       nl//&
-       ' (-s|--seq) <path_to_file>     starting sequence file (SIM)                    (None)           '//nl//&
-       nl//&
-       ' --wid <float>                 %id threshold for weights calculation           (-1)             '//nl//&
-       nl//&
-       ' --learn-gd <int>              num. of gradient descent steps                  (0)              '//nl//&
-       nl//&
-       ' (--learn|--learn-agd) <int>   num. of accelerated gradient descent steps      (0)              '//nl//&
-       nl//&
-       ' (-l|--lambda) <float>         (scaled) regularization parameter               (0.01)           '//nl//&
-       nl//&
-       ' --random_seed <int>           initialize the random seed                      (0)              '//nl//&
+       ' (-h|--help)                   print this help message                         (None)           '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        nl//&
        nl//&

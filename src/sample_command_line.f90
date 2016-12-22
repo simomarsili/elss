@@ -16,11 +16,12 @@ module sample_command_line
        nl//&
        'Option                         Description                                     (Default Value)  '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
-       ' (-h|--help)                   print this help message                         (None)           '//nl//&
-       nl//&
        ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
        '        OR'//nl//&   
        ' (-r|--rst) <path_to_file>     restart file                                    (None)           '//nl//&   
+       nl//&
+       nl//&
+       ' (-h|--help)                   print this help message                         (None)           '//nl//&
        nl//&
        ' (-n|--nsweeps) <int>          num. of MC sweeps                               (1000)           '//nl//&
        nl//&
