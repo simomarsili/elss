@@ -23,6 +23,8 @@ module sample_command_line
        nl//&
        ' (-h|--help)                   print this help message                         (None)           '//nl//&
        nl//&
+       ' --prefix                      prefix for output files                         (None)           '//nl//&
+       nl//&
        ' (-n|--nsweeps) <int>          num. of MC sweeps                               (1000)           '//nl//&
        nl//&
        ' (-u|--nupdate) <int>          stride (as num. of sweeps) for averages updates (10)             '//nl//&
