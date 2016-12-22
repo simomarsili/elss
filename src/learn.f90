@@ -214,106 +214,35 @@ program learn
   dim1 = nvars * nclasses
   dim2 = nvars * (nvars - 1) * nclasses**2 / 2
 
-  select case(trim(mode))
 
-  case('EVAL')
-
-     write(filename,*) iproc
-     call units_open(trim(adjustl(filename))//'.ene','unknown',uene,err)
-     if(err /= 0) then
-        if (iproc == 0) write(0,*) "error opening file ", trim(adjustl(filename))//'.ene'
-        call mpi_wrapper_finalize(err)
-        stop
-     end if
-
-     do j = 1,nseqs
-        call mcmc_compute_energy(nvars,nclasses,seqs(:,j),prm(1:dim1),prm(dim1+1:dim1+dim2),efields,ecouplings,etot)
-        call dump_energies(uene,etot,efields,ecouplings)
-     end do
-
-  case('SIM')
-
-     !================================================ run a simulation
-
-     if (useq > 0) then
-        ! read starting sequence (NB: overwrite rst)
-        select case (trim(data_format))
-        case('raw')
-           read(useq,*) seq
-        case('protein')
-           call fasta_read(useq,seqs0,err,err_string)
-           if (err > 0) then
-              if (iproc == 0) write(0,*) 'ERROR ! cannot read from seq'
-              call mpi_wrapper_finalize(err)
-              stop
-           end if
-           seq = seqs0(:,1)
-        end select
-     else if (urst == 0) then
-        ! if no restart, generate a random seq
-        allocate(seq(nvars),stat=err)
-        allocate(seqs_table(nvars,nproc),stat=err)
-        seq = 0
-        seqs_table = 0
-        call random_seq(nvars,nclasses,seq)
-     end if
-
-     write(filename,*) iproc
-     call units_open(trim(adjustl(filename))//'.trj','unknown',utrj,err)
-     if(err /= 0) then
-        if (iproc == 0) write(0,*) "error opening file ", trim(adjustl(filename))//'.trj'
-        call mpi_wrapper_finalize(err)
-        stop
-     end if
-
-     hot_start = .false.
-     call mcmc_simulate(nvars,nclasses,seq,&
-          prm(1:dim1),prm(dim1+1:dim1+dim2),data_format,&
-          fmodel(1:dim1),fmodel(dim1+1:dim1+dim2),&
-          beta,mc_nsweeps,hot_start,nupdate,utrj,facc)
-
-     seqs_table(:,iproc+1) = seq
-     CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
-
-     ! dump a rst
-     call dump_rst('rst','replace',data_format,nvars,nclasses,nproc,seqs_table,prm,err)
-     if( err /= 0 ) then
-        if ( iproc == 0 ) write(0,*) "ERROR ! opening file rst", err
-        call mpi_wrapper_finalize(err)
-        stop
-     end if
-
-  case('LEARN')
-
-     !================================================ allocate memory for map algorithm
-
-     allocate(fdata(dim1+dim2),stat=err)
-     allocate(scores(nvars,nvars),stat=err)
-     fdata = 0.0_kflt
-     scores = 0.0_kflt
-
-     !================================================ compute frequency from data
-
-     call data_average(nvars,nclasses,nseqs,neff,seqs,fdata(1:dim1),fdata(dim1+1:dim1+dim2))
-
-     !================================================ maximum a posteriori estimate of parameters
-
-     ! inv. temperature for MAP estimation is set to 1
-     call map_learn(nvars,nclasses,niter_agd,niter_gd,lambda,mc_nsweeps,&
-          1.0_kflt,nupdate,data_format,ulog,fdata,seq,seqs_table,prm,fmodel)
-
-     !================================================ compute and print scores
-
-     !     call gauge(nvars,nclasses,prm(1:dim1),prm(dim1+1:dim1+dim2))
-
-     !     call compute_scores(nvars,nclasses,prm(dim1+1:dim1+dim2),scores)
-
-     !     if ( iproc == 0 ) call print_scores(nvars,scores)
-
-  end select
-
+  !================================================ allocate memory for map algorithm
+  
+  allocate(fdata(dim1+dim2),stat=err)
+  allocate(scores(nvars,nvars),stat=err)
+  fdata = 0.0_kflt
+  scores = 0.0_kflt
+  
+  !================================================ compute averages from data
+  
+  call data_average(nvars,nclasses,nseqs,neff,seqs,fdata(1:dim1),fdata(dim1+1:dim1+dim2))
+  
+  !================================================ maximum a posteriori estimate of parameters
+  
+  ! inv. temperature for MAP estimation is set to 1
+  call map_learn(nvars,nclasses,niter_agd,niter_gd,lambda,mc_nsweeps,&
+       1.0_kflt,nupdate,data_format,ulog,fdata,seq,seqs_table,prm,fmodel)
+  
+  !================================================ compute and print scores
+  
+  !     call gauge(nvars,nclasses,prm(1:dim1),prm(dim1+1:dim1+dim2))
+  
+  !     call compute_scores(nvars,nclasses,prm(dim1+1:dim1+dim2),scores)
+  
+  !     if ( iproc == 0 ) call print_scores(nvars,scores)
+  
+  
   !================================================ finalize mpi
-
+  
   call mpi_wrapper_finalize(err)
 
 end program learn
