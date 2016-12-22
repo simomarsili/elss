@@ -100,10 +100,10 @@ program eval
 
      !================================================ allocate memory for the run and initialize
 
+     dim1 = nvars * nclasses
+     dim2 = nvars * (nvars - 1) * nclasses**2 / 2
      if (uprm == 0 .and. urst == 0) then
 
-        dim1 = nvars * nclasses
-        dim2 = nvars * (nvars - 1) * nclasses**2 / 2
         allocate(seq(nvars),stat=err)
         allocate(prm(dim1+dim2),stat=err)
         seq = 0
@@ -146,9 +146,6 @@ program eval
      write(ulog,'(a)')         '#==========================================='
      write(ulog,'(a)')         '#'
   end if
-
-  dim1 = nvars * nclasses
-  dim2 = nvars * (nvars - 1) * nclasses**2 / 2
 
   write(filename,*) iproc
   call units_open(trim(adjustl(filename))//'.ene','unknown',uene,err)
