@@ -21,6 +21,8 @@ module learn_command_line
        nl//&
        ' (-h|--help)                   print this help message                         (None)           '//nl//&
        nl//&
+       ' --prefix                      prefix for output files                         (None)           '//nl//&
+       nl//&
        ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
        '        OR'//nl//&   
        ' (-r|--rst) <path_to_file>     restart file                                    (None)           '//nl//&   
