@@ -64,10 +64,10 @@ program learn
   wid = -1
   uprm = 0
   urst = 0
-  mc_nsweeps = 0
+  mc_nsweeps = 1000
   nupdate = 10
   niter_gd = 0
-  niter_agd = 0
+  niter_agd = 2000
   lambda = 0.01_kflt
   mode = 'LEARN'
   rseed = 0
