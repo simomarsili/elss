@@ -16,6 +16,9 @@ module learn_command_line
        nl//&
        'Option                         Description                                     (Default Value)  '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
+       ' --fasta <path_to_file>        MSA file (FASTA format)                         (None)           '//nl//&
+       nl//&
+       nl//&
        ' (-h|--help)                   print this help message                         (None)           '//nl//&
        nl//&
        ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
@@ -26,7 +29,7 @@ module learn_command_line
        nl//&
        ' (-u|--nupdate) <int>          stride (as num. of sweeps) for averages updates (10)             '//nl//&
        nl//&
-       ' --fasta <path_to_file>        data file (MSA format)                          (None)           '//nl//&
+       ' --fasta <path_to_file>        MSA file (FASTA format)                         (None)           '//nl//&
        nl//&
        ' (-w|--weights) <path_to_file> weights file                                    (None)           '//nl//&
        '        OR'//nl//&   
