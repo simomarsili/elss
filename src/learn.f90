@@ -84,10 +84,9 @@ program learn
 
   call command_line_read(udata,data_format,uwgt,&
        wid,uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
-       niter_gd,lambda,prefix,err,err_string)
+       niter_gd,lambda,prefix,err)
   
   if (err /= 0) then
-     call mpi_wrapper_finalize(err)
      stop
   end if
 

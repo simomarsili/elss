@@ -41,7 +41,7 @@ random.o: random.f90 kinds.o
 dump.o: dump.f90 kinds.o units.o random.o parser.o constants.o fasta.o
 cost.o: cost.f90 kinds.o
 errors.o: errors.f90 kinds.o constants.o
-learn_command_line.o: learn_command_line.f90 kinds.o units.o constants.o
+learn_command_line.o: learn_command_line.f90 kinds.o units.o constants.o arguments.o
 eval_command_line.o: eval_command_line.f90 kinds.o units.o constants.o arguments.o
 sample_command_line.o: sample_command_line.f90 kinds.o units.o constants.o arguments.o
 scoring.o: scoring.f90 kinds.o constants.o 
