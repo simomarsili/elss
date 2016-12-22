@@ -22,7 +22,7 @@ module learn_command_line
        '        OR'//nl//&   
        ' (-r|--rst) <path_to_file>     restart file                                    (None)           '//nl//&   
        nl//&
-       ' (-n|--nsweeps) <int>          num. of MC sweeps per gradient estimate         (0)              '//nl//&
+       ' (-n|--nsweeps) <int>          num. of MC sweeps per gradient estimate         (1000)           '//nl//&
        nl//&
        ' (-u|--nupdate) <int>          stride (as num. of sweeps) for averages updates (10)             '//nl//&
        nl//&
@@ -100,7 +100,8 @@ contains
     ww_file = ''
     prm_file = ''
     rst_file = ''
-
+    mc_nsweeps = 1000
+    
     iarg = 0
     args_loop: do while(iarg < nargs)
        call read_opt(iarg,nargs,arg,err)
