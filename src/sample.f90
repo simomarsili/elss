@@ -48,7 +48,7 @@ program sample
   uprm = 0
   urst = 0
   useq = 0
-  mc_nsweeps = 0
+  mc_nsweeps = 1000
   nupdate = 10
   mode = 'SAMPLE'
   rseed = 0
