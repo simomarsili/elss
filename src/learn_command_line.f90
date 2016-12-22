@@ -27,8 +27,6 @@ module learn_command_line
        ' (-u|--nupdate) <int>          stride (as num. of sweeps) for averages updates (10)             '//nl//&
        nl//&
        ' --fasta <path_to_file>        data file (MSA format)                          (None)           '//nl//&
-       '        OR'//nl//&   
-       ' --raw <path_to_file>          data file ("raw" format)                        (None)           '//nl//&
        nl//&
        ' (-w|--weights) <path_to_file> weights file                                    (None)           '//nl//&
        '        OR'//nl//&   
@@ -36,7 +34,7 @@ module learn_command_line
        nl//&
        ' --learn-gd <int>              num. of gradient descent steps                  (0)              '//nl//&
        nl//&
-       ' (--learn|--learn-agd) <int>   num. of accelerated gradient descent steps      (0)              '//nl//&
+       ' (--learn|--learn-agd) <int>   num. of accelerated gradient descent steps      (2000)           '//nl//&
        nl//&
        ' (-l|--lambda) <float>         (scaled) regularization parameter               (0.01)           '//nl//&
        nl//&
@@ -95,12 +93,11 @@ contains
        return
     end if
 
-    ! default 
+    ! initialize filenames
     data_file = ''
     ww_file = ''
     prm_file = ''
     rst_file = ''
-    mc_nsweeps = 1000
     
     iarg = 0
     args_loop: do while(iarg < nargs)
@@ -111,13 +108,11 @@ contains
           write(0,*) trim(syntax)
           error_code = 1
           return
-       case('-i','--raw','--table','--fasta')
+       case('-i','--raw','--fasta')
           ! input file
           select case(trim(arg))
           case('-i','--raw')
              data_format = 'raw'
-          case('--table')
-             data_format = 'table'
           case('--fasta')
              data_format = 'protein'
           end select
