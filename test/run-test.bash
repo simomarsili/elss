@@ -52,7 +52,7 @@ command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's n
 
 echo "estimating model parameters... (dump: rst,prm,LEARN.log)"
 #mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DATA --learn-agd $NITER --random_seed 123 --lambda 0.01>> log 2>&1;
-mpiexec -n $NPROC $EXE\-learn --nsweeps $NS --fasta $DATA --learn-agd $NITER --random_seed 123 --lambda 0.01>> log 2>&1;
+mpiexec -n $NPROC $EXE\-learn --fasta $DATA --learn-agd $NITER --random_seed 123 --lambda 0.01>> log 2>&1;
 
 echo "sampling sequences from the model distribution...(dumps: 0.trj,SIM.log)"
 #$EXE -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1;
