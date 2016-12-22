@@ -30,6 +30,8 @@ mcsg-sample: $(OBJS-sample)
 .f90.o:
 	$(FC) $(FFLAGS) -c $<
 
+%.o: %.mod
+
 kinds.o: kinds.f90
 mpi_wrapper.o: mpi_wrapper.f90 kinds.o #mpi
 constants.o: constants.f90
