@@ -6,7 +6,6 @@ program learn
   use kinds
   use constants
   use fasta,       only : fasta_read
-  use errors
   use mpi_wrapper
   use dump,        only: read_rst,read_prm_unit,dump_energies,dump_rst
   use learn_command_line
@@ -88,7 +87,7 @@ program learn
        niter_gd,lambda,prefix,err,err_string)
   
   if (err /= 0) then
-     call dump_error(err,err_string)
+     call mpi_wrapper_finalize(err)
      stop
   end if
 
@@ -242,7 +241,7 @@ program learn
         case('protein')
            call fasta_read(useq,seqs0,err,err_string)
            if (err > 0) then
-              if (iproc == 0) call dump_error(err,err_string)
+              if (iproc == 0) write(0,*) 'ERROR ! cannot read from seq'
               call mpi_wrapper_finalize(err)
               stop
            end if
@@ -277,7 +276,7 @@ program learn
      ! dump a rst
      call dump_rst('rst','replace',data_format,nvars,nclasses,nproc,seqs_table,prm,err)
      if( err /= 0 ) then
-        if ( iproc == 0 ) write(0,*) "error opening file rst", err
+        if ( iproc == 0 ) write(0,*) "ERROR ! opening file rst", err
         call mpi_wrapper_finalize(err)
         stop
      end if
