@@ -58,8 +58,9 @@ contains
 
   subroutine command_line_read(udata,data_format,uwgt,wid,uprm,urst,useq,&
                                rseed,beta,mc_nsweeps,nupdate,niter_agd,niter_gd,&
-                               lambda,prefix,error_code,error_string)
+                               lambda,prefix,error_code)
     use units, only: units_open,units_open_unf
+    use arguments, only: read_opt,read_arg
     integer,                    intent(inout) :: udata
     character(len=*),           intent(inout) :: data_format
     integer,                    intent(inout) :: uwgt
@@ -76,7 +77,6 @@ contains
     real(kflt),                 intent(inout) :: lambda
     character(len=*),           intent(out) :: prefix
     integer,                    intent(out) :: error_code
-    character(len=*),           intent(out) :: error_string
     integer                         :: err
     character(len=long_string_size) :: data_file
     character(len=long_string_size) :: ww_file
@@ -90,14 +90,14 @@ contains
     logical                         :: file_exists
 
     error_code = 0
-    error_string = ''
 
     call get_command(cmd)
     nargs = command_argument_count()
 
-    ! call with no args
     if (nargs == 0) then
-       error_code = -1
+       ! no args: print syntax and stop
+       write(0,*) trim(syntax)
+       error_code = 1
        return
     end if
 
@@ -108,21 +108,17 @@ contains
     rst_file = ''
     seq_file = ''
 
-    iarg = 1
-    args_loop: do while(iarg <= nargs)
-       call get_command_argument(iarg,arg)
+    iarg = 0
+    args_loop: do while(iarg < nargs)
+       call read_opt(iarg,nargs,arg,err)
        select case(trim(arg))
        case('-h','--help')
           ! print help and exit
-          iarg = iarg + 1
-          error_code = -1
+          write(0,*) trim(syntax)
+          error_code = 1
           return
        case('-i','--raw','--table','--fasta')
           ! input file
-          if ( data_file /= "" ) then
-             error_code = 16
-             return
-          end if
           select case(trim(arg))
           case('-i','--raw')
              data_format = 'raw'
@@ -131,166 +127,157 @@ contains
           case('--fasta')
              data_format = 'protein'
           end select
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          data_file = arg
-          if( data_file(1:1) == '-' .or. iarg > nargs) then
-             error_code = 4
+          call read_arg(iarg,nargs,data_file,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
              return
           end if
        case('-p','--prm')
           ! prm file
-          if (prm_file /= "") then
-             error_code = 26
-             return
-          end if
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          prm_file = arg
-          if( prm_file(1:1) == '-' .or. iarg > nargs) then
-             error_code = 27
+          call read_arg(iarg,nargs,prm_file,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
              return
           end if
        case('-r','--rst')
           ! rst file
-          if (rst_file /= "") then
-             error_code = 18
-             return
-          end if
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          rst_file = arg
-          if( rst_file(1:1) == '-' .or. iarg > nargs) then
-             error_code = 6
+          call read_arg(iarg,nargs,rst_file,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
              return
           end if
        case('-s','--seq')
           ! seq file
-          if (seq_file /= "") then
-             error_code = 40
-             return
-          end if
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          seq_file = arg
-          if(seq_file(1:1) == '-' .or. iarg > nargs) then
-             error_code = 41
+          call read_arg(iarg,nargs,seq_file,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
              return
           end if
        case('-w','--weights')
-          ! input file
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          ww_file = arg
-          if( ww_file(1:1) == '-' .or. iarg > nargs) then
-             error_code = 5
+          ! ww file
+          call read_arg(iarg,nargs,ww_file,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
              return
           end if
        case('--wid')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) wid ! wid threshold for reweighting
+          ! identity threshold for reweighting
+          call read_arg(iarg,nargs,wid,err)
+          if ( err/= 0 ) then
+             write(0,*) 'ERROR ! check wid threshold'
+             error_code = 1
+             return
+          end if
           if ( wid < 0.0 .or. wid > 100.0 ) then
-             error_code = 13
-             write(error_string,*) trim(arg)
+             write(0,*) 'ERROR ! wid must be > 0 and < 100'
+             error_code = 1
              return
           end if
        case('-t','--temp')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) beta ! temperature for the run 
-          if ( beta < 0.0) then
-             error_code = 45
-             write(error_string,*) trim(arg)
+          ! temperature for the run
+          call read_arg(iarg,nargs,beta,err)
+          if ( err/= 0 ) then
+             write(0,*) 'ERROR ! check temperature'
+             error_code = 1
+             return
+          end if
+          if ( beta <= 0.0 ) then
+             write(0,*) 'ERROR ! temperature must be > 0'
+             error_code = 1
              return
           end if
           beta = 1.0_kflt / beta 
        case('-n','--nsweeps')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) mc_nsweeps
+          ! num. of sweeps at each gradient evaluation
+          call read_arg(iarg,nargs,mc_nsweeps,err)
           if ( err/= 0 ) then
-             error_code = 10
-             write(error_string,*) trim(arg)
+             write(0,*) 'ERROR ! check nsweeps'
+             error_code = 1
+             return
+          end if
+          if ( mc_nsweeps <= 0 ) then
+             write(0,*) 'ERROR ! nsweeps must be > 0'
+             error_code = 1
              return
           end if
        case('--random_seed')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) rseed
+          call read_arg(iarg,nargs,rseed,err)
           if ( err/= 0 ) then
-             error_code = 44
-             write(error_string,*) trim(arg)
+             write(0,*) 'ERROR ! check random_seed'
+             error_code = 1
              return
           end if
        case('-u','--nupdate')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) nupdate
-          if ( err/= 0 .or. nupdate < 1) then
-             error_code = 15
-             write(error_string,*) trim(arg)
+          call read_arg(iarg,nargs,nupdate,err)
+          if ( err/= 0 ) then
+             write(0,*) 'ERROR ! check nupdate'
+             error_code = 1
              return
           end if
        case('--learn','--learn-agd')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) niter_agd
+          call read_arg(iarg,nargs,niter_agd,err)
           if ( err/= 0 ) then
-             error_code = 11
-             write(error_string,*) trim(arg)
+             write(0,*) 'ERROR ! check nupdate'
+             error_code = 1
              return
           end if
        case('--learn-gd')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) niter_gd
+          call read_arg(iarg,nargs,niter_gd,err)
           if ( err/= 0 ) then
-             error_code = 12
-             write(error_string,*) trim(arg)
+             write(0,*) 'ERROR ! check nupdate'
+             error_code = 1
              return
           end if
        case('-l','--lambda')
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          read(arg,*,iostat=err) lambda ! 
-          if ( lambda <= 0.0) then
-             error_code = 38
+          ! regularization parameter
+          call read_arg(iarg,nargs,lambda,err)
+          if ( err/= 0 ) then
+             write(0,*) 'ERROR ! check lambda'
+             error_code = 1
+             return
+          end if
+          if ( lambda <= 0.0 ) then
+             write(0,*) 'ERROR ! lambda must be > 0'
+             error_code = 1
              return
           end if
        case('--prefix')
           ! prefix
-          iarg = iarg + 1
-          call get_command_argument(iarg,arg)
-          prefix = arg
-          if( prefix(1:1) == '-' .or. iarg > nargs) then
-             error_code = 48
+          call read_arg(iarg,nargs,prefix,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <prefix>'
+             error_code = 1
              return
           end if
        case default
-          error_code = 2
-          write(error_string,*) trim(arg)
+          write(0,*) 'ERROR ! invalid option '//trim(arg)
+          error_code = 1
           return
        end select
-       iarg = iarg + 1
     end do args_loop
 
     if (prm_file /= "" .and. rst_file /= "") then
-       error_code = 47
+       write(0,*) 'ERROR ! either a rst or a prm file'
+       error_code = 1
        return
-    end if
+    end if    
 
     if ( prm_file /= "" ) then
        inquire( file = prm_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(error_string,*) trim(prm_file)
-          error_code = 28
+          write(0,*) 'ERROR ! cannot access '//trim(prm_file)
+          error_code = 1
           return
        end if
        call units_open(prm_file,'old',uprm,err)
        if( err /= 0 ) then
-          write(error_string,*) trim(prm_file)
-          error_code = 19
+          write(0,*) 'ERROR ! error opening file '//trim(prm_file)
+          error_code = 1
           return
        end if
     end if
@@ -298,14 +285,14 @@ contains
     if ( rst_file /= "" ) then
        inquire( file = rst_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(error_string,*) trim(rst_file)
-          error_code = 9
+          write(0,*) 'ERROR ! cannot access '//trim(rst_file)
+          error_code = 1
           return
        end if
        call units_open_unf(rst_file,'old',urst,err)
        if( err /= 0 ) then
-          write(error_string,*) trim(rst_file)
-          error_code = 19
+          write(0,*) 'ERROR ! error opening file '//trim(rst_file)
+          error_code = 1
           return
        end if
     end if
@@ -313,63 +300,59 @@ contains
     if ( seq_file /= "" ) then
        inquire( file = seq_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(error_string,*) trim(seq_file)
-          error_code = 42
+          write(0,*) 'ERROR ! cannot access '//trim(seq_file)
+          error_code = 1
           return
        end if
        call units_open(seq_file,'old',useq,err)
        if( err /= 0 ) then
-          write(error_string,*) trim(seq_file)
-          error_code = 19
+          write(0,*) 'ERROR ! error opening file '//trim(seq_file)
+          error_code = 1
           return
        end if
     end if
 
-    if ( mc_nsweeps <= 0 ) then
-       error_code = 10
-       write(error_string,*) mc_nsweeps
-       return
-    end if
-    
     if ( ww_file /= "" ) then
        inquire( file = ww_file, exist = file_exists )
        if ( .not. file_exists ) then
-          error_code = 8
-          write(error_string,*) trim(ww_file)
+          write(0,*) 'ERROR ! cannot access '//trim(ww_file)
+          error_code = 1
           return
        end if
        call units_open(ww_file,'old',uwgt,err)
        if( err /= 0 ) then
-          error_code = 19
-          write(error_string,*) trim(ww_file)
+          write(0,*) 'ERROR ! error opening file '//trim(ww_file)
+          error_code = 1
           return
        end if
     end if
     
     if ( uwgt > 0 .and. wid >= 0.0_kflt ) then
-       error_code = 14
+       write(0,*) 'ERROR ! computing and reading weights at the same time'
+       error_code = 1
        return
     end if
 
     if( data_file == '' ) then
 
-       error_code = 3
+       write(0,*) 'ERROR ! a data file is needed'
+       error_code = 1
        return
 
     else
 
        inquire( file = data_file, exist = file_exists )
        if ( .not. file_exists ) then
-          error_code = 7
-          write(error_string,*) trim(data_file)
+          write(0,*) 'ERROR ! cannot access '//trim(data_file)
+          error_code = 1
           return
        end if
        
        ! open data file
        call units_open(data_file,'old',udata,err)
        if( err /= 0 ) then
-          error_code = 19
-          write(error_string,*) trim(data_file)
+          write(0,*) 'ERROR ! error opening file '//trim(data_file)
+          error_code = 1
           return
        end if
        
