@@ -35,7 +35,6 @@ program learn
   real(kflt)                     :: wid          ! %id for weights calculation
   integer                        :: uprm         ! prm unit
   integer                        :: urst         ! rst unit
-  integer                        :: useq         ! seq unit
   integer                        :: mc_nsweeps   ! number of MC sweeps per gradient estimate
   integer                        :: nupdate      ! stride for averages aupdate
   integer                        :: niter_agd    ! number of iter. (Nesterov alg.)
@@ -65,7 +64,6 @@ program learn
   wid = -1
   uprm = 0
   urst = 0
-  useq = 0
   mc_nsweeps = 0
   nupdate = 10
   niter_gd = 0
@@ -83,7 +81,7 @@ program learn
   !================================================ read args
 
   call command_line_read(udata,data_format,uwgt,&
-       wid,uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
+       wid,uprm,urst,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
        niter_gd,lambda,prefix,err)
   
   if (err /= 0) then
