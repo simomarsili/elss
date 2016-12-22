@@ -83,6 +83,7 @@ program learn
   call command_line_read(udata,data_format,uwgt,&
        wid,uprm,urst,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
        niter_gd,lambda,prefix,err)
+  if (prefix=='') prefix = trim(mode)
   
   if (err /= 0) then
      stop
@@ -158,11 +159,7 @@ program learn
   close(udata)
 
   ! open log file
-  if (prefix /= "") then
-     filename = trim(prefix)//'.log'
-  else
-     filename = trim(mode)//'.log'
-  end if
+  filename = trim(prefix)//'.log'
   call units_open(trim(filename),'unknown',ulog,err)
   if(err /= 0) then
      if (iproc == 0) write(0,*) "error opening file ", trim(filename)//'.log'

@@ -63,6 +63,7 @@ program sample
 
   call command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
        prefix,err)
+  if (prefix=='') prefix = trim(mode)
 
   if (err /= 0) stop
 
@@ -107,11 +108,7 @@ program sample
   fmodel = 0.0_kflt
 
   ! open log file
-  if (prefix /= "") then
-     filename = trim(prefix)//'.log'
-  else
-     filename = trim(mode)//'.log'
-  end if
+  filename = trim(prefix)//'.log'
   call units_open(trim(filename),'unknown',ulog,err)
   if(err /= 0) then
      write(0,*) "error opening file ", trim(filename)//'.log'
