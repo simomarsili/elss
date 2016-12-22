@@ -136,9 +136,6 @@ program sample
      write(ulog,'(a)')         '#'
   end if
 
-  dim1 = nvars * nclasses
-  dim2 = nvars * (nvars - 1) * nclasses**2 / 2
-
   !================================================ run a simulation
   
   if (useq > 0) then

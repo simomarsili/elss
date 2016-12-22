@@ -211,9 +211,6 @@ program learn
      write(ulog,'(a)')         '#'
   end if
 
-  dim1 = nvars * nclasses
-  dim2 = nvars * (nvars - 1) * nclasses**2 / 2
-
 
   !================================================ allocate memory for map algorithm
   
