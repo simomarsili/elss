@@ -41,7 +41,7 @@ module sample_command_line
 contains
 
   subroutine command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
-                               error_code)
+                               prefix,error_code)
     use units, only: units_open,units_open_unf
     use arguments, only: read_opt,read_arg
     integer,                    intent(inout) :: uprm
@@ -51,6 +51,7 @@ contains
     real(kflt),                 intent(inout) :: beta
     integer,                    intent(inout) :: mc_nsweeps
     integer,                    intent(inout) :: nupdate
+    character(len=*),           intent(out) :: prefix
     integer,                    intent(out)   :: error_code
     integer                         :: err
     character(len=long_string_size) :: prm_file
@@ -138,6 +139,14 @@ contains
           call read_arg(iarg,nargs,nupdate,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check nupdate'
+             error_code = 1
+             return
+          end if
+       case('--prefix')
+          ! prefix
+          call read_arg(iarg,nargs,prefix,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <prefix>'
              error_code = 1
              return
           end if

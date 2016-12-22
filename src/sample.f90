@@ -62,7 +62,7 @@ program sample
   !================================================ read args
 
   call command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
-       err)
+       prefix,err)
 
   if (err /= 0) stop
 
@@ -106,10 +106,15 @@ program sample
   allocate(fmodel(dim1+dim2),stat=err)
   fmodel = 0.0_kflt
 
-  ! open output
-  call units_open(trim(mode)//'.log','unknown',ulog,err)
+  ! open log file
+  if (prefix /= "") then
+     filename = trim(prefix)//'.log'
+  else
+     filename = trim(mode)//'.log'
+  end if
+  call units_open(trim(filename),'unknown',ulog,err)
   if(err /= 0) then
-     if (iproc == 0) write(0,*) "error opening file ", trim(mode)//'.log'
+     write(0,*) "error opening file ", trim(filename)//'.log'
      stop
   end if
 
