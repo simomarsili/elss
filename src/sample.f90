@@ -6,7 +6,6 @@ program sample
   use kinds
   use constants
   use fasta,       only : fasta_read
-  use errors
   use dump,        only: read_rst,read_prm_unit
   use sample_command_line
   use units,       only: units_initialize,units_open
@@ -65,10 +64,7 @@ program sample
   call command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
        err)
 
-  if (err /= 0) then
-     call dump_error(err,err_string)
-     stop
-  end if
+  if (err /= 0) stop
 
   !================================================ init. the random number generator
 
@@ -80,7 +76,7 @@ program sample
      call read_prm_unit(uprm,nvars,nclasses,&
           prm,data_format,err)
      if (err /= 0) then
-        if (iproc == 0) call dump_error(err,'')
+        write(0,*) 'ERROR ! cannot read from prm'
         stop
      end if
      close(uprm)
@@ -91,7 +87,7 @@ program sample
   if (urst > 0) then
      call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
-        if (iproc == 0) call dump_error(err,'')
+        write(0,*) 'ERROR ! cannot read from rst'
         stop
      end if
      close(urst)
@@ -153,7 +149,7 @@ program sample
      case('protein')
         call fasta_read(useq,seqs0,err,err_string)
         if (err > 0) then
-           if (iproc == 0) call dump_error(err,err_string)
+           write(0,*) 'ERROR ! cannot read from seq'
            stop
         end if
         seq = seqs0(:,1) ! take the first one as rst
