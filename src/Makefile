@@ -49,7 +49,7 @@ data.o: data.f90 kinds.o parser.o constants.o fasta.o units.o
 averages.o: averages.f90 kinds.o
 mcmc.o: mcmc.f90 kinds.o dump.o constants.o averages.o 
 map.o: map.f90 units.o kinds.o mpi_wrapper.o mcmc.o dump.o data.o constants.o cost.o # mpi
-learn.o: learn.f90 learn_command_line.o mpi_wrapper.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o errors.o mcmc.o #mpi
+learn.o: learn.f90 learn_command_line.o mpi_wrapper.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o mcmc.o #mpi
 eval.o: eval.f90 eval_command_line.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o errors.o mcmc.o 
 sample.o: sample.f90 sample_command_line.o random.o kinds.o units.o dump.o constants.o mcmc.o
 
