@@ -42,6 +42,8 @@ module learn_command_line
        nl//&
        ' --random_seed <int>           init. the random seed (if 0, use system_clock)  (0)              '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
+       nl//&
+       nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        ' For more information and examples, please check the project github repository:                 '//nl//&
        ' https://github.com/simomarsili/mcsg                                                            '//nl//&
@@ -50,7 +52,7 @@ module learn_command_line
 
 contains
 
-  subroutine command_line_read(udata,data_format,uwgt,wid,uprm,urst,useq,&
+  subroutine command_line_read(udata,data_format,uwgt,wid,uprm,urst,&
                                rseed,beta,mc_nsweeps,nupdate,niter_agd,niter_gd,&
                                lambda,prefix,error_code)
     use units, only: units_open,units_open_unf
@@ -61,7 +63,6 @@ contains
     real(kflt),                 intent(inout) :: wid
     integer,                    intent(inout) :: uprm
     integer,                    intent(inout) :: urst
-    integer,                    intent(inout) :: useq
     integer,                    intent(inout) :: rseed
     real(kflt),                 intent(inout) :: beta
     integer,                    intent(inout) :: mc_nsweeps
@@ -76,7 +77,6 @@ contains
     character(len=long_string_size) :: ww_file
     character(len=long_string_size) :: prm_file
     character(len=long_string_size) :: rst_file
-    character(len=long_string_size) :: seq_file
     character(len=long_string_size) :: cmd
     integer                         :: nargs
     character(len=long_string_size) :: arg
@@ -100,7 +100,6 @@ contains
     ww_file = ''
     prm_file = ''
     rst_file = ''
-    seq_file = ''
 
     iarg = 0
     args_loop: do while(iarg < nargs)
@@ -138,14 +137,6 @@ contains
        case('-r','--rst')
           ! rst file
           call read_arg(iarg,nargs,rst_file,err)
-          if (err == 1) then
-             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
-             error_code = 1
-             return
-          end if
-       case('-s','--seq')
-          ! seq file
-          call read_arg(iarg,nargs,seq_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -286,21 +277,6 @@ contains
        call units_open_unf(rst_file,'old',urst,err)
        if( err /= 0 ) then
           write(0,*) 'ERROR ! error opening file '//trim(rst_file)
-          error_code = 1
-          return
-       end if
-    end if
-
-    if ( seq_file /= "" ) then
-       inquire( file = seq_file, exist = file_exists )
-       if ( .not. file_exists ) then
-          write(0,*) 'ERROR ! cannot access '//trim(seq_file)
-          error_code = 1
-          return
-       end if
-       call units_open(seq_file,'old',useq,err)
-       if( err /= 0 ) then
-          write(0,*) 'ERROR ! error opening file '//trim(seq_file)
           error_code = 1
           return
        end if
