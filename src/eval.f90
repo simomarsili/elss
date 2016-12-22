@@ -59,7 +59,8 @@ program eval
 
   !================================================ read args
 
-  call command_line_read(udata,data_format,uprm,urst,err)
+  call command_line_read(udata,data_format,uprm,urst,prefix,err)
+  if (prefix=='') prefix = trim(mode)
   if (err /= 0) stop
 
   !================================================ init. the random number generator
@@ -117,14 +118,13 @@ program eval
      close(udata)
   end if
 
-  ! open output
-
-  call units_open(trim(mode)//'.log','unknown',ulog,err)
+  ! open log file
+  filename = trim(prefix)//'.log'
+  call units_open(trim(filename),'unknown',ulog,err)
   if(err /= 0) then
-     if (iproc == 0) write(0,*) "error opening file ", trim(mode)//'.log'
+     write(0,*) "error opening file ", trim(filename)//'.log'
      stop
   end if
-
 
   !================================================ print a header
   
