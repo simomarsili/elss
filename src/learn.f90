@@ -105,6 +105,7 @@ program learn
      call read_prm_unit(uprm,nvars,nclasses,&
           prm,data_format,err)
      if (err /= 0) then
+        if(iproc == 0) write(0,*) 'ERROR ! cannot read from prm'
         call mpi_wrapper_finalize(err)
         stop
      end if
@@ -116,6 +117,7 @@ program learn
   if (urst > 0) then
      call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
+        if(iproc == 0) write(0,*) 'ERROR ! cannot read from rst'
         call mpi_wrapper_finalize(err)
         stop
      end if
@@ -128,6 +130,7 @@ program learn
        nvars,nclasses,nseqs,neff,seqs,err,err_string)
 
   if (err /= 0) then
+     if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'
      call mpi_wrapper_finalize(err)
      stop
   end if
@@ -158,7 +161,6 @@ program learn
   close(udata)
 
   ! open output
-
   call units_open(trim(mode)//'.log','unknown',ulog,err)
   if(err /= 0) then
      if (iproc == 0) write(0,*) "error opening file ", trim(mode)//'.log'
