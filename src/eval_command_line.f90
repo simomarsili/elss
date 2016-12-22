@@ -24,6 +24,8 @@ module eval_command_line
        nl//&
        nl//&
        ' (-h|--help)                   print this help message                         (None)           '//nl//&
+       nl//&
+       ' --prefix <string>             prefix for output files                         (None)           '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        nl//&
        nl//&
@@ -34,13 +36,14 @@ module eval_command_line
        '                                                                                                    '
 contains
   
-  subroutine command_line_read(udata,data_format,uprm,urst,error_code)
+  subroutine command_line_read(udata,data_format,uprm,urst,prefix,error_code)
     use units, only: units_open,units_open_unf
     use arguments, only: read_opt,read_arg
     integer,                    intent(inout) :: udata
     character(len=*),           intent(inout) :: data_format
     integer,                    intent(inout) :: uprm
     integer,                    intent(inout) :: urst
+    character(len=*),           intent(out) :: prefix
     integer,                    intent(out)   :: error_code
     integer                         :: err
     character(len=long_string_size) :: data_file
@@ -105,6 +108,14 @@ contains
           call read_arg(iarg,nargs,rst_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+             error_code = 1
+             return
+          end if
+       case('--prefix')
+          ! prefix
+          call read_arg(iarg,nargs,prefix,err)
+          if (err == 1) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <prefix>'
              error_code = 1
              return
           end if
