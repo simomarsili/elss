@@ -7,7 +7,7 @@
 % for comments
 \usepackage{verbatim}
 % filling with lipsum text
-\usepackage{lipsum}
+%\usepackage{lipsum}
 % ams
 \usepackage{amssymb,amsfonts,amsmath,bm}
 \usepackage[pdftex]{graphicx}
@@ -30,8 +30,9 @@
 
 \begin{document}
 \maketitle
-%\abstract{\lipsum[78]}
+%\abstract{}
 
+Please cite \cite{sutto2015residue}
 \section{Requirements}
 \label{sec:requirements}
 
@@ -42,7 +43,7 @@ If you are using Debian or a Debian derivative such as Ubuntu, you can install t
 \end{verbatim}
 
 The inference algorithm works by simulating a swarm of persistent Markov chains. 
-To compile \verb|mcsg| with support for parallel runs on a distributed-memory architecture,
+To compile \verb|mcsg| with support for parallel runs,
 you will need a valid MPI implementation installed on your machine. 
 The code has been tested and is known to work with the latest versions of both OpenMPI and MPICH.   
 OpenMPI (recommended) can be installed on Debian derivatives typing:
@@ -53,7 +54,7 @@ sudo apt-get install openmpi-bin libopenmpi1.10 libopenmpi-dev
 \\\
 
 The compiling and linking of source files is handled by the Gnu \verb|make|. 
-If you are using Debian or a Debian derivative such as Ubuntu, you should find 4.1 already installed.
+If you are using a Debian derivative, you should find 4.1 already installed.
 
 \section{Compiling}
 \label{sec:compiling}
@@ -62,9 +63,12 @@ From a Unix terminal, type \verb|make| in the \verb|src| directory:
 >> cd src
 >> make
 \end{verbatim}
-After compiling, you should see these binary files in the \verb|src| directory:\\
-\verb|mcsg-learn|, \verb|mcsg-eval| and \verb|mcsg-sample|. \\
-To install the binaries mcsg in \verb|/usr/local/bin|, type:
+After compiling, you should see these binary files in the \verb|src| directory:
+\begin{verbatim}
+>> ls mcsg-*
+mcsg-eval  mcsg-learn  mcsg-sample
+\end{verbatim}
+To install the \verb|mcsg| binaries in \verb|/usr/local/bin|, type:
 \begin{verbatim}
 >> make install
 \end{verbatim}
@@ -75,30 +79,48 @@ e.g. :
 >> make install INSTALLDIR=$HOME/.local/bin
 \end{verbatim}
 
-\section{mcsg-learn}
+\section{Basic usage}
+\label{sec:basic}
+
+This section gives an overview of the \verb|mcsg| basic commands.
+\subsection{mcsg-learn}
 \label{sec:mcsg-learn}
-Starting from a MSA file in FASTA format, \verb|msa.fa|, the maximum likelihood parameters of a pairwise model for the sequence distribution
-can be computed using \verb|mcsg-learn|, that implements the \verb|mcsg| routines for statistical inference.
-\begin{verbatim}
->> mcsg-learn --fasta msa.fa --learn-agd 100 --nsweeps 1000 --lambda 0.01
-\end{verbatim}
-\begin{itemize}
-\item \verb|--fasta msa.fa|: read sequences from file \verb|msa.fa|
-\item \verb|--learn-agd 100|: perform 100 iterations of accelerated gradient descent of the cost function
-\item \verb|--nsweeps 1000|: at each iteration, the gradient of the cost function is estimated from a $1000-$sweeps long MCMC trajectory
-\item \verb|--lambda 0.01|: the cost function contains a $l_2$ regularization term: higher values of \verb|--lambda| correspond to more strongly regularized solutions
-\end{itemize}
-
-
-The most simple way to run \verb|mcsg-learn| is to use the default values for the parameters of the run:
+Starting from a MSA file in FASTA format, \verb|mcsg-learn| can be used to fit a statistical model of pairwise interacting positions to sequence data. 
+More specifically, the parameters of the model will be fitted via maximum a posteriori (MAP) estimation.
+The simplest way to start with \verb|mcsg-learn| is using default values for the parameters tuning the inference process:
 \begin{verbatim}
 >> mcsg-learn --fasta msa.fa
 \end{verbatim}
-To increase the accuracy in gradient estimation (without simulating longer Markov chains in sequence space)
+The latter command will read the sequences from FASTA file \verb|msa.fa| and maximize a $l_2$-regularized likelihodd.
+The optimization process is iterative and requires the evaluation of the gradient of a loss function at every step,
+that can be estimated by simulating a long Markov chain in sequence space, the larger the number of Monte Carlo steps
+(or sweeps, defined as $n_{\rm MC steps} = n_{\rm MC sweeps} \times L$ where $L$ is the number of positions in the alignment) the more accurate the gradient estimate. 
+Alternatively, the accuracy of gradient estimations can be improved by simulating multiple parallel (and indepedent) Markov chains: 
 \begin{verbatim}
->> mpiexec -n 4 mcsg-learn --nsweeps $NS --fasta msa.fa --learn-agd $NITER --lambda 0.01
+>> mpiexec -n 4 mcsg-learn --fasta msa.fa
 \end{verbatim}
-From a Unix terminal, type \verb|make| in the \verb|src| directory:
+In the last command line, four independent chains in sequence space will be simulated. 
+
+Non-default values for the calculation can be passed as additional options (run \verb|mcsg -h| or \verb|mcsg --help| for the full list of options), for example: 
+\begin{verbatim}
+>> mcsg-learn --fasta msa.fa --learn-agd 100 --nsweeps 1000 --lambda 0.01
+\end{verbatim}
+where the meaning of the three additional options is: 
+\begin{itemize}
+\item \verb|--learn-agd 100| (perform 100 iterations of accelerated gradient descent of the cost function)
+\item \verb|--nsweeps 1000| (at each iteration, the gradient of the cost function is estimated from a $1000-$sweeps long MCMC trajectory)
+\item \verb|--lambda 0.01| (the cost function contains a $l_2$ regularization term: higher values of \verb|--lambda| correspond to more strongly regularized solutions)
+\end{itemize}
+
+The output of \verb|mcsg-learn| consists of three files:
+\begin{itemize}
+\item a binary restart file (\verb|rst|), containing all the info needed to restart the calculation from the final inferred values
+\item a parameter file (\verb|prm|), containing the inferred values
+\item a logfile (\verb|LEARN.log|)
+\end{itemize}
+The output filenames can be controlled via the option \verb|--prefix|, that is, \verb|--prefix run0| will dump the three files:
+\verb|run0.rst|, \verb|run0.prm| and \verb|run0.log|. 
+
 
 \section{mcsg-eval}
 \label{sec:mcsg-eval}
@@ -110,24 +132,6 @@ From a Unix terminal, type \verb|make| in the \verb|src| directory:
 
 \section{System Model}
 \label{sec:system-model}
-
-\subsection{Concept}
-\lipsum[1]\cite{asimov1951foundation}
-
-\begin{itemize}
-	\item \lipsum[53]
-	\item \lipsum[11]
-\end{itemize}
-
-\lipsum[43]
-
-\subsection{Implementation}
-\lipsum[2]
-
-\section{Conclusion}
-\label{sec:conclusion}
-
-\lipsum[9-10]
 
 \bibliography{ms}
 
