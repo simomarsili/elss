@@ -75,45 +75,6 @@ contains
           end if
        end do
 
-    case('table')
-       
-       ! get number of fields
-       read(udata,'(a)',iostat=err) line
-       call parser_nfields(line,newline,nfields)
-       rewind(udata)
-       
-       ! set nvars
-       if (nvars == 0) nvars = nfields
-       
-       ! count data lines
-       nseqs = 0
-       do
-          read(udata,'(a)',iostat=err) line
-          ! exit at end of file or empty line
-          if( err < 0 .or. len_trim(line) == 0) exit
-          nseqs = nseqs + 1
-       end do
-       rewind(udata)
-       nseqs = nseqs - 1
-       
-       ! allocate memory for data
-       allocate(labels(nvars),stat=err)
-       allocate(data_labels(nvars),stat=err)
-       allocate(seqs(nvars,nseqs),stat=err)
-
-       ! read labels
-       read(udata,'(a)',iostat=err) line
-       read(newline,*,iostat=err) labels
-
-       ! read data
-       do i = 1,nseqs
-          read(udata,*,iostat=err) data_labels(i), seqs(:,i)
-          if(err > 0) then 
-             error_code = 20
-             return
-          end if
-       end do
-
     case('FASTA')
 
        ! read sequences from MSA

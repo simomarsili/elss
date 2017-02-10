@@ -25,7 +25,7 @@ contains
     integer,          intent(in)     :: mc_nsweeps
     real(kflt),       intent(in)     :: beta
     integer,          intent(in)     :: nupdate
-    character(len=*), intent(in)     :: data_format  ! data format ('raw', 'table', 'FASTA')
+    character(len=*), intent(in)     :: data_format  ! data format ('raw', 'FASTA')
     integer,          intent(in)     :: ulog
     real(kflt),       intent(in)     :: fdata(:)
     integer,          intent(inout)  :: seq(:)

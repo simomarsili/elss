@@ -72,7 +72,7 @@ contains
           iarg = iarg + 1
           error_code = -1
           return
-       case('-i','--raw','--table','--fasta')
+       case('-i','--raw','--fasta')
           ! input file
           if ( data_file /= "" ) then
              error_code = 16
@@ -81,8 +81,6 @@ contains
           select case(trim(arg))
           case('-i','--raw')
              data_format = 'raw'
-          case('--table')
-             data_format = 'table'
           case('--fasta')
              data_format = 'FASTA'
           end select
