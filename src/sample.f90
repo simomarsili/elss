@@ -19,7 +19,7 @@ program sample
   real(kflt), allocatable :: prm(:)       ! parameters array
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
   ! command line parameters
-  character(len=string_size) :: data_format  ! data format ('raw', 'table', 'protein')
+  character(len=string_size) :: data_format  ! data format ('raw', 'table', 'FASTA')
   integer                    :: uprm         ! prm unit
   integer                    :: urst         ! rst unit
   integer                    :: useq         ! seq unit
@@ -145,7 +145,7 @@ program sample
      select case (trim(data_format))
      case('raw')
         read(useq,*) seq
-     case('protein')
+     case('FASTA')
         call fasta_read(useq,seqs0,err,err_string)
         if (err > 0) then
            write(0,*) 'ERROR ! cannot read from seq'

@@ -114,7 +114,7 @@ contains
           end if
        end do
 
-    case('protein')
+    case('FASTA')
 
        ! read sequences from MSA
        call fasta_read(udata,seqs,error_code,error_string)

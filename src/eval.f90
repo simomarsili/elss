@@ -22,7 +22,7 @@ program eval
   real(kflt), allocatable :: prm(:)       ! parameters array
   ! command line parameters
   integer                    :: udata        ! data unit
-  character(len=string_size) :: data_format  ! data format ('raw', 'table', 'protein')
+  character(len=string_size) :: data_format  ! data format ('raw', 'table', 'FASTA')
   integer                    :: uwgt         ! ww unit
   real(kflt)                 :: wid          ! %id for weights calculation
   integer                    :: uprm         ! prm unit

@@ -63,7 +63,7 @@ contains
        end if
     end do
 
-    if (trim(data_format) == 'protein' .and. nc /= 21) then
+    if (trim(data_format) == 'FASTA' .and. nc /= 21) then
        write(0,*) 'ERROR ! in prm file, num. of classes must be 21'
        error_code = 1
        return
