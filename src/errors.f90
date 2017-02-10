@@ -36,8 +36,6 @@ module errors
        ' --fasta <path_to_file>        data file (MSA format)                          (None)           '//nl//&
        '        OR'//nl//&   
        ' --raw <path_to_file>          data file ("raw" format)                        (None)           '//nl//&
-!       '        OR'//nl//&   
-!       ' --table <path_to_file>        data file ("table" format)                      (None)           '//nl//&
        nl//&
        ' (-w|--weights) <path_to_file> weights file                                    (None)           '//nl//&
        nl//&
@@ -71,9 +69,9 @@ module errors
        !  2
        'mcsg : invalid option                                                                     ', & 
        !  3
-       'mcsg : EVAL/MAP mode: please specify a data_file ([-i|--raw|--table|--fasta] <data_file>) ', & 
+       'mcsg : EVAL/MAP mode: please specify a data_file ([-i|--raw|--fasta] <data_file>)         ', & 
        !  4
-       'mcsg : the [-i|--raw|--table|--fasta] option needs an argument <data_file>)               ', & 
+       'mcsg : the [-i|--raw|--fasta] option needs an argument <data_file>)                       ', & 
        !  5
        'mcsg : the [-w|--weights] option needs an argument <weights_file>)                        ', & 
        !  6
@@ -97,7 +95,7 @@ module errors
        !  15 
        'mcsg : please check <nupdate> value ([-u|--nupdate] <nupdate>)                            ', & 
        !  16 
-       'mcsg : you must specify a single data_file ([-i|--raw|--table|--fasta] <data_file>)       ', & 
+       'mcsg : you must specify a single data_file ([-i|--raw|--fasta] <data_file>)               ', & 
        !  17 
        'mcsg : you must specify a single weights_file ([-w|--weights] <weights_file>)             ', & 
        !  18 
