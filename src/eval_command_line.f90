@@ -87,7 +87,7 @@ contains
           case('-i','--raw')
              data_format = 'raw'
           case('--fasta')
-             data_format = 'protein'
+             data_format = 'FASTA'
           end select
           call read_arg(iarg,nargs,data_file,err)
           if (err == 1) then

@@ -84,7 +84,7 @@ contains
           case('--table')
              data_format = 'table'
           case('--fasta')
-             data_format = 'protein'
+             data_format = 'FASTA'
           end select
           iarg = iarg + 1
           call get_command_argument(iarg,arg)
