@@ -31,7 +31,7 @@ program main
   integer, allocatable    :: seqs_table(:,:)
   ! command line parameters
   integer                    :: udata        ! data unit
-  character(len=string_size) :: data_format  ! data format ('raw', 'table', 'protein')
+  character(len=string_size) :: data_format  ! data format ('raw', 'table', 'FASTA')
   integer                    :: uwgt         ! ww unit
   real(kflt)                 :: wid          ! %id for weights calculation
   integer                    :: uprm         ! prm unit
@@ -257,7 +257,7 @@ program main
         select case (trim(data_format))
         case('raw')
            read(useq,*) seq
-        case('protein')
+        case('FASTA')
            call fasta_read(useq,seqs0,err,err_string)
            if (err > 0) then
               if (iproc == 0) call dump_error(err,err_string)

@@ -29,7 +29,7 @@ contains
     integer,          intent(inout) :: seq(:)
     real(kflt),       intent(in)    :: fields(nclasses,nvars)
     real(kflt),       intent(in)    :: couplings(nclasses,nclasses,nvars*(nvars-1)/2)
-    character(len=*), intent(in)    :: data_format  ! data format ('raw', 'table', 'protein')
+    character(len=*), intent(in)    :: data_format  ! data format ('raw', 'table', 'FASTA')
     real(kflt),       intent(out)   :: freq_single(nclasses,nvars)
     real(kflt),       intent(out)   :: freq_pair(nclasses,nclasses,nvars*(nvars-1)/2)
     real(kflt),       intent(in)    :: beta                ! inverse temperature
@@ -75,7 +75,7 @@ contains
     if (utrj > 0) then 
        if (trim(data_format) == 'raw' .or. trim(data_format) == 'table') then 
           call dump_seq(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
-       else if (trim(data_format) == 'protein') then 
+       else if (trim(data_format) == 'FASTA') then 
           call dump_fasta(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
        end if
     end if
@@ -92,7 +92,7 @@ contains
        if (utrj > 0) then 
           if (trim(data_format) == 'raw' .or. trim(data_format) == 'table') then 
              call dump_seq(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
-          else if (trim(data_format) == 'protein') then 
+          else if (trim(data_format) == 'FASTA') then 
              call dump_fasta(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
           end if
        end if
