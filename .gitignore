@@ -2,3 +2,9 @@
 /src/elss*
 src/*.o
 src/*.mod
+test/*
+!test/0.TRJ
+!test/10.fa
+!cv.bash
+!run-test.bash
+
