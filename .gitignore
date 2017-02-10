@@ -7,4 +7,8 @@ test/*
 !test/10.fa
 !cv.bash
 !run-test.bash
+user_guide/*
+!user_guide/ms.tex
+!user_guide/ms.bib
+!user_guide/Makefile
 
