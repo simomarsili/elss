@@ -22,15 +22,14 @@ program printchk
   logical                         :: file_exists
   character(len=long_string_size) :: syntax = 'syntax'
   character(len=long_string_size) :: rst_file
+  integer :: iv,jv,is,js,k
   
   ! read arguments
   call get_command(cmd)
   nargs = command_argument_count()
   
   ! call with no args
-  if (nargs == 0) then
-     stop
-  end if
+  if (nargs == 0) stop
 
   iarg = 0
   args_loop: do while(iarg < nargs)
@@ -73,14 +72,30 @@ program printchk
   read(unt) prm
 
   ! dump file
-  write(*,'(a)') '# format nv nc np'
+  write(*,'(a)') '# <data_format> <nvars> <nclasses> <nseq>'
   write(*,'(a,3(1x,i4))') trim(data_format), nvars, nclasses, np
   if (np > 0) then
      do p = 1,np
         write(*,'(a,1000i3)') '# ',seq(:,p)
      end do
   end if
-  write(*,*) prm(:10)
-  stop
+  k = 0
+  do iv = 1,nvars
+     do is = 1,nclasses
+        k = k + 1
+        write(*,'(2i5,f8.4)') iv,is,prm(k)
+     end do
+  end do
+  do jv = 1,nvars-1
+     do iv = jv+1,nvars
+        do js = 1,nclasses
+           do is = 1,nclasses
+              k = k + 1
+              ! order is inverted for printing 
+              write(*,'(4i5,f8.4)') jv,iv,js,is,prm(k)
+           end do
+        end do
+     end do
+  end do
 
 end program printchk
