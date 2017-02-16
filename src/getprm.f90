@@ -2,7 +2,7 @@
 ! All rights reserved.
 ! License: BSD 3 clause
 
-program printchk
+program getprm
   use kinds
   use constants
   use units, only: units_open_unf
@@ -23,6 +23,11 @@ program printchk
   character(len=long_string_size) :: syntax = 'syntax'
   character(len=long_string_size) :: rst_file
   integer :: iv,jv,is,js,k
+  character(len=1) :: protein_alphabet(21) = &
+       ['A','C','D','E','F','G','H','I','K',&
+       'L','M','N','P','Q','R','S','T','V','W','Y','-']
+  character(len=1) :: nuc_acid_alphabet(6) = &
+       ['A','C','G','T','U','-']
   
   ! read arguments
   call get_command(cmd)
@@ -76,14 +81,14 @@ program printchk
   write(*,'(a,3(1x,i4))') trim(data_format), nvars, nclasses, np
   if (np > 0) then
      do p = 1,np
-        write(*,'(a,1000i3)') '# ',seq(:,p)
+        write(*,'(a,1000a1)') '# ',protein_alphabet(seq(:,p))
      end do
   end if
   k = 0
   do iv = 1,nvars
      do is = 1,nclasses
         k = k + 1
-        write(*,'(2i5,f8.4)') iv,is,prm(k)
+        write(*,'(i3,1x,a1,1x,f8.4)') iv,protein_alphabet(is),prm(k)
      end do
   end do
   do jv = 1,nvars-1
@@ -92,10 +97,10 @@ program printchk
            do is = 1,nclasses
               k = k + 1
               ! order is inverted for printing 
-              write(*,'(4i5,f8.4)') jv,iv,js,is,prm(k)
+              write(*,'(2(i3,1x),2(a1,1x),f8.4)') jv,iv,protein_alphabet(js),protein_alphabet(is),prm(k)
            end do
         end do
      end do
   end do
 
-end program printchk
+end program getprm
