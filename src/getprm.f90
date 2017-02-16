@@ -81,14 +81,14 @@ program getprm
   write(*,'(a,3(1x,i4))') trim(data_format), nvars, nclasses, np
   if (np > 0) then
      do p = 1,np
-        write(*,'(a,1000a1)') '# ',protein_alphabet(seq(:,p))
+        write(*,'(a,1000(1x,i2))') '# ',seq(:,p)
      end do
   end if
   k = 0
   do iv = 1,nvars
      do is = 1,nclasses
         k = k + 1
-        write(*,'(i3,1x,a1,1x,f8.4)') iv,protein_alphabet(is),prm(k)
+        write(*,'(i3,1x,i2,1x,f8.4)') iv,is,prm(k)
      end do
   end do
   do jv = 1,nvars-1
@@ -97,7 +97,7 @@ program getprm
            do is = 1,nclasses
               k = k + 1
               ! order is inverted for printing 
-              write(*,'(2(i3,1x),2(a1,1x),f8.4)') jv,iv,protein_alphabet(js),protein_alphabet(is),prm(k)
+              write(*,'(2(i3,1x),2(i2,1x),f8.4)') jv,iv,js,is,prm(k)
            end do
         end do
      end do
