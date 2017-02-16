@@ -31,6 +31,7 @@ program main
   integer, allocatable    :: seqs_table(:,:)
   ! command line parameters
   integer                    :: udata        ! data unit
+  character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein sequences')
   character(len=string_size) :: data_format  ! data format ('raw', 'FASTA')
   integer                    :: uwgt         ! ww unit
   real(kflt)                 :: wid          ! %id for weights calculation
@@ -60,6 +61,7 @@ program main
   nvars = 0
   nclasses = 0
   udata = 0
+  data_type = 'protein sequences'
   data_format = ''
   uwgt = 0
   wid = -1
