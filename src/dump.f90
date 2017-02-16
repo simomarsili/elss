@@ -362,10 +362,11 @@ contains
     
   end subroutine dump_fasta
 
-  subroutine read_rst_unit(unt,data_format,nvars,nclasses,iproc,nproc,seq,prm,error_code)
+  subroutine read_rst_unit(unt,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,error_code)
     ! read a restart file 
     use random, only: random_seq
     integer,          intent(in)                 :: unt
+    character(len=*), intent(inout)              :: data_type
     character(len=*), intent(inout)              :: data_format
     integer,          intent(inout)              :: nvars,nclasses
     integer,          intent(in)                 :: iproc
@@ -378,7 +379,8 @@ contains
     integer                 :: nv,nc
 
     error_code = 0
-    
+
+    read(unt) data_type
     read(unt) data_format
     read(unt) nv
     read(unt) nc
@@ -437,11 +439,12 @@ contains
     
   end subroutine read_rst_unit
 
-  subroutine read_rst_file(filename,data_format,nvars,nclasses,iproc,nproc,seq,&
+  subroutine read_rst_file(filename,data_type,data_format,nvars,nclasses,iproc,nproc,seq,&
                            prm,error_code)
     ! should read both a filename or a unit
     use random, only: random_seq
     character(len=*), intent(in)                 :: filename
+    character(len=*), intent(inout)              :: data_type
     character(len=*), intent(inout)              :: data_format
     integer,          intent(inout)              :: nvars,nclasses
     integer,          intent(in)                 :: iproc
@@ -460,16 +463,17 @@ contains
        return
     end if
 
-    call read_rst_unit(unt,data_format,nvars,nclasses,iproc,nproc,seq,prm,error_code)
+    call read_rst_unit(unt,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,error_code)
     
     close(unt)
     
   end subroutine read_rst_file
 
-  subroutine dump_rst_unit(unt,data_format,nvars,nclasses,nproc,seqs_table,prm,&
+  subroutine dump_rst_unit(unt,data_type,data_format,nvars,nclasses,nproc,seqs_table,prm,&
                            error_code)
     ! dump a restart file 
     integer,          intent(in)  :: unt
+    character(len=*), intent(in)  :: data_type
     character(len=*), intent(in)  :: data_format
     integer,          intent(in)  :: nvars,nclasses,nproc
     integer,          intent(in)  :: seqs_table(:,:)
@@ -479,6 +483,7 @@ contains
 
     error_code = 0
 
+    write(unt) data_type
     write(unt) data_format
     write(unt) nvars
     write(unt) nclasses
@@ -490,11 +495,12 @@ contains
 
   end subroutine dump_rst_unit
 
-  subroutine dump_rst_file(filename,status,data_format,nvars,nclasses,nproc,&
+  subroutine dump_rst_file(filename,status,data_type,data_format,nvars,nclasses,nproc,&
                            seqs_table,prm,error_code)
     ! dump a restart file 
     character(len=*), intent(in)  :: filename
     character(len=*), intent(in)  :: status
+    character(len=*), intent(in)  :: data_type
     character(len=*), intent(in)  :: data_format
     integer,          intent(in)  :: nvars,nclasses,nproc
     integer,          intent(in)  :: seqs_table(:,:)
@@ -511,7 +517,7 @@ contains
        return
     end if
 
-    call dump_rst_unit(unt,data_format,nvars,nclasses,nproc,seqs_table,prm,error_code)
+    call dump_rst_unit(unt,data_type,data_format,nvars,nclasses,nproc,seqs_table,prm,error_code)
 
     close(unt)
 

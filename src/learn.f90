@@ -5,9 +5,8 @@
 program learn
   use kinds
   use constants
-  use fasta,       only : fasta_read
   use mpi_wrapper
-  use dump,        only: read_rst,read_prm_unit,dump_energies,dump_rst
+  use dump,        only: read_rst,read_prm_unit,dump_energies
   use learn_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
@@ -28,6 +27,7 @@ program learn
   real(kflt), allocatable :: fdata(:)     ! empirical frequencies
   real(kflt), allocatable :: scores(:,:)  ! final scores
   integer, allocatable    :: seqs_table(:,:)
+  character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
   ! command line parameters
   integer                        :: udata        ! data unit
   character(len=string_size)     :: data_format  ! data format ('raw', 'FASTA')
@@ -59,6 +59,7 @@ program learn
   nvars = 0
   nclasses = 0
   udata = 0
+  data_type = 'unknown'
   data_format = ''
   uwgt = 0
   wid = -1
@@ -113,7 +114,7 @@ program learn
   !================================================ read restart file
   
   if (urst > 0) then
-     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
+     call read_rst(urst,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
         if(iproc == 0) write(0,*) 'ERROR ! cannot read from rst'
         call mpi_wrapper_finalize(err)
@@ -124,7 +125,7 @@ program learn
 
   !================================================ read data
 
-  call data_read(iproc,udata,data_format,uwgt,wid,&
+  call data_read(iproc,udata,data_type,data_format,uwgt,wid,&
        nvars,nclasses,nseqs,neff,seqs,err,err_string)
 
   if (err /= 0) then
@@ -226,7 +227,7 @@ program learn
   
   ! inv. temperature for MAP estimation is set to 1
   call map_learn(nvars,nclasses,niter_agd,niter_gd,lambda,mc_nsweeps,&
-       1.0_kflt,nupdate,data_format,ulog,fdata,seq,seqs_table,prm,fmodel)
+       1.0_kflt,nupdate,data_type,data_format,ulog,fdata,seq,seqs_table,prm,fmodel)
   
   !================================================ compute and print scores
   
