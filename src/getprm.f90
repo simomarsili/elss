@@ -9,6 +9,7 @@ program getprm
   use arguments, only: read_opt,read_arg
   
   integer                    :: unt=11
+  character(len=string_size) :: data_type
   character(len=string_size) :: data_format
   integer                    :: nvars,nclasses
   integer,       allocatable :: seq(:,:)
@@ -60,6 +61,7 @@ program getprm
   call units_open_unf(rst_file,'old',unt,err)
   
   ! read binary file
+  read(unt) data_type
   read(unt) data_format
   read(unt) nvars
   read(unt) nclasses
@@ -77,8 +79,8 @@ program getprm
   read(unt) prm
 
   ! dump file
-  write(*,'(a)') '# <data_format> <nvars> <nclasses> <nseq>'
-  write(*,'(a,3(1x,i4))') trim(data_format), nvars, nclasses, np
+  write(*,'(a)') '# <data_type> <data_format> <nvars> <nclasses> <nseq>'
+  write(*,'(a,1x,a,3(1x,i4))') trim(data_type), trim(data_format), nvars, nclasses, np
   if (np > 0) then
      do p = 1,np
         write(*,'(a,1000(1x,i2))') '# ',seq(:,p)
