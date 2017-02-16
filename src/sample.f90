@@ -18,6 +18,7 @@ program sample
   integer,    allocatable :: seqs0(:,:)
   real(kflt), allocatable :: prm(:)       ! parameters array
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
+  character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
   ! command line parameters
   character(len=string_size) :: data_format  ! data format ('raw', 'table', 'FASTA')
   integer                    :: uprm         ! prm unit
@@ -86,7 +87,7 @@ program sample
   !================================================ read restart file
   
   if (urst > 0) then
-     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
+     call read_rst(urst,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
         write(0,*) 'ERROR ! cannot read from rst'
         stop
@@ -146,7 +147,7 @@ program sample
      case('raw')
         read(useq,*) seq
      case('FASTA')
-        call fasta_read(useq,seqs0,err,err_string)
+        call fasta_read(useq,seqs0,data_type,err,err_string)
         if (err > 0) then
            write(0,*) 'ERROR ! cannot read from seq'
            stop

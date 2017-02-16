@@ -18,11 +18,12 @@ module data
 
 contains
 
-  subroutine data_read(iproc,udata,data_format,uwgt,wid,nvars,nclasses,&
+  subroutine data_read(iproc,udata,data_type,data_format,uwgt,wid,nvars,nclasses,&
                        nseqs,neff,seqs,error_code,error_string)
     use fasta, only: protein_alphabet,fasta_read
     integer,              intent(in)    :: iproc
     integer,              intent(in)    :: udata
+    character(len=*),     intent(out)   :: data_type
     character(len=*),     intent(in)    :: data_format
     integer,              intent(in)    :: uwgt
     real(kflt),           intent(in)    :: wid
@@ -78,7 +79,7 @@ contains
     case('FASTA')
 
        ! read sequences from MSA
-       call fasta_read(udata,seqs,error_code,error_string)
+       call fasta_read(udata,seqs,data_type,error_code,error_string)
        if (error_code /= 0) return
        nseqs = size(seqs,2)
        if (nvars == 0) nvars = size(seqs,1)

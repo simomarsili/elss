@@ -5,8 +5,7 @@
 program eval
   use kinds
   use constants
-  use fasta,       only : fasta_read
-  use dump,        only: read_rst,read_prm_unit,dump_energies,dump_rst
+  use dump,        only: read_rst,read_prm_unit,dump_energies
   use eval_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
@@ -20,6 +19,7 @@ program eval
   integer,    allocatable :: seq(:)    ! seq array
   integer,    allocatable :: seqs(:,:) ! data matrix
   real(kflt), allocatable :: prm(:)       ! parameters array
+  character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
   ! command line parameters
   integer                    :: udata        ! data unit
   character(len=string_size) :: data_format  ! data format ('raw', 'FASTA')
@@ -81,7 +81,7 @@ program eval
   !================================================ read restart file
 
   if (urst > 0) then
-     call read_rst(urst,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
+     call read_rst(urst,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
         stop
      end if
@@ -92,7 +92,7 @@ program eval
 
   if (udata > 0) then ! TODO: udata should always be > 0 for eval; check in command line and remove if then
 
-     call data_read(iproc,udata,data_format,uwgt,wid,&
+     call data_read(iproc,udata,data_type,data_format,uwgt,wid,&
           nvars,nclasses,nseqs,neff,seqs,err,err_string)
 
      if (err /= 0) then

@@ -31,7 +31,7 @@ program main
   integer, allocatable    :: seqs_table(:,:)
   ! command line parameters
   integer                    :: udata        ! data unit
-  character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein sequences')
+  character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
   character(len=string_size) :: data_format  ! data format ('raw', 'FASTA')
   integer                    :: uwgt         ! ww unit
   real(kflt)                 :: wid          ! %id for weights calculation
@@ -83,6 +83,7 @@ program main
 
   !================================================ read args
 
+  ! set data_format
   call command_line_read(udata,data_format,uwgt,&
        wid,uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
        niter_gd,lambda,mode,err,err_string)
