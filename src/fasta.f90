@@ -17,6 +17,7 @@ module fasta
        ['A','C','G','T','U','-']
   character(len=kprot) :: protein_set='ACDEFGHIKLMNPQRSTVWY-'
   character(len=knuc)  :: nuc_acid_set='ACGTU-'
+  character(len=string_size) :: symbols_set
 
 contains
 
@@ -40,18 +41,15 @@ contains
     
   end function is_protein
 
-  subroutine fasta_string2seq(string,seq,error_code,error_string)
+  subroutine fasta_string2seq(string,set,seq,err)
     ! read a sequence, return an array of integer
     character(len=*), intent(in)  :: string
+    character(len=*), intent(in)  :: set
     integer,          intent(out) :: seq(:)
-    integer,          intent(out) :: error_code
-    character(len=*), intent(out) :: error_string
-    integer :: i,n,ind
-    integer :: err
+    integer,          intent(out) :: err
+    integer :: i
 
-    error_string = ''
-    n = len_trim(string)
-    seq = [(index(protein_set,string(i:i)), i=1,len_trim(string))]
+    seq = [(index(trim(set),string(i:i)), i=1,len_trim(string))]
     
   end subroutine fasta_string2seq
 
@@ -88,8 +86,10 @@ contains
 
     if (nnuc > nprot) then
        data_type = 'nuc_acid'
+       symbols_set = nuc_acid_set
     else
        data_type = 'protein'
+       symbols_set = protein_set
     end if
 
     string = ""
@@ -106,7 +106,7 @@ contains
              allocate(seq(nv),stat=err)
              allocate(seqs(nv,ns),stat=err)
           end if
-          call fasta_string2seq(string,seq,error_code,error_string)
+          call fasta_string2seq(string,symbols_set,seq,error_code)
           if (error_code > 0) return
           seqs(:,k) = seq
           exit 
@@ -118,7 +118,7 @@ contains
              allocate(seq(nv),stat=err)
              allocate(seqs(nv,ns),stat=err)
           end if
-          call fasta_string2seq(string,seq,error_code,error_string)
+          call fasta_string2seq(string,symbols_set,seq,error_code)
           if (error_code > 0) return
           seqs(:,k) = seq
           string = ""
