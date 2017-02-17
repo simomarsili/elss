@@ -102,7 +102,7 @@ program learn
 
   if (uprm > 0) then
      call read_prm_unit(uprm,nvars,nclasses,&
-          prm,data_format,err)
+          prm,data_type,data_format,err)
      if (err /= 0) then
         if(iproc == 0) write(0,*) 'ERROR ! cannot read from prm'
         call mpi_wrapper_finalize(err)

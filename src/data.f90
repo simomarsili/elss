@@ -20,7 +20,7 @@ contains
 
   subroutine data_read(iproc,udata,data_type,data_format,uwgt,wid,nvars,nclasses,&
                        nseqs,neff,seqs,error_code,error_string)
-    use fasta, only: protein_alphabet,fasta_read
+    use fasta, only: fasta_read
     integer,              intent(in)    :: iproc
     integer,              intent(in)    :: udata
     character(len=*),     intent(out)   :: data_type
