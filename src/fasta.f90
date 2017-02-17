@@ -6,20 +6,26 @@ module fasta
   use constants
   implicit none
   private 
-  public :: protein_alphabet
-  public :: nuc_acid_alphabet
   public :: fasta_read
+  public :: set_fasta_alphabet
+  public :: fasta_alphabet
   integer, parameter :: kprot=21, knuc=6
-  character(len=1) :: protein_alphabet(kprot) = &
-       ['A','C','D','E','F','G','H','I','K',&
-       'L','M','N','P','Q','R','S','T','V','W','Y','-']
-  character(len=1) :: nuc_acid_alphabet(knuc) = &
-       ['A','C','G','T','U','-']
-  character(len=kprot) :: protein_set='ACDEFGHIKLMNPQRSTVWY-'
-  character(len=knuc)  :: nuc_acid_set='ACGTU-'
-  character(len=string_size) :: symbols_set
+  character(len=kprot) :: protein_alphabet='ACDEFGHIKLMNPQRSTVWY-'
+  character(len=knuc)  :: nuc_acid_alphabet='ACGTU-'
+  character(len=string_size) :: fasta_alphabet
 
 contains
+
+  subroutine set_fasta_alphabet(data_type)
+    character(len=*), intent(in) :: data_type
+    select case(data_type)
+    case('protein')
+       fasta_alphabet = protein_alphabet
+    case('nuc_acid')
+       fasta_alphabet = nuc_acid_alphabet
+    case default
+    end select
+  end subroutine set_fasta_alphabet
 
   function is_nuc_acid(string) result(res)
     ! check that a string contain only natural nucleotides symbols
@@ -27,7 +33,7 @@ contains
     logical :: res
     
     res = .false.
-    if (verify(trim(string),trim(nuc_acid_set)) == 0) res = .true.
+    if (verify(trim(string),trim(nuc_acid_alphabet)) == 0) res = .true.
     
   end function is_nuc_acid
   
@@ -37,19 +43,20 @@ contains
     logical :: res
     
     res = .false.
-    if (verify(trim(string),trim(protein_set)) == 0) res = .true.
+    if (verify(trim(string),trim(protein_alphabet)) == 0) res = .true.
     
   end function is_protein
 
-  subroutine fasta_string2seq(string,set,seq,err)
+  subroutine fasta_string2seq(string,seq,err)
     ! read a sequence, return an array of integer
     character(len=*), intent(in)  :: string
-    character(len=*), intent(in)  :: set
     integer,          intent(out) :: seq(:)
     integer,          intent(out) :: err
     integer :: i
 
-    seq = [(index(trim(set),string(i:i)), i=1,len_trim(string))]
+    seq = [(index(trim(fasta_alphabet),string(i:i)), i=1,len_trim(string))]
+
+    if (any(seq == 0)) err = 1
     
   end subroutine fasta_string2seq
 
@@ -84,13 +91,15 @@ contains
     end do
     rewind(unt)
 
+    write(*,*) ns,nprot,nnuc
+
     if (nnuc > nprot) then
        data_type = 'nuc_acid'
-       symbols_set = nuc_acid_set
     else
        data_type = 'protein'
-       symbols_set = protein_set
     end if
+
+    call set_fasta_alphabet(data_type)
 
     string = ""
     k = 1
@@ -106,7 +115,7 @@ contains
              allocate(seq(nv),stat=err)
              allocate(seqs(nv,ns),stat=err)
           end if
-          call fasta_string2seq(string,symbols_set,seq,error_code)
+          call fasta_string2seq(string,seq,error_code)
           if (error_code > 0) return
           seqs(:,k) = seq
           exit 
@@ -118,7 +127,7 @@ contains
              allocate(seq(nv),stat=err)
              allocate(seqs(nv,ns),stat=err)
           end if
-          call fasta_string2seq(string,symbols_set,seq,error_code)
+          call fasta_string2seq(string,seq,error_code)
           if (error_code > 0) return
           seqs(:,k) = seq
           string = ""
@@ -128,6 +137,10 @@ contains
           string = trim(string)//trim(line)
        end if
     end do
+
+!    do ns = 1,nseqs
+!       write(*,'(1000i2)') seqs(:,k)
+!    end do
 
   end subroutine fasta_read
 
