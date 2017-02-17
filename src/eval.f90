@@ -71,7 +71,7 @@ program eval
 
   if (uprm > 0) then
      call read_prm_unit(uprm,nvars,nclasses,&
-          prm,data_format,err)
+          prm,data_type,data_format,err)
      if (err /= 0) then
         stop
      end if

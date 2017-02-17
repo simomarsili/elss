@@ -11,7 +11,8 @@ Requirements/Tested on
 - OPENMPI 1.6 or higher (1.10)
 '
 
-DATA=10.fa
+#DATA=10.fa
+DATA=RF00001.afa
 NS=1000
 NITER=2000
 LAMBDA=0.01

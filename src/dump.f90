@@ -32,12 +32,14 @@ module dump
 contains
 
   subroutine read_prm_unit(unt,nvars,nclasses,&
-                                    prm,data_format,error_code)
+                                    prm,data_type,data_format,error_code)
     use parser, only: parser_nfields,remove_comments
     use random, only: random_seq
+    use fasta, only: set_fasta_alphabet
     integer,    intent(in)                 :: unt
     integer,    intent(inout)              :: nvars, nclasses
     real(kflt), intent(inout), allocatable :: prm(:)
+    character(len=*), intent(inout)        :: data_type
     character(len=*), intent(inout)        :: data_format
     integer,    intent(out)                :: error_code
     integer                         :: iv,jv
@@ -58,7 +60,7 @@ contains
        if (len_trim(line) == 0) then 
           cycle 
        else
-          read(line,*) data_format, nv, nc
+          read(line,*) data_type,data_format, nv, nc
           exit
        end if
     end do
@@ -136,6 +138,8 @@ contains
           return
        end select
     end do
+
+    call set_fasta_alphabet(data_type)
 
   end subroutine read_prm_unit
 
@@ -342,19 +346,20 @@ contains
   end subroutine dump_seq
 
   subroutine dump_fasta(unt,seq,time,etot,eh,ej)
-    use fasta, only: protein_alphabet
+    use fasta, only: fasta_alphabet
     use constants
     integer, intent(in) :: unt
     integer, intent(in) :: seq(:)
     integer, intent(in) :: time 
     real(kflt), intent(in) :: etot,eh,ej
-    integer :: i,n
+    integer :: i,n,si
     character(len=long_string_size) :: string
-    
+
     n = size(seq)
     string=''
     do i = 1,n
-       string = trim(string)//protein_alphabet(seq(i))
+       si = seq(i)
+       string = trim(string)//fasta_alphabet(si:si)
     end do
     write(unt,'(a,1x,i8,3(1x,f12.3))') '>', time, etot, eh, ej
     write(unt,'(a)') trim(string)
@@ -365,6 +370,7 @@ contains
   subroutine read_rst_unit(unt,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,error_code)
     ! read a restart file 
     use random, only: random_seq
+    use fasta, only: set_fasta_alphabet
     integer,          intent(in)                 :: unt
     character(len=*), intent(inout)              :: data_type
     character(len=*), intent(inout)              :: data_format
@@ -436,6 +442,8 @@ contains
     read(unt) prm
 
     deallocate(dummy)
+
+    call set_fasta_alphabet(data_type)
     
   end subroutine read_rst_unit
 

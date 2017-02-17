@@ -76,7 +76,7 @@ program sample
 
   if (uprm > 0) then
      call read_prm_unit(uprm,nvars,nclasses,&
-          prm,data_format,err)
+          prm,data_type,data_format,err)
      if (err /= 0) then
         write(0,*) 'ERROR ! cannot read from prm'
         stop
