@@ -9,62 +9,36 @@ module fasta
   public :: protein_alphabet
   public :: nuc_acid_alphabet
   public :: fasta_read
-  character(len=1) :: protein_alphabet(21) = &
+  integer, parameter :: kprot=21, knuc=6
+  character(len=1) :: protein_alphabet(kprot) = &
        ['A','C','D','E','F','G','H','I','K',&
        'L','M','N','P','Q','R','S','T','V','W','Y','-']
-  character(len=1) :: nuc_acid_alphabet(6) = &
+  character(len=1) :: nuc_acid_alphabet(knuc) = &
        ['A','C','G','T','U','-']
-  character(len=21) :: protein_set='ACDEFGHIKLMNPQRSTVWY-'
-  character(len=6)  :: nuc_acid_set='ACGTU-'
-  integer          :: aamap(239) ! 239 is n. of ascii codes (0 is null)
+  character(len=kprot) :: protein_set='ACDEFGHIKLMNPQRSTVWY-'
+  character(len=knuc)  :: nuc_acid_set='ACGTU-'
 
 contains
 
-  subroutine fasta_init(data_type)
-    character(len=*), intent(in) :: data_type
-    ! set the aa -> class mapping
-    integer :: k
-    
-    aamap = 0
-    select case(data_type)
-    case('protein')
-       do k = 1,21
-          aamap(iachar(protein_alphabet(k))) = k
-       end do
-    case('nuc_acid')
-       do k = 1,6
-          aamap(iachar(nuc_acid_alphabet(k))) = k
-       end do
-    end select
-    
-  end subroutine fasta_init
-
   function is_nuc_acid(string) result(res)
+    ! check that a string contain only natural nucleotides symbols
     character(len=*), intent(in)  :: string
     logical :: res
-
+    
     res = .false.
     if (verify(trim(string),trim(nuc_acid_set)) == 0) res = .true.
     
   end function is_nuc_acid
   
   function is_protein(string) result(res)
+    ! check that a string contain only natural amino acids symbols
     character(len=*), intent(in)  :: string
     logical :: res
-
+    
     res = .false.
     if (verify(trim(string),trim(protein_set)) == 0) res = .true.
     
   end function is_protein
-
-  function aa_to_class(aa) result(c)
-    ! takes an a.a. as input, return its index
-    character(len=1), intent(in)  :: aa
-    integer :: c
-    
-    c = aamap(iachar(aa))
-
-  end function aa_to_class
 
   subroutine fasta_string2seq(string,seq,error_code,error_string)
     ! read a sequence, return an array of integer
@@ -72,21 +46,12 @@ contains
     integer,          intent(out) :: seq(:)
     integer,          intent(out) :: error_code
     character(len=*), intent(out) :: error_string
-    integer :: i,n,index
+    integer :: i,n,ind
     integer :: err
 
     error_string = ''
     n = len_trim(string)
-    do i = 1,n
-       index = aa_to_class(string(i:i))
-       if ( index == 0 ) then ! symbol is not in protein_alphabet
-          error_code = 24
-          error_string = string(i:i)
-          return
-       else
-          seq(i) = index
-       end if
-    end do
+    seq = [(index(protein_set,string(i:i)), i=1,len_trim(string))]
     
   end subroutine fasta_string2seq
 
@@ -121,10 +86,11 @@ contains
     end do
     rewind(unt)
 
-    data_type = 'protein'
-    if (nnuc > nprot) data_type = 'nuc_acid'
-
-    call fasta_init(data_type)
+    if (nnuc > nprot) then
+       data_type = 'nuc_acid'
+    else
+       data_type = 'protein'
+    end if
 
     string = ""
     k = 1
