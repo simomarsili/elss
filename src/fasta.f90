@@ -7,6 +7,7 @@ module fasta
   implicit none
   private 
   public :: protein_alphabet
+  public :: nuc_acid_alphabet
   public :: fasta_read
   character(len=1) :: protein_alphabet(21) = &
        ['A','C','D','E','F','G','H','I','K',&
@@ -14,7 +15,7 @@ module fasta
   character(len=1) :: nuc_acid_alphabet(6) = &
        ['A','C','G','T','U','-']
   character(len=21) :: protein_set='ACDEFGHIKLMNPQRSTVWY-'
-  character(len=5)  :: nuc_acid_set='ACGTU-'
+  character(len=6)  :: nuc_acid_set='ACGTU-'
   integer          :: aamap(239) ! 239 is n. of ascii codes (0 is null)
 
 contains
@@ -22,19 +23,17 @@ contains
   subroutine fasta_init(data_type)
     character(len=*), intent(in) :: data_type
     ! set the aa -> class mapping
-    integer :: k,nn
+    integer :: k
     
     aamap = 0
     select case(data_type)
     case('protein')
        do k = 1,21
-          nn = iachar(protein_alphabet(k))
-          aamap(nn) = k
+          aamap(iachar(protein_alphabet(k))) = k
        end do
     case('nuc_acid')
        do k = 1,6
-          nn = iachar(nuc_acid_alphabet(k))
-          aamap(nn) = k
+          aamap(iachar(nuc_acid_alphabet(k))) = k
        end do
     end select
     
@@ -45,7 +44,7 @@ contains
     logical :: res
 
     res = .false.
-    if (verify(string,nuc_acid_set) == 0) res = .true.
+    if (verify(trim(string),trim(nuc_acid_set)) == 0) res = .true.
     
   end function is_nuc_acid
   
@@ -54,7 +53,7 @@ contains
     logical :: res
 
     res = .false.
-    if (verify(string,protein_set) == 0) res = .true.
+    if (verify(trim(string),trim(protein_set)) == 0) res = .true.
     
   end function is_protein
 
