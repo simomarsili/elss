@@ -47,17 +47,15 @@ contains
     
   end function is_protein
 
-  subroutine fasta_string2seq(string,seq,err)
+  subroutine fasta_string2seq(alphabet,string,seq)
     ! read a sequence, return an array of integer
+    character(len=*), intent(in)  :: alphabet
     character(len=*), intent(in)  :: string
     integer,          intent(out) :: seq(:)
-    integer,          intent(out) :: err
     integer :: i
 
-    seq = [(index(trim(fasta_alphabet),string(i:i)), i=1,len_trim(string))]
+    seq = [(index(trim(alphabet),string(i:i)), i=1,len_trim(string))]
 
-    if (any(seq == 0)) err = 1
-    
   end subroutine fasta_string2seq
 
   subroutine fasta_read(unt,seqs,data_type,error_code,error_string)
@@ -71,11 +69,14 @@ contains
     character(len=long_string_size) :: string
     character(len=long_string_size) :: line
     integer, allocatable :: seq(:)
-    integer                         :: k,ns,nv,nnuc,nprot
+    integer                         :: k,ns,nv,nnuc,nprot,ntot,nuc,prot
     integer                         :: err
 
+    
+    
     ! count seqs and Ls
     ns = 0
+    ntot = 0
     nnuc = 0
     nprot = 0
     do
@@ -83,20 +84,28 @@ contains
        ! exit at end of file or empty line
        if ( err < 0 .or. len_trim(line) == 0 ) exit
        if ( line(1:1) == ">" ) then
-          ns = ns + 1
+          ntot = ntot + 1
+          if (ntot > 1) then 
+             nnuc = nnuc + nuc
+             nprot = nprot + prot
+          end if
+          nuc = 1
+          prot = 1
        else
-          if (is_nuc_acid(line)) nnuc = nnuc + 1
-          if (is_protein(line)) nprot = nprot + 1
+          if (.not. is_nuc_acid(line)) nuc = 0
+          if (.not. is_protein(line)) prot = 0
        end if
     end do
     rewind(unt)
-
-    write(*,*) ns,nprot,nnuc
+    nnuc = nnuc + nuc
+    nprot = nprot + prot
 
     if (nnuc > nprot) then
        data_type = 'nuc_acid'
+       ns = nnuc
     else
        data_type = 'protein'
+       ns = nprot
     end if
 
     call set_fasta_alphabet(data_type)
@@ -104,34 +113,35 @@ contains
     string = ""
     k = 1
     read(unt,'(a)',iostat=err) header
-    if (header(1:1) /= '>') then 
-       error_code = 43
-    end if
     do
        read(unt,'(a)',iostat=err) line
-       if (err < 0) then 
-          if (k == 1) then 
-             nv = len_trim(string)
-             allocate(seq(nv),stat=err)
-             allocate(seqs(nv,ns),stat=err)
+       if (err < 0) then
+          ! eof 
+          if (k == 1) then
+             write(0,*) 'ERROR ! empty alignment'
+             error_code = 1
           end if
-          call fasta_string2seq(string,seq,error_code)
-          if (error_code > 0) return
-          seqs(:,k) = seq
-          exit 
+          call fasta_string2seq(fasta_alphabet,string,seq)
+          if (all(seq > 0)) seqs(:,k) = seq
+          exit          
        end if
        if (line(1:1) == ">") then 
           header = line
-          if (k == 1) then 
+          if (header(1:1) /= '>') then 
+             write(0,*) 'ERROR ! not a valid FASTA file'
+             error_code = 2
+          end if
+          if (k == 1) then
              nv = len_trim(string)
              allocate(seq(nv),stat=err)
              allocate(seqs(nv,ns),stat=err)
           end if
-          call fasta_string2seq(string,seq,error_code)
-          if (error_code > 0) return
-          seqs(:,k) = seq
+          call fasta_string2seq(fasta_alphabet,string,seq)
           string = ""
-          k = k + 1
+          if (all(seq > 0)) then
+             seqs(:,k) = seq
+             k = k + 1
+          end if
           cycle
        else
           string = trim(string)//trim(line)

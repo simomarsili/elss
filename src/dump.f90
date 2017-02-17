@@ -65,10 +65,16 @@ contains
        end if
     end do
 
-    if (trim(data_format) == 'FASTA' .and. nc /= 21) then
-       write(0,*) 'ERROR ! in prm file, num. of classes must be 21'
-       error_code = 1
-       return
+    if (trim(data_format) == 'FASTA') then
+       if (trim(data_type) == 'protein' .and. nc /= 21) then
+          write(0,*) 'ERROR ! in prm file, num. of classes must be 21'
+          error_code = 1
+          return
+       else if (trim(data_type) == 'nuc_acid' .and. nc /= 6) then
+          write(0,*) 'ERROR ! in prm file, num. of classes must be 6'
+          error_code = 1
+          return
+       end if
     end if
 
     if (nvars == 0 .and. nclasses == 0) then 
