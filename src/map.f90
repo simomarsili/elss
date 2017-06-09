@@ -180,18 +180,37 @@ contains
                data_energy/float(nvars), regularization_energy/float(nvars), elapsed
           flush(ulog)
 
+          ! update parameters and momentum terms
+          ! see: https://github.com/lisa-lab/pylearn2/pull/136#issuecomment-10381617
+          ! http://colinraffel.com/wiki/stochastic_optimization_techniques
+          ! http://caffe.berkeleyvision.org/tutorial/solver.html
+          ! https://arxiv.org/abs/1609.04747
           select case(trim(algorithm))
           case('gd')
              prm = prm - eps_map * grd
           case('momentum')
+             ! this is not SGD with momentum. correct this. 
              prm1 = gamma1 * prm1 + (1.0_kflt -gamma1) * grd
              prm = prm - eps_map * prm1 / (1.0_kflt - gamma1**(iter+1))
           case('nag')
+             ! same implementation as in lasagne v0.2
+             ! velocity := momentum * velocity - learning_rate * gradient
+             ! param := param + momentum * velocity - learning_rate * gradient
+             ! """
+             ! The classic formulation of Nesterov momentum (or Nesterov accelerated gradient)
+             ! requires the gradient to be evaluated at the predicted next position in parameter space.
+             ! Here, we use the formulation described at
+             ! https://github.com/lisa-lab/pylearn2/pull/136#issuecomment-10381617,
+             ! which allows the gradient to be evaluated at the current parameters (eqs 6,7).
+             ! """
              prm1 = gamma1 * prm1 - eps_map * grd
              prm = prm + gamma1 * prm1 - eps_map * grd
           case('adam')
+             ! update the (exp. decaying) average of the gradient
              prm1 = gamma1*prm1 + (1.0_kflt - gamma1) * grd
+             ! update the (exp. decaying) average of the squared gradient
              prm2 = gamma2*prm2 + (1.0_kflt - gamma2) * grd**2
+             ! update parameters using the 'unbiased' averages
              prm = prm - eps_map * (prm1 / (1.0_kflt - gamma1**(iter+1))) / &
                   (sqrt(prm2 / (1.0_kflt - gamma2**(iter+1))) + 1.e-8_kflt)
           case('adam-modified')
