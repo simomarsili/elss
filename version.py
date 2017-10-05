@@ -1,1 +1,2 @@
-__version__ = '0.3.1'
+__version__ = '0.2.1'
+update_files = ['README.md', 'src/main.f90']
