@@ -1,8 +1,8 @@
 #INSTALLDIR=/usr/local/bin
 INSTALLDIR=~/.local/bin
 
-EXE = mcsg-eval mcsg-sample mcsg-learn
-TOOLS = mcsg-getprm
+EXE = elss-eval elss-sample elss-learn
+TOOLS = elss-getprm
 FC = mpif90
 FFLAGS = -O2 -fconvert=little-endian
 #FFLAGS = -fast -heap-arrays # ifort (important: use -heap-arrays)
@@ -18,13 +18,13 @@ SRCS-pchk = getprm.f90 kinds.f90 constants.f90 units.f90 arguments.f90
 OBJS-pchk = getprm.o kinds.o constants.o units.o arguments.o
 
 all: $(EXE) $(TOOLS)
-mcsg-learn: $(OBJS-learn) 
+elss-learn: $(OBJS-learn) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-learn) $(LIBS)
-mcsg-eval: $(OBJS-eval) 
+elss-eval: $(OBJS-eval) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-eval) $(LIBS)
-mcsg-sample: $(OBJS-sample) 
+elss-sample: $(OBJS-sample) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-sample) $(LIBS)
-mcsg-getprm: $(OBJS-pchk) 
+elss-getprm: $(OBJS-pchk) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-pchk) $(LIBS)
 
 .SUFFIXES: $(SUFFIXES) .f90 .f
@@ -64,10 +64,10 @@ getprm.o = getprm.f90 kinds.o constants.o units.o arguments.o
 
 install: $(EXE)
 	mkdir -p $(INSTALLDIR)
-	cp mcsg-* $(INSTALLDIR)
+	cp elss-* $(INSTALLDIR)
 
 uninstall:
-	rm -f $(INSTALLDIR)/mcsg-*
+	rm -f $(INSTALLDIR)/elss-*
 
 # clean: remove useless files, but keep executables
 clean:
