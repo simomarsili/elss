@@ -131,7 +131,7 @@ program eval
   if ( iproc == 0 ) then
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#==========================================='
-     write(ulog,'(a)')         '#_________________mcsg_v0.3.1_______________'
+     write(ulog,'(a)')         '#_________________elss_v0.3.1_______________'
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#  mode  :    '//trim(mode)
      write(ulog,'(a)')         '#  format:    '//trim(data_format)
