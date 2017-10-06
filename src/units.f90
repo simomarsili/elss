@@ -19,7 +19,7 @@ contains
     
   end subroutine units_initialize
   
-  subroutine units_open(filename,status,fileunit,err)
+  subroutine units_open(filename, status, fileunit, err)
     implicit none
     character(len=*), intent(in)  :: filename
     character(len=*), intent(in)  :: status
@@ -29,11 +29,11 @@ contains
     nunits = nunits + 1
     fileunit = nunits
 
-    open(unit=fileunit,file=filename,status=status,iostat=err)
+    open(unit=fileunit, file=filename, status=status, iostat=err)
 
   end subroutine units_open
 
-  subroutine units_open_unf(filename,status,fileunit,err)
+  subroutine units_open_unf(filename, status, fileunit, err)
     implicit none
     character(len=*), intent(in)  :: filename
     character(len=*), intent(in)  :: status
@@ -43,7 +43,8 @@ contains
     nunits = nunits + 1
     fileunit = nunits
 
-    open(unit=fileunit,file=filename,status=status,access='stream',form='unformatted',iostat=err)
+    open(unit=fileunit, file=filename, status=status, access='stream', &
+         form='unformatted', iostat=err)
 
   end subroutine units_open_unf
   
