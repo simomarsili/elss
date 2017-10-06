@@ -74,6 +74,7 @@ contains
 
     iarg = 0
     args_loop: do while(iarg < nargs)
+       iarg = iarg + 1
        call read_opt(iarg,nargs,arg,err)
        select case(trim(arg))
        case('-h','--help')
@@ -89,6 +90,7 @@ contains
           case('--fasta')
              data_format = 'FASTA'
           end select
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,data_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
@@ -97,6 +99,7 @@ contains
           end if
        case('-p','--prm')
           ! prm file
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,prm_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
@@ -105,6 +108,7 @@ contains
           end if
        case('-r','--rst')
           ! rst file
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,rst_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
@@ -113,6 +117,7 @@ contains
           end if
        case('--prefix')
           ! prefix
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,prefix,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <prefix>'

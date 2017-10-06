@@ -39,6 +39,7 @@ program getprm
 
   iarg = 0
   args_loop: do while(iarg < nargs)
+     iarg = iarg + 1
      call read_opt(iarg,nargs,arg,err)
      select case(trim(arg))
      case('-h','--help')
@@ -47,6 +48,7 @@ program getprm
         stop
      case('-i')
         ! prm file
+        iarg = iarg + 1
         call read_opt_arg(iarg,nargs,rst_file,err)
         if (err == 1) then
            write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'

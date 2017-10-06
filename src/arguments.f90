@@ -19,14 +19,13 @@ module arguments
 contains
   
   subroutine read_opt(iarg, nargs, arg, err)
-    ! read an option from position iarg+1
+    ! read an option from position iarg
     integer, intent(inout)        :: iarg
     integer, intent(in)           :: nargs
     character(len=*), intent(out) :: arg
     integer, intent(out)          :: err
 
     err = 0
-    iarg = iarg + 1
     if (iarg > nargs) then
        err = 1 
        return
@@ -37,7 +36,7 @@ contains
   end subroutine read_opt
 
   subroutine read_arg_int(iarg, nargs, arg, err)
-    ! read an integer from position iarg+1
+    ! read an integer from position iarg
     integer, intent(inout)                       :: iarg
     integer, intent(in)                          :: nargs
     integer, intent(out)                         :: arg
@@ -45,7 +44,6 @@ contains
     character(len=long_string_size) :: string
 
     err = 0
-    iarg = iarg + 1
     if (iarg > nargs) then
        err = 1
        return
@@ -64,7 +62,7 @@ contains
   end subroutine read_arg_int
 
   subroutine read_arg_float_single(iarg,nargs,arg,err)
-    ! read a single precision float from position iarg+1
+    ! read a single precision float from position iarg
     integer, intent(inout)                       :: iarg
     integer, intent(in)                          :: nargs
     real(4), intent(out)                         :: arg
@@ -72,7 +70,6 @@ contains
     character(len=long_string_size) :: string
 
     err = 0
-    iarg = iarg + 1
     if (iarg > nargs) then
        err = 1
        return
@@ -91,7 +88,7 @@ contains
   end subroutine read_arg_float_single
 
   subroutine read_arg_float_double(iarg, nargs, arg, err)
-    ! read a double precision float from position iarg+1
+    ! read a double precision float from position iarg
     integer, intent(inout)                       :: iarg
     integer, intent(in)                          :: nargs
     real(8), intent(out)                         :: arg
@@ -99,7 +96,6 @@ contains
     character(len=long_string_size)              :: string
 
     err = 0
-    iarg = iarg + 1
     if (iarg > nargs) then
        err = 1
        return
@@ -118,7 +114,7 @@ contains
   end subroutine read_arg_float_double
 
   subroutine read_arg_string(iarg, nargs, arg, err)
-    ! read a string from position iarg+1
+    ! read a string from position iarg
     integer, intent(inout)                       :: iarg
     integer, intent(in)                          :: nargs
     character(len=*), intent(out)                :: arg
@@ -126,7 +122,6 @@ contains
     character(len=long_string_size) :: string
 
     err = 0
-    iarg = iarg + 1
     if (iarg > nargs) then
        err = 1
        return
