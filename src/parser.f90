@@ -7,16 +7,17 @@ module parser
   private
   public :: parser_nfields, cleanline, remove_comments
   ! possible delimiters are: space, tab, comma, colon, semicolon
-  !  character(len=1) :: delimiters(5)=[" ", achar(9), ",", ":", ";"]
-  character(len=1) :: delimiters(2)=[" ", achar(9)] ! accepted delimiters are space and tab
+  !  character(len=1) :: delimiters(5)=[" ", achar(9), ",", ":", ";"]   
+  ! accepted delimiters are space and tab
+  character(len=1) :: delimiters(2) = [" ", achar(9)]
   
 contains
 
-  subroutine parser_nfields(line,parsed,nfields)
-    character(len=*),intent(in)  :: line
-    integer,         intent(out) :: nfields
-    character(len=*),intent(out) :: parsed
-    integer i, n, toks
+  subroutine parser_nfields(line, parsed, nfields)
+    character(len=*), intent(in)  :: line
+    integer,          intent(out) :: nfields
+    character(len=*), intent(out) :: parsed
+    integer :: i, n, toks
     
     i = 1
     n = len_trim(line)
@@ -46,18 +47,17 @@ contains
     
   end subroutine parser_nfields
 
-  subroutine cleanline(line,parsed)
+  subroutine cleanline(line, parsed)
     character(len=*), intent(in)  :: line
     character(len=*), intent(out) :: parsed
     character(len=1) :: a
-    
-    integer :: i,n
+    integer :: i, n
     
     n = len_trim(line)
     parsed = line
     do while(i <= n)
        a = line(i:i)
-       if ( any(delimiters == a) ) then
+       if (any(delimiters == a)) then
           parsed(i:i) = " "
        else
           parsed(i:i) = a
@@ -70,7 +70,7 @@ contains
   subroutine remove_comments(line)
     character(len=*), intent(inout)  :: line
     character(len=1) :: a
-    integer :: i,n
+    integer :: i, n
     
     n = len_trim(line)
     do while(i <= n)
