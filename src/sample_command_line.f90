@@ -84,6 +84,7 @@ contains
 
     iarg = 0
     args_loop: do while(iarg < nargs)
+       iarg = iarg + 1
        call read_opt(iarg,nargs,arg,err)
        select case(trim(arg))
        case('-h','--help')
@@ -93,6 +94,7 @@ contains
           return
        case('-p','--prm')
           ! prm file
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,prm_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
@@ -101,6 +103,7 @@ contains
           end if
        case('-r','--rst')
           ! rst file
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,rst_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
@@ -109,6 +112,7 @@ contains
           end if
        case('-s','--seq')
           ! seq file
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,seq_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
@@ -116,6 +120,7 @@ contains
              return
           end if
        case('-t','--temp')
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,beta,err)
           if ( beta < 0.0) then
              write(0,*) 'ERROR ! check beta'
@@ -124,6 +129,7 @@ contains
           end if
           beta = 1.0_kflt / beta 
        case('-n','--nsweeps')
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,mc_nsweeps,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check nsweeps'
@@ -131,6 +137,7 @@ contains
              return
           end if
        case('--random_seed')
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,rseed,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check random_seed'
@@ -138,6 +145,7 @@ contains
              return
           end if
        case('-u','--nupdate')
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,nupdate,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check nupdate'
@@ -146,6 +154,7 @@ contains
           end if
        case('--prefix')
           ! prefix
+          iarg = iarg + 1
           call read_opt_arg(iarg,nargs,prefix,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <prefix>'
