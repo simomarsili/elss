@@ -80,7 +80,7 @@ contains
        mc_nsweeps,tot_iter,nupdate)
     use mcmc, only:       mcmc_update_energy
     use dump, only:       dump_rst
-    use cost, only: cost_compute_energies,cost_compute_gradient
+    use cost, only: compute_cost,compute_gradient
 
     character(len=*), intent(in)  :: algorithm
     integer,    intent(inout)    :: nvars,nclasses
@@ -173,7 +173,7 @@ contains
           end if
           
           ! compute gradient  of the cost function
-          call cost_compute_gradient(fdata,fmodel,lambda,prm,grd)
+          call compute_gradient(fdata,fmodel,lambda,prm,grd)
           
           write(ulog,'(i6,1x,5f14.6)') &
                iter, sqrt(maxval(grd**2)), sum(grd**2), &
@@ -234,7 +234,7 @@ contains
                   (sqrt(prm2 / (1.0_kflt - gamma2**(iter+1))) + 1.e-8_kflt)
           end select
           
-          call cost_compute_energies(fdata,prm,lambda,data_energy,regularization_energy)
+          call compute_cost(fdata,prm,lambda,data_energy,regularization_energy)
 
        end if
 
