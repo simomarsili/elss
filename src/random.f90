@@ -11,45 +11,41 @@ module random
   
 contains 
 
-  subroutine random_initialize(rseed,pid)
+  subroutine random_initialize(rseed, pid)
     ! Random Numbers In Scientific Computing: An Introduction by Katzgrabber
     implicit none
-    integer, intent(IN) :: rseed
-    integer, intent(IN) :: pid
-    integer              :: n
-    integer,allocatable  :: seed(:)
-    integer(kint_single) :: seedgen,clock
-    integer              :: i
+    integer, intent(in) :: rseed
+    integer, intent(in) :: pid
+    integer              :: i, n, seedgen, clock
+    integer, allocatable :: seed(:)
     real(kflt)           :: rnd
     
     call random_seed(size = n)
     allocate(seed(n))
-    
     if (rseed == 0) then 
        call system_clock(clock)
     else
        clock = rseed
     end if
-    seedgen = abs( mod((clock*181)*((pid-83)*359), 104729) )
-    seed = seedgen + 37 * (/ (i - 1, i = 1, n) /)
+    seedgen = abs(mod((clock * 181) * ((pid - 83) * 359), 104729))
+    seed = seedgen + 37 * [(i - 1, i = 1, n)]
     call random_seed(PUT = seed)
     deallocate(seed)
-    
-    ! discard the first one
+    ! well discard the first one
     call random_number(rnd)
     
   end subroutine random_initialize
 
-  subroutine random_seq(nv,nc,seq)
-    integer, intent(in)    :: nv,nc
+  subroutine random_seq(nv, nc, seq)
+    integer, intent(in)    :: nv, nc
     integer, intent(inout) :: seq(:)
     integer    :: err
-    integer    :: iv,ic
+    integer    :: iv, ic
     real(kflt) :: rnd
 
-    do iv = 1,nv
+    do iv = 1, nv
        call random_number(rnd)
-       ic = int(rnd*nc) + 1
+       ic = int(rnd * nc) + 1
        seq(iv) = ic
     end do
 

@@ -11,7 +11,7 @@ module cost
   
 contains
 
-  subroutine compute_gradient(fdata,fmodel,lambda,prm,grd)
+  subroutine compute_gradient(fdata, fmodel, lambda, prm, grd)
     real(kflt), intent(in)      :: fdata(:)
     real(kflt), intent(in)      :: fmodel(:)
     real(kflt), intent(in)      :: lambda
@@ -23,7 +23,7 @@ contains
     
   end subroutine compute_gradient
 
-  subroutine compute_cost(fdata,prm,lambda,edata,ereg)
+  subroutine compute_cost(fdata, prm, lambda, edata, ereg)
     real(kflt), intent(in)  :: fdata(:)
     real(kflt), intent(in)  :: prm(:)
     real(kflt), intent(in)  :: lambda
