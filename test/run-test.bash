@@ -29,14 +29,12 @@ then
     echo "run this script in test dir. Aborting."; exit 1; 
 fi
 
-# check executable 
-(cd $src_dir && 
-    if [ ! -f elss ]; then
+# always compile
+(cd $src_dir &&
 	command -v mpif90 >/dev/null 2>&1 || { echo >&2 "mpif90 is required but it's not installed.  Aborting."; exit 1; }
-	echo "compiling elss..."
-	make realclean; 
-	make; 
-    fi
+ echo "compiling elss..."
+ make realclean; 
+ make; 
 ) &> log ;
 
 EXE=$src_dir/elss
