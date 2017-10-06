@@ -7,14 +7,14 @@ module arguments
   use constants
   implicit none
   private
-  public :: read_arg,read_opt
+  public :: read_opt, read_opt_arg
   
-  interface read_arg
+  interface read_opt_arg
      module procedure read_arg_int
      module procedure read_arg_float_single
      module procedure read_arg_float_double
      module procedure read_arg_string
-  end interface read_arg
+  end interface read_opt_arg
 
 contains
   

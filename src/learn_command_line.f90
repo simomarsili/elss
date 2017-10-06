@@ -59,7 +59,7 @@ contains
                                rseed,beta,mc_nsweeps,nupdate,niter_agd,niter_gd,&
                                lambda,prefix,error_code)
     use units, only: units_open,units_open_unf
-    use arguments, only: read_opt,read_arg
+    use arguments, only: read_opt,read_opt_arg
     integer,                    intent(inout) :: udata
     character(len=*),           intent(inout) :: data_format
     integer,                    intent(inout) :: uwgt
@@ -121,7 +121,7 @@ contains
           case('--fasta')
              data_format = 'FASTA'
           end select
-          call read_arg(iarg,nargs,data_file,err)
+          call read_opt_arg(iarg,nargs,data_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -129,7 +129,7 @@ contains
           end if
        case('-p','--prm')
           ! prm file
-          call read_arg(iarg,nargs,prm_file,err)
+          call read_opt_arg(iarg,nargs,prm_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -137,7 +137,7 @@ contains
           end if
        case('-r','--rst')
           ! rst file
-          call read_arg(iarg,nargs,rst_file,err)
+          call read_opt_arg(iarg,nargs,rst_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -145,7 +145,7 @@ contains
           end if
        case('-w','--weights')
           ! ww file
-          call read_arg(iarg,nargs,ww_file,err)
+          call read_opt_arg(iarg,nargs,ww_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -153,7 +153,7 @@ contains
           end if
        case('--wid')
           ! identity threshold for reweighting
-          call read_arg(iarg,nargs,wid,err)
+          call read_opt_arg(iarg,nargs,wid,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check wid threshold'
              error_code = 1
@@ -166,7 +166,7 @@ contains
           end if
        case('-t','--temp')
           ! temperature for the run
-          call read_arg(iarg,nargs,beta,err)
+          call read_opt_arg(iarg,nargs,beta,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check temperature'
              error_code = 1
@@ -180,7 +180,7 @@ contains
           beta = 1.0_kflt / beta 
        case('-n','--nsweeps')
           ! num. of sweeps at each gradient evaluation
-          call read_arg(iarg,nargs,mc_nsweeps,err)
+          call read_opt_arg(iarg,nargs,mc_nsweeps,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check nsweeps'
              error_code = 1
@@ -192,28 +192,28 @@ contains
              return
           end if
        case('--random_seed')
-          call read_arg(iarg,nargs,rseed,err)
+          call read_opt_arg(iarg,nargs,rseed,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check random_seed'
              error_code = 1
              return
           end if
        case('-u','--nupdate')
-          call read_arg(iarg,nargs,nupdate,err)
+          call read_opt_arg(iarg,nargs,nupdate,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check nupdate'
              error_code = 1
              return
           end if
        case('--learn','--learn-agd')
-          call read_arg(iarg,nargs,niter_agd,err)
+          call read_opt_arg(iarg,nargs,niter_agd,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check nupdate'
              error_code = 1
              return
           end if
        case('--learn-gd')
-          call read_arg(iarg,nargs,niter_gd,err)
+          call read_opt_arg(iarg,nargs,niter_gd,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check nupdate'
              error_code = 1
@@ -221,7 +221,7 @@ contains
           end if
        case('-l','--lambda')
           ! regularization parameter
-          call read_arg(iarg,nargs,lambda,err)
+          call read_opt_arg(iarg,nargs,lambda,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check lambda'
              error_code = 1
@@ -234,7 +234,7 @@ contains
           end if
        case('--prefix')
           ! prefix
-          call read_arg(iarg,nargs,prefix,err)
+          call read_opt_arg(iarg,nargs,prefix,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <prefix>'
              error_code = 1

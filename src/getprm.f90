@@ -6,7 +6,7 @@ program getprm
   use kinds
   use constants
   use units, only: units_open_unf
-  use arguments, only: read_opt,read_arg
+  use arguments, only: read_opt,read_opt_arg
   
   integer                    :: unt=11
   character(len=string_size) :: data_type
@@ -47,7 +47,7 @@ program getprm
         stop
      case('-i')
         ! prm file
-        call read_arg(iarg,nargs,rst_file,err)
+        call read_opt_arg(iarg,nargs,rst_file,err)
         if (err == 1) then
            write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
            stop
