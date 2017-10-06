@@ -38,7 +38,7 @@ contains
   
   subroutine command_line_read(udata,data_format,uprm,urst,prefix,error_code)
     use units, only: units_open,units_open_unf
-    use arguments, only: read_opt,read_arg
+    use arguments, only: read_opt,read_opt_arg
     integer,                    intent(inout) :: udata
     character(len=*),           intent(inout) :: data_format
     integer,                    intent(inout) :: uprm
@@ -89,7 +89,7 @@ contains
           case('--fasta')
              data_format = 'FASTA'
           end select
-          call read_arg(iarg,nargs,data_file,err)
+          call read_opt_arg(iarg,nargs,data_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -97,7 +97,7 @@ contains
           end if
        case('-p','--prm')
           ! prm file
-          call read_arg(iarg,nargs,prm_file,err)
+          call read_opt_arg(iarg,nargs,prm_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -105,7 +105,7 @@ contains
           end if
        case('-r','--rst')
           ! rst file
-          call read_arg(iarg,nargs,rst_file,err)
+          call read_opt_arg(iarg,nargs,rst_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -113,7 +113,7 @@ contains
           end if
        case('--prefix')
           ! prefix
-          call read_arg(iarg,nargs,prefix,err)
+          call read_opt_arg(iarg,nargs,prefix,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <prefix>'
              error_code = 1

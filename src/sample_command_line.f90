@@ -45,7 +45,7 @@ contains
   subroutine command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
                                prefix,error_code)
     use units, only: units_open,units_open_unf
-    use arguments, only: read_opt,read_arg
+    use arguments, only: read_opt,read_opt_arg
     integer,                    intent(inout) :: uprm
     integer,                    intent(inout) :: urst
     integer,                    intent(inout) :: useq
@@ -93,7 +93,7 @@ contains
           return
        case('-p','--prm')
           ! prm file
-          call read_arg(iarg,nargs,prm_file,err)
+          call read_opt_arg(iarg,nargs,prm_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -101,7 +101,7 @@ contains
           end if
        case('-r','--rst')
           ! rst file
-          call read_arg(iarg,nargs,rst_file,err)
+          call read_opt_arg(iarg,nargs,rst_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -109,14 +109,14 @@ contains
           end if
        case('-s','--seq')
           ! seq file
-          call read_arg(iarg,nargs,seq_file,err)
+          call read_opt_arg(iarg,nargs,seq_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
              return
           end if
        case('-t','--temp')
-          call read_arg(iarg,nargs,beta,err)
+          call read_opt_arg(iarg,nargs,beta,err)
           if ( beta < 0.0) then
              write(0,*) 'ERROR ! check beta'
              error_code = 1
@@ -124,21 +124,21 @@ contains
           end if
           beta = 1.0_kflt / beta 
        case('-n','--nsweeps')
-          call read_arg(iarg,nargs,mc_nsweeps,err)
+          call read_opt_arg(iarg,nargs,mc_nsweeps,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check nsweeps'
              error_code = 1
              return
           end if
        case('--random_seed')
-          call read_arg(iarg,nargs,rseed,err)
+          call read_opt_arg(iarg,nargs,rseed,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check random_seed'
              error_code = 1
              return
           end if
        case('-u','--nupdate')
-          call read_arg(iarg,nargs,nupdate,err)
+          call read_opt_arg(iarg,nargs,nupdate,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check nupdate'
              error_code = 1
@@ -146,7 +146,7 @@ contains
           end if
        case('--prefix')
           ! prefix
-          call read_arg(iarg,nargs,prefix,err)
+          call read_opt_arg(iarg,nargs,prefix,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <prefix>'
              error_code = 1
