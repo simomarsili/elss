@@ -18,113 +18,130 @@ module arguments
 
 contains
   
-  subroutine read_opt(iarg,nargs,arg,err)
+  subroutine read_opt(iarg, nargs, arg, err)
+    ! read an option from position iarg+1
     integer, intent(inout)        :: iarg
     integer, intent(in)           :: nargs
     character(len=*), intent(out) :: arg
-    integer, intent(out)                         :: err
+    integer, intent(out)          :: err
 
-    iarg = iarg + 1
     err = 0
-    call get_command_argument(iarg,arg)
-    if (arg(1:1) /= '-') err = 1 
+    iarg = iarg + 1
+    if (iarg > nargs) then
+       err = 1 
+       return
+    end if
+    call get_command_argument(iarg, arg)
+    if (arg(1:1) /= '-') err = 2
 
   end subroutine read_opt
 
-  subroutine read_arg_int(iarg,nargs,arg,err)
+  subroutine read_arg_int(iarg, nargs, arg, err)
+    ! read an integer from position iarg+1
     integer, intent(inout)                       :: iarg
     integer, intent(in)                          :: nargs
     integer, intent(out)                         :: arg
     integer, intent(out)                         :: err
     character(len=long_string_size) :: string
-    iarg = iarg + 1
+
     err = 0
+    iarg = iarg + 1
     if (iarg > nargs) then
-       err = 1 ! missing arg
+       err = 1
        return
     end if
     call get_command_argument(iarg,string)
     if (string(1:1) == '-') then
-       err = 1 ! missing arg
+       err = 2
        return
     end if
     read(string,*,iostat=err) arg
     if (err /= 0) then
-       err = 2 ! cant read arg
+       err = 3
        return
     end if
+
   end subroutine read_arg_int
 
   subroutine read_arg_float_single(iarg,nargs,arg,err)
+    ! read a single precision float from position iarg+1
     integer, intent(inout)                       :: iarg
     integer, intent(in)                          :: nargs
     real(4), intent(out)                         :: arg
     integer, intent(out)                         :: err
     character(len=long_string_size) :: string
-    iarg = iarg + 1
+
     err = 0
+    iarg = iarg + 1
     if (iarg > nargs) then
-       err = 1 ! missing arg
+       err = 1
        return
     end if
     call get_command_argument(iarg,string)
     if (string(1:1) == '-') then
-       err = 1 ! missing arg
+       err = 2
        return
     end if
     read(string,*,iostat=err) arg
     if (err /= 0) then
-       err = 2 ! cant read arg
+       err = 3
        return
     end if
+    
   end subroutine read_arg_float_single
 
-  subroutine read_arg_float_double(iarg,nargs,arg,err)
+  subroutine read_arg_float_double(iarg, nargs, arg, err)
+    ! read a double precision float from position iarg+1
     integer, intent(inout)                       :: iarg
     integer, intent(in)                          :: nargs
     real(8), intent(out)                         :: arg
     integer, intent(out)                         :: err
-    character(len=long_string_size) :: string
-    iarg = iarg + 1
+    character(len=long_string_size)              :: string
+
     err = 0
+    iarg = iarg + 1
     if (iarg > nargs) then
-       err = 1 ! missing arg
+       err = 1
        return
     end if
-    call get_command_argument(iarg,string)
+    call get_command_argument(iarg, string)
     if (string(1:1) == '-') then
-       err = 1 ! missing arg
+       err = 2
        return
     end if
     read(string,*,iostat=err) arg
     if (err /= 0) then
-       err = 2 ! cant read arg
+       err = 3
        return
     end if
+    
   end subroutine read_arg_float_double
 
-  subroutine read_arg_string(iarg,nargs,arg,err)
+  subroutine read_arg_string(iarg, nargs, arg, err)
+    ! read a string from position iarg+1
     integer, intent(inout)                       :: iarg
     integer, intent(in)                          :: nargs
     character(len=*), intent(out)                :: arg
     integer, intent(out)                         :: err
     character(len=long_string_size) :: string
-    iarg = iarg + 1
+
     err = 0
+    iarg = iarg + 1
     if (iarg > nargs) then
-       err = 1 ! missing arg
+       err = 1
        return
     end if
-    call get_command_argument(iarg,string)
+    call get_command_argument(iarg, string)
     if (string(1:1) == '-') then
-       err = 1 ! missing arg
+       err = 2
        return
     end if
     read(string,*,iostat=err) arg
     if (err /= 0) then
-       err = 2 ! cant read arg
+       err = 3
        return
     end if
+    
   end subroutine read_arg_string
   
 end module arguments
