@@ -6,12 +6,12 @@ module cost
   use kinds
   implicit none
   private 
-  public :: cost_compute_gradient
-  public :: cost_compute_energies
+  public :: compute_gradient
+  public :: compute_cost
   
 contains
 
-  subroutine cost_compute_gradient(fdata,fmodel,lambda,prm,grd)
+  subroutine compute_gradient(fdata,fmodel,lambda,prm,grd)
     real(kflt), intent(in)      :: fdata(:)
     real(kflt), intent(in)      :: fmodel(:)
     real(kflt), intent(in)      :: lambda
@@ -21,9 +21,9 @@ contains
     ! the gradient is: F - f + l * p
     grd = fmodel - fdata + lambda * prm
     
-  end subroutine cost_compute_gradient
+  end subroutine compute_gradient
 
-  subroutine cost_compute_energies(fdata,prm,lambda,edata,ereg)
+  subroutine compute_cost(fdata,prm,lambda,edata,ereg)
     real(kflt), intent(in)  :: fdata(:)
     real(kflt), intent(in)  :: prm(:)
     real(kflt), intent(in)  :: lambda
@@ -33,6 +33,6 @@ contains
 
     ereg = 0.5_kflt * lambda * sum(prm**2)
 
-  end subroutine cost_compute_energies
+  end subroutine compute_cost
 
 end module cost
