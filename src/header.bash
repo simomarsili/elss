@@ -2,6 +2,8 @@
 tmp="$(mktemp)"
 for ffile in *.f90;
 do
-    echo $ffile;
-    tail -n+3 $ffile > $tmp; cat HEADER.txt $tmp > $ffile
+    if head -1 "$ffile" | grep -q "Copyright (C)"; then
+	echo $ffile;
+	tail -n+4 $ffile > $tmp; cat HEADER.txt $tmp > $ffile
+    fi
 done
