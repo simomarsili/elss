@@ -4,7 +4,7 @@ INSTALLDIR=~/.local/bin
 EXE = elss-eval elss-sample elss-learn
 TOOLS = elss-getprm
 FC = mpif90
-FFLAGS = -O2 -fconvert=little-endian
+FFLAGS = -O2 -fconvert=little-endian -std=f2008
 #FFLAGS = -fast -heap-arrays # ifort (important: use -heap-arrays)
 #FFLAGS = -O3 -ffast-math # gfortran
 LDFLAGS = -s 
