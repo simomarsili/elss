@@ -9,70 +9,78 @@ module fasta
   public :: fasta_read
   public :: set_fasta_alphabet
   public :: fasta_alphabet
-  integer, parameter :: kprot=21, knuc=6
-  character(len=kprot) :: protein_alphabet='ACDEFGHIKLMNPQRSTVWY-'
-  character(len=knuc)  :: nuc_acid_alphabet='ACGTU-'
+  integer, parameter         :: kprot=21, knuc=6
+  ! TODO: "gap" symbol should map to index 1
+  character(len=kprot)       :: protein_alphabet='ACDEFGHIKLMNPQRSTVWY-'
+  character(len=knuc)        :: nuc_acid_alphabet='ACGTU-'
   character(len=string_size) :: fasta_alphabet
 
 contains
 
   subroutine set_fasta_alphabet(data_type)
     character(len=*), intent(in) :: data_type
+    
     select case(data_type)
     case('protein')
        fasta_alphabet = protein_alphabet
     case('nuc_acid')
        fasta_alphabet = nuc_acid_alphabet
     case default
+       write(0,*) 'warning: not a valid alphabet for bioseqs'
     end select
+    
   end subroutine set_fasta_alphabet
 
   function is_nuc_acid(string) result(res)
-    ! check that a string contain only natural nucleotides symbols
-    character(len=*), intent(in)  :: string
+    ! check if a string contains only natural nucleotides symbols
+    character(len=*), intent(in) :: string
     logical :: res
     
-    res = .false.
-    if (verify(trim(string),trim(nuc_acid_alphabet)) == 0) res = .true.
+    if (verify(trim(string), trim(nuc_acid_alphabet)) == 0) then
+       res = .true.
+    else
+       res = .false.
+    end if
     
   end function is_nuc_acid
   
   function is_protein(string) result(res)
-    ! check that a string contain only natural amino acids symbols
-    character(len=*), intent(in)  :: string
+    ! check if a string contain only natural amino acids symbols
+    character(len=*), intent(in) :: string
     logical :: res
     
-    res = .false.
-    if (verify(trim(string),trim(protein_alphabet)) == 0) res = .true.
+    if (verify(trim(string), trim(protein_alphabet)) == 0) then
+       res = .true.
+    else
+       res = .false.
+    end if
     
   end function is_protein
 
-  subroutine fasta_string2seq(alphabet,string,seq)
+  subroutine fasta_string2seq(alphabet, string,seq)
     ! read a sequence, return an array of integer
     character(len=*), intent(in)  :: alphabet
     character(len=*), intent(in)  :: string
     integer,          intent(out) :: seq(:)
     integer :: i
 
-    seq = [(index(trim(alphabet),string(i:i)), i=1,len_trim(string))]
+    seq = [(index(trim(alphabet), string(i:i)), i = 1, len_trim(string))]
 
   end subroutine fasta_string2seq
 
-  subroutine fasta_read(unt,seqs,data_type,error_code,error_string)
+  subroutine fasta_read(unt, seqs, data_type, error_code, error_string)
     ! read n sequences from unit udata
     integer,              intent(in)  :: unt
-    integer, allocatable, intent(out) :: seqs(:,:)
+    integer, allocatable, intent(out) :: seqs(:, :)
     character(len=*),     intent(out) :: data_type
     integer,              intent(out) :: error_code
     character(len=*),     intent(out) :: error_string
     character(len=long_string_size) :: header
     character(len=long_string_size) :: string
     character(len=long_string_size) :: line
-    integer, allocatable :: seq(:)
-    integer                         :: k,ns,nv,nnuc,nprot,ntot,nuc,prot
+    integer, allocatable            :: seq(:)
+    integer                         :: k, ns, nv, nnuc, nprot, ntot, nuc, prot
     integer                         :: err
-
-    
     
     ! count seqs and Ls
     ns = 0
@@ -133,13 +141,13 @@ contains
           end if
           if (k == 1) then
              nv = len_trim(string)
-             allocate(seq(nv),stat=err)
-             allocate(seqs(nv,ns),stat=err)
+             allocate(seq(nv), stat=err)
+             allocate(seqs(nv, ns), stat=err)
           end if
-          call fasta_string2seq(fasta_alphabet,string,seq)
+          call fasta_string2seq(fasta_alphabet, string,seq)
           string = ""
           if (all(seq > 0)) then
-             seqs(:,k) = seq
+             seqs(:, k) = seq
              k = k + 1
           end if
           cycle
@@ -147,10 +155,6 @@ contains
           string = trim(string)//trim(line)
        end if
     end do
-
-!    do ns = 1,nseqs
-!       write(*,'(1000i2)') seqs(:,k)
-!    end do
 
   end subroutine fasta_read
 
