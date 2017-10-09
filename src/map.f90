@@ -16,11 +16,12 @@ module map
 
 contains
 
-  subroutine map_learn(nvars,nclasses,niter_agd,niter_gd,lambda,mc_nsweeps,beta,&
+  subroutine map_learn(algorithm,nvars,nclasses,niter,lambda,mc_nsweeps,beta,&
        nupdate,data_type,ulog,fdata,seq,seqs_table,prm,fmodel)
     use dump, only: dump_array_file,dump_prm_file,dump_chk
+    character(len=*), intent(in)  :: algorithm
     integer,          intent(inout)  :: nvars,nclasses
-    integer,          intent(in)     :: niter_agd, niter_gd
+    integer,          intent(in)     :: niter
     real(kflt),       intent(in)     :: lambda
     integer,          intent(in)     :: mc_nsweeps
     real(kflt),       intent(in)     :: beta
@@ -49,14 +50,10 @@ contains
          '     data_ene, prior_energy,'//&
          '     cpu_time'
 
-    if (niter_agd > 0) call map_all('adam',nvars,nclasses,seq,seqs_table,prm,fmodel,&
+    call map_all(algorithm,nvars,nclasses,seq,seqs_table,prm,fmodel,&
          fdata,data_type,ulog,beta,lambda,&
-         niter_agd,mc_nsweeps,tot_iter,nupdate)
+         niter,mc_nsweeps,tot_iter,nupdate)
     
-    if (niter_gd > 0) call map_all('gd',nvars,nclasses,seq,seqs_table,prm,fmodel,&
-         fdata,data_type,ulog,beta,lambda,&
-         niter_gd,mc_nsweeps,tot_iter,nupdate)
-
     tot_iter = tot_iter + 1
     
     if(iproc == 0) then
@@ -229,6 +226,7 @@ contains
              prm2 = g2*prm2 + (1.0_kflt - g2) * grd**2
              prm = prm - eps_map * prm1 / (sqrt(prm2) + 1.e-8_kflt)
           case default
+             ! default is adam 
              prm1 = gamma1*prm1 + (1.0_kflt - gamma1) * grd
              prm2 = gamma2*prm2 + (1.0_kflt - gamma2) * grd**2
              prm = prm - eps_map * (prm1 / (1.0_kflt - gamma1**(iter+1))) / &
