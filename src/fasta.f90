@@ -108,6 +108,7 @@ contains
     nnuc = nnuc + nuc
     nprot = nprot + prot
 
+    ! set data type
     if (nnuc > nprot) then
        data_type = 'nuc_acid'
        ns = nnuc

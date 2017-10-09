@@ -17,7 +17,7 @@ module map
 contains
 
   subroutine map_learn(nvars,nclasses,niter_agd,niter_gd,lambda,mc_nsweeps,beta,&
-       nupdate,data_type,data_format,ulog,fdata,seq,seqs_table,prm,fmodel)
+       nupdate,data_type,ulog,fdata,seq,seqs_table,prm,fmodel)
     use dump, only: dump_array_file,dump_prm_file
     integer,          intent(inout)  :: nvars,nclasses
     integer,          intent(in)     :: niter_agd, niter_gd
@@ -25,8 +25,7 @@ contains
     integer,          intent(in)     :: mc_nsweeps
     real(kflt),       intent(in)     :: beta
     integer,          intent(in)     :: nupdate
-    character(len=*), intent(in)     :: data_type  ! data format ('unknown', 'protein', 'nuc_acid')
-    character(len=*), intent(in)     :: data_format  ! data format ('raw', 'FASTA')
+    character(len=*), intent(in)     :: data_type  ! data format ('unk', 'bio', 'protein', 'nuc_acid')
     integer,          intent(in)     :: ulog
     real(kflt),       intent(in)     :: fdata(:)
     integer,          intent(inout)  :: seq(:)
@@ -51,11 +50,11 @@ contains
          '     cpu_time'
 
     if (niter_agd > 0) call map_all('adam',nvars,nclasses,seq,seqs_table,prm,fmodel,&
-         fdata,data_type,data_format,ulog,beta,lambda,&
+         fdata,data_type,ulog,beta,lambda,&
          niter_agd,mc_nsweeps,tot_iter,nupdate)
     
     if (niter_gd > 0) call map_all('gd',nvars,nclasses,seq,seqs_table,prm,fmodel,&
-         fdata,data_type,data_format,ulog,beta,lambda,&
+         fdata,data_type,ulog,beta,lambda,&
          niter_gd,mc_nsweeps,tot_iter,nupdate)
 
     tot_iter = tot_iter + 1
@@ -65,7 +64,7 @@ contains
        filename = 'prm'
 !       call dump_array_file(filename,nvars,nclasses,&
 !            prm(1:dim1),prm(dim1+1:dimm),err)
-       call dump_prm_file(filename,data_format,nvars,nclasses,&
+       call dump_prm_file(filename,data_type,nvars,nclasses,&
             prm(1:dim1),prm(dim1+1:dimm),err)
        if( err /= 0 ) then 
           call mpi_wrapper_finalize(err)
@@ -76,7 +75,7 @@ contains
   end subroutine map_learn
 
   subroutine map_all(algorithm,nvars,nclasses,seq,seqs_table,prm,fmodel,fdata,&
-       data_type,data_format,ulog,beta,lambda,niter,&
+       data_type,ulog,beta,lambda,niter,&
        mc_nsweeps,tot_iter,nupdate)
     use mcmc, only:       mcmc_update_energy
     use dump, only:       dump_rst
@@ -90,7 +89,6 @@ contains
     real(kflt), intent(out)      :: fmodel(:)
     real(kflt), intent(in)       :: fdata(:)
     character(len=*), intent(in) :: data_type
-    character(len=*), intent(in) :: data_format
     integer,    intent(in)       :: ulog
     real(kflt), intent(in)       :: beta
     real(kflt), intent(in)       :: lambda
@@ -164,7 +162,7 @@ contains
 
        if(iproc == 0) then
           if(mod(iter,1) == 0 .or. iter == 1) then
-             call dump_rst('rst','replace',data_type,data_format,nvars,nclasses,nproc,seqs_table,prm,err)
+             call dump_rst('rst','replace',data_type,nvars,nclasses,nproc,seqs_table,prm,err)
              if( err /= 0 ) then 
                 if ( iproc == 0 ) write(0,*) "error opening file rst", err
                 call mpi_wrapper_finalize(err)

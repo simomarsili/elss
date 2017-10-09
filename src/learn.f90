@@ -27,10 +27,9 @@ program learn
   real(kflt), allocatable :: fdata(:)     ! empirical frequencies
   real(kflt), allocatable :: scores(:,:)  ! final scores
   integer, allocatable    :: seqs_table(:,:)
-  character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
+  character(len=string_size) :: data_type    ! data tytpe ('unk', 'bio', 'protein', 'nuc_acid')
   ! command line parameters
   integer                        :: udata        ! data unit
-  character(len=string_size)     :: data_format  ! data format ('raw', 'FASTA')
   integer                        :: uwgt         ! ww unit
   real(kflt)                     :: wid          ! %id for weights calculation
   integer                        :: uprm         ! prm unit
@@ -59,8 +58,7 @@ program learn
   nvars = 0
   nclasses = 0
   udata = 0
-  data_type = 'unknown'
-  data_format = ''
+  data_type = 'unk'
   uwgt = 0
   wid = -1
   uprm = 0
@@ -81,7 +79,7 @@ program learn
 
   !================================================ read args
 
-  call command_line_read(udata,data_format,uwgt,&
+  call command_line_read(udata,data_type,uwgt,&
        wid,uprm,urst,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
        niter_gd,lambda,prefix,err)
   if (prefix=='') prefix = trim(mode)
@@ -102,7 +100,7 @@ program learn
 
   if (uprm > 0) then
      call read_prm_unit(uprm,nvars,nclasses,&
-          prm,data_type,data_format,err)
+          prm,data_type,err)
      if (err /= 0) then
         if(iproc == 0) write(0,*) 'ERROR ! cannot read from prm'
         call mpi_wrapper_finalize(err)
@@ -114,7 +112,7 @@ program learn
   !================================================ read restart file
   
   if (urst > 0) then
-     call read_rst(urst,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
+     call read_rst(urst,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
         if(iproc == 0) write(0,*) 'ERROR ! cannot read from rst'
         call mpi_wrapper_finalize(err)
@@ -125,7 +123,7 @@ program learn
 
   !================================================ read data
 
-  call data_read(iproc,udata,data_type,data_format,uwgt,wid,&
+  call data_read(iproc,udata,data_type,uwgt,wid,&
        nvars,nclasses,nseqs,neff,seqs,err,err_string)
 
   if (err /= 0) then
@@ -177,7 +175,7 @@ program learn
      write(ulog,'(a)')         '#_________________elss_v0.3.1_______________'
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#  mode  :    '//trim(mode)
-     write(ulog,'(a)')         '#  format:    '//trim(data_format)
+     write(ulog,'(a)')         '#  format:    '//trim(data_type)
      if (urst > 0) write(ulog,'(a)')&
           '#  reading restart file           '
      if (uprm > 0) write(ulog,'(a)')&
@@ -227,7 +225,7 @@ program learn
   
   ! inv. temperature for MAP estimation is set to 1
   call map_learn(nvars,nclasses,niter_agd,niter_gd,lambda,mc_nsweeps,&
-       1.0_kflt,nupdate,data_type,data_format,ulog,fdata,seq,seqs_table,prm,fmodel)
+       1.0_kflt,nupdate,data_type,ulog,fdata,seq,seqs_table,prm,fmodel)
   
   !================================================ compute and print scores
   
