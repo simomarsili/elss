@@ -18,7 +18,7 @@ contains
 
   subroutine map_learn(nvars,nclasses,niter_agd,niter_gd,lambda,mc_nsweeps,beta,&
        nupdate,data_type,ulog,fdata,seq,seqs_table,prm,fmodel)
-    use dump, only: dump_array_file,dump_prm_file
+    use dump, only: dump_array_file,dump_prm_file,dump_rst
     integer,          intent(inout)  :: nvars,nclasses
     integer,          intent(in)     :: niter_agd, niter_gd
     real(kflt),       intent(in)     :: lambda
@@ -61,11 +61,14 @@ contains
     
     if(iproc == 0) then
        write(filename,*) tot_iter
-       filename = 'prm'
-!       call dump_array_file(filename,nvars,nclasses,&
-!            prm(1:dim1),prm(dim1+1:dimm),err)
-       call dump_prm_file(filename,data_type,nvars,nclasses,&
+       call dump_prm_file('prm',data_type,nvars,nclasses,&
             prm(1:dim1),prm(dim1+1:dimm),err)
+       if( err /= 0 ) then 
+          call mpi_wrapper_finalize(err)
+          stop
+       end if
+       call dump_rst('rst','replace',data_type,nvars,nclasses,nproc,&
+            seqs_table,prm,err)
        if( err /= 0 ) then 
           call mpi_wrapper_finalize(err)
           stop
