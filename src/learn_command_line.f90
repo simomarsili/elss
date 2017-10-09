@@ -12,7 +12,7 @@ module learn_command_line
 contains
 
   subroutine command_line_read(udata, data_type, uwgt, wid, uprm, uchk, rseed, &
-       beta, mc_nsweeps, nupdate, niter_agd, niter_gd, lambda,prefix, &
+       beta, mc_nsweeps, nupdate, algorithm, niter, lambda,prefix, &
        error_code)
     use units, only: units_open, units_open_unf
     use arguments, only: read_opt, read_opt_arg
@@ -26,8 +26,8 @@ contains
     real(kflt),       intent(inout) :: beta
     integer,          intent(inout) :: mc_nsweeps
     integer,          intent(inout) :: nupdate
-    integer,          intent(inout) :: niter_agd
-    integer,          intent(inout) :: niter_gd
+    character(len=string_size), intent(inout) :: algorithm
+    integer,          intent(inout) :: niter
     real(kflt),       intent(inout) :: lambda
     character(len=*), intent(out) :: prefix
     integer,          intent(out) :: error_code
@@ -170,17 +170,18 @@ contains
              error_code = 1
              return
           end if
-       case('--learn','--learn-agd')
+       case('--algorithm')
+          ! prm file
           iarg = iarg + 1
-          call read_opt_arg(iarg,nargs,niter_agd,err)
-          if ( err/= 0 ) then
-             write(0,*) 'ERROR ! check nupdate'
+          call read_opt_arg(iarg,nargs,algorithm,err)
+          if (err == 2) then
+             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <algorithm>'
              error_code = 1
              return
           end if
-       case('--learn-gd')
+       case('--learn')
           iarg = iarg + 1
-          call read_opt_arg(iarg,nargs,niter_gd,err)
+          call read_opt_arg(iarg,nargs,niter,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check nupdate'
              error_code = 1
@@ -352,13 +353,13 @@ contains
          '-w, --weights <file>, path_to_file                                             '/&
          '    Read weights for data from file <file>.                                    '/&
          '                                                                               '/&
-         '--learn, --learn-agd <n>, integer                                              '/&
+         '--algorithm <algorithm_name>, string                                           '/&
+         '    Options are: gd, momentum, nag, adam.                                      '/&
+         '    [default: adam]                                                            '/&
+         '                                                                               '/&
+         '--learn <n>, integer                                                           '/&
          '    Number of accelerated gradient descent steps.                              '/&
          '    [default: 2000]                                                            '/&
-         '                                                                               '/&
-         '--learn, --learn-gd <n>, integer                                               '/&
-         '    Number of gradient descent steps.                                          '/&
-         '    [default: 0]                                                               '/&
          '                                                                               '/&
          '-l, --lambda <regularization_strength>, float                                  '/&
          '    Parameter controlling the strength of l2 regularization.                   '/&

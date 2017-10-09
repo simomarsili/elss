@@ -36,12 +36,12 @@ program learn
   integer                        :: uchk         ! chk unit
   integer                        :: mc_nsweeps   ! number of MC sweeps per gradient estimate
   integer                        :: nupdate      ! stride for averages aupdate
-  integer                        :: niter_agd    ! number of iter. (Nesterov alg.)
-  integer                        :: niter_gd     ! number of iter. (gradient descent)
+  integer                        :: niter        ! number of iter.
   real(kflt)                     :: lambda       ! Gaussian prior hyperparameter
   character(len=string_size)     :: mode         ! run mode: EVAL, SIM, LEARN
   integer                        :: rseed        ! random seed
   real(kflt)                     :: beta         ! temperature of the run
+  character(len=string_size)     :: algorithm
   character(len=long_string_size) :: prefix
   integer                         :: err
   character(long_string_size)     :: err_string
@@ -65,8 +65,8 @@ program learn
   uchk = 0
   mc_nsweeps = 1000
   nupdate = 10
-  niter_gd = 0
-  niter_agd = 2000
+  algorithm = 'adam'
+  niter = 2000
   lambda = 0.01_kflt
   mode = 'LEARN'
   rseed = 0
@@ -80,8 +80,8 @@ program learn
   !================================================ read args
 
   call command_line_read(udata,data_type,uwgt,&
-       wid,uprm,uchk,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
-       niter_gd,lambda,prefix,err)
+       wid,uprm,uchk,rseed,beta,mc_nsweeps,nupdate,algorithm,niter,&
+       lambda,prefix,err)
   if (prefix=='') prefix = trim(mode)
   
   if (err /= 0) then
@@ -201,8 +201,7 @@ program learn
         end if
         write(ulog,'(a,1x,f8.3)') '#  scaled prior (hyper-)parameter  = ', lambda
         write(ulog,'(a,1x,i8)')   '#  MC sweeps per gradient est.  = ', mc_nsweeps
-        write(ulog,'(a,1x,i8)')   '#  n. of iterations (GD)        = ', niter_gd
-        write(ulog,'(a,1x,i8)')   '#  n. of iterations (AGD)       = ', niter_agd
+        write(ulog,'(a,1x,i8)')   '#  n. of iterations       = ', niter
      end if
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#==========================================='
@@ -224,7 +223,7 @@ program learn
   !================================================ maximum a posteriori estimate of parameters
   
   ! inv. temperature for MAP estimation is set to 1
-  call map_learn(nvars,nclasses,niter_agd,niter_gd,lambda,mc_nsweeps,&
+  call map_learn(algorithm,nvars,nclasses,niter,lambda,mc_nsweeps,&
        1.0_kflt,nupdate,data_type,ulog,fdata,seq,seqs_table,prm,fmodel)
   
   !================================================ compute and print scores
