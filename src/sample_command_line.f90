@@ -31,7 +31,7 @@ module sample_command_line
        nl//&
        ' (-s|--seq) <path_to_file>     starting sequence file                          (None)           '//nl//&
        nl//&
-       ' --random_seed <int>           init. the random seed (if 0, use system_clock)  (0)              '//nl//&
+       ' --seed <int>           init. the random seed (if 0, use system_clock)  (0)              '//nl//&
        '------------------------------------------------------------------------------------------------'//nl//&
        nl//&
        nl//&
@@ -136,11 +136,11 @@ contains
              error_code = 1
              return
           end if
-       case('--random_seed')
+       case('--seed')
           iarg = iarg + 1
           call read_opt_arg(iarg,nargs,rseed,err)
           if ( err/= 0 ) then
-             write(0,*) 'ERROR ! check random_seed'
+             write(0,*) 'ERROR ! check seed'
              error_code = 1
              return
           end if
