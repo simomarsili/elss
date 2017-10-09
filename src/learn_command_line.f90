@@ -8,73 +8,29 @@ module learn_command_line
   implicit none
   private
   public :: command_line_read
-  character(len=1), parameter                  :: nl=achar(10)
-  character(len=long_string_size)              :: syntax = nl//& 
-       '                                        elss-learn (v0.3.1)                                    '//nl//&
-       '                                     =========================                                 '//nl//&
-       nl//&
-       nl//&
-       'Option                         Description                                     (Default Value)  '//nl//&
-       '------------------------------------------------------------------------------------------------'//nl//&
-       ' --fasta <path_to_file>        MSA file (FASTA format)                         (None)           '//nl//&
-       nl//&
-       nl//&
-       ' (-h|--help)                   print this help message                         (None)           '//nl//&
-       nl//&
-       ' --prefix <string>             prefix for output files                         (None)           '//nl//&
-       nl//&
-       ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
-       '        OR'//nl//&   
-       ' (-c|--chk) <path_to_file>     checkpoint file                                 (None)           '//nl//&   
-       nl//&
-       ' (-n|--nsweeps) <int>          num. of MC sweeps per gradient estimate         (1000)           '//nl//&
-       nl//&
-       ' (-u|--nupdate) <int>          stride (as num. of sweeps) for averages updates (10)             '//nl//&
-       nl//&
-       ' --fasta <path_to_file>        MSA file (FASTA format)                         (None)           '//nl//&
-       nl//&
-       ' (-w|--weights) <path_to_file> weights file                                    (None)           '//nl//&
-       '        OR'//nl//&   
-       ' --wid <float>                 %id threshold for weights calculation           (-1)             '//nl//&
-       nl//&
-       ' --learn-gd <int>              num. of gradient descent steps                  (0)              '//nl//&
-       nl//&
-       ' (--learn|--learn-agd) <int>   num. of accelerated gradient descent steps      (2000)           '//nl//&
-       nl//&
-       ' (-l|--lambda) <float>         (scaled) regularization parameter               (0.01)           '//nl//&
-       nl//&
-       ' --random_seed <int>           init. the random seed (if 0, use system_clock)  (0)              '//nl//&
-       '------------------------------------------------------------------------------------------------'//nl//&
-       nl//&
-       nl//&
-       '------------------------------------------------------------------------------------------------'//nl//&
-       ' For more information and examples, please check the project github repository:                 '//nl//&
-       ' https://github.com/simomarsili/elss                                                            '//nl//&
-       '------------------------------------------------------------------------------------------------'//nl//&
-       '                                                                                                    '
 
 contains
 
-  subroutine command_line_read(udata,data_type,uwgt,wid,uprm,uchk,&
-                               rseed,beta,mc_nsweeps,nupdate,niter_agd,niter_gd,&
-                               lambda,prefix,error_code)
-    use units, only: units_open,units_open_unf
-    use arguments, only: read_opt,read_opt_arg
-    integer,                    intent(inout) :: udata
-    character(len=*),           intent(inout) :: data_type
-    integer,                    intent(inout) :: uwgt
-    real(kflt),                 intent(inout) :: wid
-    integer,                    intent(inout) :: uprm
-    integer,                    intent(inout) :: uchk
-    integer,                    intent(inout) :: rseed
-    real(kflt),                 intent(inout) :: beta
-    integer,                    intent(inout) :: mc_nsweeps
-    integer,                    intent(inout) :: nupdate
-    integer,                    intent(inout) :: niter_agd
-    integer,                    intent(inout) :: niter_gd
-    real(kflt),                 intent(inout) :: lambda
-    character(len=*),           intent(out) :: prefix
-    integer,                    intent(out) :: error_code
+  subroutine command_line_read(udata, data_type, uwgt, wid, uprm, uchk, rseed, &
+       beta, mc_nsweeps, nupdate, niter_agd, niter_gd, lambda,prefix, &
+       error_code)
+    use units, only: units_open, units_open_unf
+    use arguments, only: read_opt, read_opt_arg
+    integer,          intent(inout) :: udata
+    character(len=*), intent(inout) :: data_type
+    integer,          intent(inout) :: uwgt
+    real(kflt),       intent(inout) :: wid
+    integer,          intent(inout) :: uprm
+    integer,          intent(inout) :: uchk
+    integer,          intent(inout) :: rseed
+    real(kflt),       intent(inout) :: beta
+    integer,          intent(inout) :: mc_nsweeps
+    integer,          intent(inout) :: nupdate
+    integer,          intent(inout) :: niter_agd
+    integer,          intent(inout) :: niter_gd
+    real(kflt),       intent(inout) :: lambda
+    character(len=*), intent(out) :: prefix
+    integer,          intent(out) :: error_code
     integer                         :: err
     character(len=long_string_size) :: data_file
     character(len=long_string_size) :: ww_file
@@ -92,8 +48,7 @@ contains
     nargs = command_argument_count()
 
     if (nargs == 0) then
-       ! no args: print syntax and stop
-       write(0,*) trim(syntax)
+       write(0,100)! no args: print syntax and stop
        error_code = 1
        return
     end if
@@ -111,7 +66,7 @@ contains
        select case(trim(arg))
        case('-h','--help')
           ! print help and exit
-          write(0,*) trim(syntax)
+          write(0,100)
           error_code = 1
           return
        case('-i','--int','--fasta')
@@ -342,6 +297,77 @@ contains
        end if
        
     end if
+
+100 format(&
+         'elss-learn (elss v0.2.1)                                                       '/& 
+         '                                                                               '/&
+         'Usage:                                                                         '/&
+         '    elss-learn [options] -i <data_file>                                        '/&
+         '    elss-learn [options] --fasta <fasta_file>                                  '/&
+         '    (preceded by mpiexec -n <n_proc> for parallel execution)                   '/&
+         '                                                                               '/&
+         'Description:                                                                   '/&
+         '    Read a data matrix and fit a model of pairwise interacting categorical     '/&
+         '    variables. Valid input formats are the FASTA format for biological multiple'/&
+         '    sequence alignments, or plain space/tab separated values.                  '/&
+         '    The fitted parameters are dumped in a `chk` file that can be an input to   '/&
+         '    - elss-sample, to generate artificial samples according to the fitted model'/&
+         '    - elss-eval, to measure the relative probability of new samples            '/&
+         '      according to the model).                                                 '/&
+         '                                                                               '/&
+         'Required:                                                                      '/&
+         '-i, --int <data_file>                                                          '/&
+         '    Path to data file.                                                         '/&
+         '                                                                               '/&
+         '--fasta <data_file>                                                            '/&
+         '    Path to FASTA multiple sequence alignment.                                 '/&
+         '                                                                               '/&
+         'Options:                                                                       '/&
+         '-h, --help                                                                     '/&
+         '    Display this help and exit.                                                '/&
+         '                                                                               '/&
+         '--prefix <str>                                                                 '/&         
+         '    Prefix of output files.                                                    '/&
+         '                                                                               '/&
+         '-p, --prm <prm_file>                                                           '/&
+         '    Read the initial guess for parameters from file <prm_file>.                '/&
+         '                                                                               '/&
+         '-c, --chk <chk_file>                                                           '/&
+         '    Restart a previous calculation from checkpoint file <chk_file>             '/&
+         '                                                                               '/&
+         '-n, --nsweeps <n>, integer                                                     '/&
+         '    Number of MC sweeps per gradient estimate.                                 '/&
+         '    [default: 1000]                                                            '/&
+         '                                                                               '/&
+         '-u, --nupdate <n>, integer                                                     '/&
+         '    During gradient estimate: update model averages every <n> sweeps.          '/&
+         '    [default: 1000]                                                            '/&
+         '                                                                               '/&
+         '--wid <%id>, float                                                             '/&
+         '    Compute data averages reweighting each sample according to its similarity  '/&
+         '    to the rest of data, using a threshold <%id> to define data/sequence       '/&
+         '    similarity.                                                                '/&
+         '    [default: no reweighting]                                                  '/&
+         '                                                                               '/&
+         '-w, --weights <file>, path_to_file                                             '/&
+         '    Read weights for data from file <file>.                                    '/&
+         '                                                                               '/&
+         '--learn, --learn-agd <n>, integer                                              '/&
+         '    Number of accelerated gradient descent steps.                              '/&
+         '    [default: 2000]                                                            '/&
+         '                                                                               '/&
+         '--learn, --learn-gd <n>, integer                                               '/&
+         '    Number of gradient descent steps.                                          '/&
+         '    [default: 0]                                                               '/&
+         '                                                                               '/&
+         '-l, --lambda <regularization_strength>, float                                  '/&
+         '    Parameter controlling the strength of l2 regularization.                   '/&
+         '    [default: 0.01]                                                            '/&
+         '                                                                               '/&
+         '--random_seed <seed>, integer                                                  '/&
+         '    Seed for initialization of pseudo-random number generator.                 '/&
+         '    If == 0, the seed is computed from the system clock.                       '/&
+         '    [default: 0]                                                               '/)
 
   end subroutine command_line_read
 
