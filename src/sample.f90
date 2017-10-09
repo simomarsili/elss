@@ -20,7 +20,6 @@ program sample
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
   character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
   ! command line parameters
-  character(len=string_size) :: data_format  ! data format ('raw', 'table', 'FASTA')
   integer                    :: uprm         ! prm unit
   integer                    :: urst         ! rst unit
   integer                    :: useq         ! seq unit
@@ -45,7 +44,7 @@ program sample
 
   nvars = 0
   nclasses = 0
-  data_format = ''
+  data_type = 'unk'
   uprm = 0
   urst = 0
   useq = 0
@@ -76,7 +75,7 @@ program sample
 
   if (uprm > 0) then
      call read_prm_unit(uprm,nvars,nclasses,&
-          prm,data_type,data_format,err)
+          prm,data_type,err)
      if (err /= 0) then
         write(0,*) 'ERROR ! cannot read from prm'
         stop
@@ -87,7 +86,7 @@ program sample
   !================================================ read restart file
   
   if (urst > 0) then
-     call read_rst(urst,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
+     call read_rst(urst,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
         write(0,*) 'ERROR ! cannot read from rst'
         stop
@@ -124,7 +123,7 @@ program sample
      write(ulog,'(a)')         '#_________________elss_v0.3.1_______________'
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#  mode  :    '//trim(mode)
-     write(ulog,'(a)')         '#  format:    '//trim(data_format)
+     write(ulog,'(a)')         '#  format:    '//trim(data_type)
      if (urst > 0) write(ulog,'(a)')&
           '#  reading restart file           '
      if (uprm > 0) write(ulog,'(a)')&
@@ -143,7 +142,7 @@ program sample
   
   if (useq > 0) then
      ! read starting sequence (NB: overwrite rst)
-     select case (trim(data_format))
+     select case (trim(data_type))
      case('raw')
         read(useq,*) seq
      case('FASTA')
@@ -165,7 +164,7 @@ program sample
 
   hot_start = .false.
   call mcmc_simulate(nvars,nclasses,seq,&
-       prm(1:dim1),prm(dim1+1:dim1+dim2),data_format,&
+       prm(1:dim1),prm(dim1+1:dim1+dim2),data_type,&
        fmodel(1:dim1),fmodel(dim1+1:dim1+dim2),&
        beta,mc_nsweeps,hot_start,nupdate,utrj,facc)
 

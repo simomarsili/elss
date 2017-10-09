@@ -55,13 +55,13 @@ module learn_command_line
 
 contains
 
-  subroutine command_line_read(udata,data_format,uwgt,wid,uprm,urst,&
+  subroutine command_line_read(udata,data_type,uwgt,wid,uprm,urst,&
                                rseed,beta,mc_nsweeps,nupdate,niter_agd,niter_gd,&
                                lambda,prefix,error_code)
     use units, only: units_open,units_open_unf
     use arguments, only: read_opt,read_opt_arg
     integer,                    intent(inout) :: udata
-    character(len=*),           intent(inout) :: data_format
+    character(len=*),           intent(inout) :: data_type
     integer,                    intent(inout) :: uwgt
     real(kflt),                 intent(inout) :: wid
     integer,                    intent(inout) :: uprm
@@ -114,13 +114,13 @@ contains
           write(0,*) trim(syntax)
           error_code = 1
           return
-       case('-i','--raw','--fasta')
+       case('-i','--int','--fasta')
           ! input file
           select case(trim(arg))
-          case('-i','--raw')
-             data_format = 'raw'
+          case('-i','--int')
+             data_type = 'int'
           case('--fasta')
-             data_format = 'FASTA'
+             data_type = 'bio'
           end select
           iarg = iarg + 1
           call read_opt_arg(iarg,nargs,data_file,err)

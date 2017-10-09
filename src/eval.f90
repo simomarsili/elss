@@ -19,10 +19,9 @@ program eval
   integer,    allocatable :: seq(:)    ! seq array
   integer,    allocatable :: seqs(:,:) ! data matrix
   real(kflt), allocatable :: prm(:)       ! parameters array
-  character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
+  character(len=string_size) :: data_type    ! data tytpe ('unk', 'bio', 'protein', 'nuc_acid')
   ! command line parameters
   integer                    :: udata        ! data unit
-  character(len=string_size) :: data_format  ! data format ('raw', 'FASTA')
   integer                    :: uwgt         ! ww unit
   real(kflt)                 :: wid          ! %id for weights calculation
   integer                    :: uprm         ! prm unit
@@ -44,7 +43,7 @@ program eval
   nvars = 0
   nclasses = 0
   udata = 0
-  data_format = ''
+  data_type = 'unk'
   uwgt = 0
   wid = -1
   uprm = 0
@@ -59,7 +58,7 @@ program eval
 
   !================================================ read args
 
-  call command_line_read(udata,data_format,uprm,urst,prefix,err)
+  call command_line_read(udata,data_type,uprm,urst,prefix,err)
   if (prefix=='') prefix = trim(mode)
   if (err /= 0) stop
 
@@ -71,7 +70,7 @@ program eval
 
   if (uprm > 0) then
      call read_prm_unit(uprm,nvars,nclasses,&
-          prm,data_type,data_format,err)
+          prm,data_type,err)
      if (err /= 0) then
         stop
      end if
@@ -81,7 +80,7 @@ program eval
   !================================================ read restart file
 
   if (urst > 0) then
-     call read_rst(urst,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,err)
+     call read_rst(urst,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
         stop
      end if
@@ -92,7 +91,7 @@ program eval
 
   if (udata > 0) then ! TODO: udata should always be > 0 for eval; check in command line and remove if then
 
-     call data_read(iproc,udata,data_type,data_format,uwgt,wid,&
+     call data_read(iproc,udata,data_type,uwgt,wid,&
           nvars,nclasses,nseqs,neff,seqs,err,err_string)
 
      if (err /= 0) then
@@ -134,7 +133,7 @@ program eval
      write(ulog,'(a)')         '#_________________elss_v0.3.1_______________'
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#  mode  :    '//trim(mode)
-     write(ulog,'(a)')         '#  format:    '//trim(data_format)
+     write(ulog,'(a)')         '#  format:    '//trim(data_type)
      if (urst > 0) write(ulog,'(a)')&
           '#  reading restart file           '
      if (uprm > 0) write(ulog,'(a)')&
