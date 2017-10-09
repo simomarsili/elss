@@ -6,7 +6,7 @@ program sample
   use kinds
   use constants
   use fasta,       only : fasta_read
-  use dump,        only: read_rst,read_prm_unit
+  use dump,        only: read_chk,read_prm_unit
   use sample_command_line
   use units,       only: units_initialize,units_open
   use random,      only: random_initialize,random_seq
@@ -21,7 +21,7 @@ program sample
   character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
   ! command line parameters
   integer                    :: uprm         ! prm unit
-  integer                    :: urst         ! rst unit
+  integer                    :: uchk         ! chk unit
   integer                    :: useq         ! seq unit
   integer                    :: mc_nsweeps   ! number of MC sweeps per gradient estimate
   integer                    :: nupdate      ! stride for averages aupdate
@@ -46,7 +46,7 @@ program sample
   nclasses = 0
   data_type = 'unk'
   uprm = 0
-  urst = 0
+  uchk = 0
   useq = 0
   mc_nsweeps = 1000
   nupdate = 10
@@ -61,7 +61,7 @@ program sample
 
   !================================================ read args
 
-  call command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
+  call command_line_read(uprm,uchk,useq,rseed,beta,mc_nsweeps,nupdate,&
        prefix,err)
   if (prefix=='') prefix = trim(mode)
 
@@ -83,22 +83,22 @@ program sample
      close(uprm)
   end if
 
-  !================================================ read restart file
+  !================================================ read checkpoint file
   
-  if (urst > 0) then
-     call read_rst(urst,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
+  if (uchk > 0) then
+     call read_chk(uchk,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
-        write(0,*) 'ERROR ! cannot read from rst'
+        write(0,*) 'ERROR ! cannot read from chk'
         stop
      end if
-     close(urst)
+     close(uchk)
   end if
 
   !================================================ allocate memory for the run and initialize
 
   dim1 = nvars * nclasses
   dim2 = nvars * (nvars - 1) * nclasses**2 / 2
-  if (urst == 0) then
+  if (uchk == 0) then
      ! allocate seq
      allocate(seq(nvars),stat=err)
      seq = 0
@@ -124,8 +124,8 @@ program sample
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#  mode  :    '//trim(mode)
      write(ulog,'(a)')         '#  format:    '//trim(data_type)
-     if (urst > 0) write(ulog,'(a)')&
-          '#  reading restart file           '
+     if (uchk > 0) write(ulog,'(a)')&
+          '#  reading checkpoint file        '
      if (uprm > 0) write(ulog,'(a)')&
           '#  reading parameter file         '
      write(ulog,'(a,1x,i8)')   '#  n. of variables              = ', nvars
@@ -141,7 +141,7 @@ program sample
   !================================================ run a simulation
   
   if (useq > 0) then
-     ! read starting sequence (NB: overwrite rst)
+     ! read starting sequence (NB: overwrite chk)
      select case (trim(data_type))
      case('raw')
         read(useq,*) seq
@@ -151,7 +151,7 @@ program sample
            write(0,*) 'ERROR ! cannot read from seq'
            stop
         end if
-        seq = seqs0(:,1) ! take the first one as rst
+        seq = seqs0(:,1) ! take the first one as chk
      end select
   end if
   

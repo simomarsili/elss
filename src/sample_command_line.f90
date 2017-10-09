@@ -18,7 +18,7 @@ module sample_command_line
        '------------------------------------------------------------------------------------------------'//nl//&
        ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
        '        OR'//nl//&   
-       ' (-r|--rst) <path_to_file>     restart file                                    (None)           '//nl//&   
+       ' (-c|--chk) <path_to_file>     checkpoint file                                 (None)           '//nl//&   
        nl//&
        nl//&
        ' (-h|--help)                   print this help message                         (None)           '//nl//&
@@ -42,12 +42,12 @@ module sample_command_line
        '                                                                                                    '
 contains
 
-  subroutine command_line_read(uprm,urst,useq,rseed,beta,mc_nsweeps,nupdate,&
+  subroutine command_line_read(uprm,uchk,useq,rseed,beta,mc_nsweeps,nupdate,&
                                prefix,error_code)
     use units, only: units_open,units_open_unf
     use arguments, only: read_opt,read_opt_arg
     integer,                    intent(inout) :: uprm
-    integer,                    intent(inout) :: urst
+    integer,                    intent(inout) :: uchk
     integer,                    intent(inout) :: useq
     integer,                    intent(inout) :: rseed
     real(kflt),                 intent(inout) :: beta
@@ -57,7 +57,7 @@ contains
     integer,                    intent(out)   :: error_code
     integer                         :: err
     character(len=long_string_size) :: prm_file
-    character(len=long_string_size) :: rst_file
+    character(len=long_string_size) :: chk_file
     character(len=long_string_size) :: seq_file
     character(len=long_string_size) :: cmd
     integer                         :: nargs
@@ -79,7 +79,7 @@ contains
 
     ! default 
     prm_file = ''
-    rst_file = ''
+    chk_file = ''
     seq_file = ''
 
     iarg = 0
@@ -101,10 +101,10 @@ contains
              error_code = 1
              return
           end if
-       case('-r','--rst')
-          ! rst file
+       case('-c','--chk')
+          ! chk file
           iarg = iarg + 1
-          call read_opt_arg(iarg,nargs,rst_file,err)
+          call read_opt_arg(iarg,nargs,chk_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -168,14 +168,14 @@ contains
        end select
     end do args_loop
 
-    if (prm_file /= "" .and. rst_file /= "") then
-       write(0,*) 'ERROR ! either a rst or a prm file'
+    if (prm_file /= "" .and. chk_file /= "") then
+       write(0,*) 'ERROR ! either a chk or a prm file'
        error_code = 1
        return
     end if
 
-    if (prm_file == "" .and. rst_file == "") then
-       write(0,*) 'ERROR ! either a rst or a prm file'
+    if (prm_file == "" .and. chk_file == "") then
+       write(0,*) 'ERROR ! either a chk or a prm file'
        error_code = 1
        return
     end if
@@ -195,16 +195,16 @@ contains
        end if
     end if
 
-    if ( rst_file /= "" ) then
-       inquire( file = rst_file, exist = file_exists )
+    if ( chk_file /= "" ) then
+       inquire( file = chk_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(0,*) 'ERROR ! cannot access '//trim(rst_file)
+          write(0,*) 'ERROR ! cannot access '//trim(chk_file)
           error_code = 1
           return
        end if
-       call units_open_unf(rst_file,'old',urst,err)
+       call units_open_unf(chk_file,'old',uchk,err)
        if( err /= 0 ) then
-          write(0,*) 'ERROR ! error opening file '//trim(rst_file)
+          write(0,*) 'ERROR ! error opening file '//trim(chk_file)
           error_code = 1
           return
        end if
