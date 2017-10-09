@@ -80,7 +80,7 @@ program getprm
 
   ! dump file
   write(*,'(a)') '# <data_type> <nvars> <nclasses> <nseq>'
-  write(*,'(a,1x,a,3(1x,i4))') trim(data_type), nvars, nclasses, np
+  write(*,'(a,3(1x,i4))') trim(data_type), nvars, nclasses, np
   if (np > 0) then
      do p = 1,np
         write(*,'(a,1000(1x,i2))') '# ',seq(:,p)
