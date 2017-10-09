@@ -18,7 +18,7 @@ contains
 
   subroutine map_learn(nvars,nclasses,niter_agd,niter_gd,lambda,mc_nsweeps,beta,&
        nupdate,data_type,ulog,fdata,seq,seqs_table,prm,fmodel)
-    use dump, only: dump_array_file,dump_prm_file,dump_rst
+    use dump, only: dump_array_file,dump_prm_file,dump_chk
     integer,          intent(inout)  :: nvars,nclasses
     integer,          intent(in)     :: niter_agd, niter_gd
     real(kflt),       intent(in)     :: lambda
@@ -67,7 +67,7 @@ contains
           call mpi_wrapper_finalize(err)
           stop
        end if
-       call dump_rst('rst','replace',data_type,nvars,nclasses,nproc,&
+       call dump_chk('chk','replace',data_type,nvars,nclasses,nproc,&
             seqs_table,prm,err)
        if( err /= 0 ) then 
           call mpi_wrapper_finalize(err)
@@ -81,7 +81,7 @@ contains
        data_type,ulog,beta,lambda,niter,&
        mc_nsweeps,tot_iter,nupdate)
     use mcmc, only:       mcmc_update_energy
-    use dump, only:       dump_rst
+    use dump, only:       dump_chk
     use cost, only: compute_cost,compute_gradient
 
     character(len=*), intent(in)  :: algorithm
@@ -165,9 +165,9 @@ contains
 
        if(iproc == 0) then
           if(mod(iter,1) == 0 .or. iter == 1) then
-             call dump_rst('rst','replace',data_type,nvars,nclasses,nproc,seqs_table,prm,err)
+             call dump_chk('chk','replace',data_type,nvars,nclasses,nproc,seqs_table,prm,err)
              if( err /= 0 ) then 
-                if ( iproc == 0 ) write(0,*) "error opening file rst", err
+                if ( iproc == 0 ) write(0,*) "error opening file chk", err
                 call mpi_wrapper_finalize(err)
                 stop
              end if

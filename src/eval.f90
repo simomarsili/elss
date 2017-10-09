@@ -5,7 +5,7 @@
 program eval
   use kinds
   use constants
-  use dump,        only: read_rst,read_prm_unit,dump_energies
+  use dump,        only: read_chk,read_prm_unit,dump_energies
   use eval_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
@@ -25,7 +25,7 @@ program eval
   integer                    :: uwgt         ! ww unit
   real(kflt)                 :: wid          ! %id for weights calculation
   integer                    :: uprm         ! prm unit
-  integer                    :: urst         ! rst unit
+  integer                    :: uchk         ! chk unit
   character(len=string_size) :: mode         ! run mode: EVAL, SIM, LEARN
   integer                    :: rseed        ! random seed
   character(len=long_string_size) :: prefix  ! prefix for output file
@@ -47,7 +47,7 @@ program eval
   uwgt = 0
   wid = -1
   uprm = 0
-  urst = 0
+  uchk = 0
   mode = 'EVAL'
   rseed = 0
   prefix = ''
@@ -58,7 +58,7 @@ program eval
 
   !================================================ read args
 
-  call command_line_read(udata,data_type,uprm,urst,prefix,err)
+  call command_line_read(udata,data_type,uprm,uchk,prefix,err)
   if (prefix=='') prefix = trim(mode)
   if (err /= 0) stop
 
@@ -77,14 +77,14 @@ program eval
      close(uprm)
   end if
 
-  !================================================ read restart file
+  !================================================ read checkpoint file
 
-  if (urst > 0) then
-     call read_rst(urst,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
+  if (uchk > 0) then
+     call read_chk(uchk,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
         stop
      end if
-     close(urst)
+     close(uchk)
   end if
 
   !================================================ read data
@@ -102,7 +102,7 @@ program eval
 
      dim1 = nvars * nclasses
      dim2 = nvars * (nvars - 1) * nclasses**2 / 2
-     if (uprm == 0 .and. urst == 0) then
+     if (uprm == 0 .and. uchk == 0) then
 
         allocate(seq(nvars),stat=err)
         allocate(prm(dim1+dim2),stat=err)
@@ -134,8 +134,8 @@ program eval
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#  mode  :    '//trim(mode)
      write(ulog,'(a)')         '#  format:    '//trim(data_type)
-     if (urst > 0) write(ulog,'(a)')&
-          '#  reading restart file           '
+     if (uchk > 0) write(ulog,'(a)')&
+          '#  reading checkpoint file        '
      if (uprm > 0) write(ulog,'(a)')&
           '#  reading parameter file         '
      write(ulog,'(a,1x,i8)')   '#  n. of variables              = ', nvars

@@ -21,7 +21,7 @@ program getprm
   integer                         :: iarg
   logical                         :: file_exists
   character(len=long_string_size) :: syntax = 'syntax'
-  character(len=long_string_size) :: rst_file
+  character(len=long_string_size) :: chk_file
   integer :: iv,jv,is,js,k
   integer :: n_digits = -1
   character(len=1) :: protein_alphabet(21) = &
@@ -50,7 +50,7 @@ program getprm
      case('-i')
         ! prm file
         iarg = iarg + 1
-        call read_opt_arg(iarg,nargs,rst_file,err)
+        call read_opt_arg(iarg,nargs,chk_file,err)
         if (err == 2) then
            write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
            stop
@@ -72,7 +72,7 @@ program getprm
 
   write(frmt,*) 
 
-  call units_open_unf(rst_file,'old',unt,err)
+  call units_open_unf(chk_file,'old',unt,err)
   
   ! read binary file
   read(unt) data_type

@@ -6,7 +6,7 @@ program learn
   use kinds
   use constants
   use mpi_wrapper
-  use dump,        only: read_rst,read_prm_unit,dump_energies
+  use dump,        only: read_chk,read_prm_unit,dump_energies
   use learn_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
@@ -33,7 +33,7 @@ program learn
   integer                        :: uwgt         ! ww unit
   real(kflt)                     :: wid          ! %id for weights calculation
   integer                        :: uprm         ! prm unit
-  integer                        :: urst         ! rst unit
+  integer                        :: uchk         ! chk unit
   integer                        :: mc_nsweeps   ! number of MC sweeps per gradient estimate
   integer                        :: nupdate      ! stride for averages aupdate
   integer                        :: niter_agd    ! number of iter. (Nesterov alg.)
@@ -62,7 +62,7 @@ program learn
   uwgt = 0
   wid = -1
   uprm = 0
-  urst = 0
+  uchk = 0
   mc_nsweeps = 1000
   nupdate = 10
   niter_gd = 0
@@ -80,7 +80,7 @@ program learn
   !================================================ read args
 
   call command_line_read(udata,data_type,uwgt,&
-       wid,uprm,urst,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
+       wid,uprm,uchk,rseed,beta,mc_nsweeps,nupdate,niter_agd,&
        niter_gd,lambda,prefix,err)
   if (prefix=='') prefix = trim(mode)
   
@@ -109,16 +109,16 @@ program learn
      close(uprm)
   end if
 
-  !================================================ read restart file
+  !================================================ read checkpoint file
   
-  if (urst > 0) then
-     call read_rst(urst,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
+  if (uchk > 0) then
+     call read_chk(uchk,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
      if (err /= 0) then
-        if(iproc == 0) write(0,*) 'ERROR ! cannot read from rst'
+        if(iproc == 0) write(0,*) 'ERROR ! cannot read from chk'
         call mpi_wrapper_finalize(err)
         stop
      end if
-     close(urst)
+     close(uchk)
   end if
 
   !================================================ read data
@@ -136,11 +136,11 @@ program learn
 
   dim1 = nvars * nclasses
   dim2 = nvars * (nvars - 1) * nclasses**2 / 2
-  if (uprm == 0 .and. urst == 0) then
+  if (uprm == 0 .and. uchk == 0) then
      allocate(prm(dim1+dim2),stat=err)
      prm = 0.0_kflt
   end if
-  if (urst == 0) then
+  if (uchk == 0) then
      ! allocate seq
      allocate(seq(nvars),stat=err)
      seq = 0
@@ -176,8 +176,8 @@ program learn
      write(ulog,'(a)')         '#'
      write(ulog,'(a)')         '#  mode  :    '//trim(mode)
      write(ulog,'(a)')         '#  format:    '//trim(data_type)
-     if (urst > 0) write(ulog,'(a)')&
-          '#  reading restart file           '
+     if (uchk > 0) write(ulog,'(a)')&
+          '#  reading checkpoint file        '
      if (uprm > 0) write(ulog,'(a)')&
           '#  reading parameter file         '
      write(ulog,'(a,1x,i8)')   '#  n. of procs                  = ', nproc

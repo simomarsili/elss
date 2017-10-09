@@ -25,7 +25,7 @@ module learn_command_line
        nl//&
        ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
        '        OR'//nl//&   
-       ' (-r|--rst) <path_to_file>     restart file                                    (None)           '//nl//&   
+       ' (-c|--chk) <path_to_file>     checkpoint file                                 (None)           '//nl//&   
        nl//&
        ' (-n|--nsweeps) <int>          num. of MC sweeps per gradient estimate         (1000)           '//nl//&
        nl//&
@@ -55,7 +55,7 @@ module learn_command_line
 
 contains
 
-  subroutine command_line_read(udata,data_type,uwgt,wid,uprm,urst,&
+  subroutine command_line_read(udata,data_type,uwgt,wid,uprm,uchk,&
                                rseed,beta,mc_nsweeps,nupdate,niter_agd,niter_gd,&
                                lambda,prefix,error_code)
     use units, only: units_open,units_open_unf
@@ -65,7 +65,7 @@ contains
     integer,                    intent(inout) :: uwgt
     real(kflt),                 intent(inout) :: wid
     integer,                    intent(inout) :: uprm
-    integer,                    intent(inout) :: urst
+    integer,                    intent(inout) :: uchk
     integer,                    intent(inout) :: rseed
     real(kflt),                 intent(inout) :: beta
     integer,                    intent(inout) :: mc_nsweeps
@@ -79,7 +79,7 @@ contains
     character(len=long_string_size) :: data_file
     character(len=long_string_size) :: ww_file
     character(len=long_string_size) :: prm_file
-    character(len=long_string_size) :: rst_file
+    character(len=long_string_size) :: chk_file
     character(len=long_string_size) :: cmd
     integer                         :: nargs
     character(len=long_string_size) :: arg
@@ -102,7 +102,7 @@ contains
     data_file = ''
     ww_file = ''
     prm_file = ''
-    rst_file = ''
+    chk_file = ''
     
     iarg = 0
     args_loop: do while(iarg < nargs)
@@ -138,10 +138,10 @@ contains
              error_code = 1
              return
           end if
-       case('-r','--rst')
-          ! rst file
+       case('-c','--chk')
+          ! chk file
           iarg = iarg + 1
-          call read_opt_arg(iarg,nargs,rst_file,err)
+          call read_opt_arg(iarg,nargs,chk_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -261,8 +261,8 @@ contains
        end select
     end do args_loop
 
-    if (prm_file /= "" .and. rst_file /= "") then
-       write(0,*) 'ERROR ! either a rst or a prm file'
+    if (prm_file /= "" .and. chk_file /= "") then
+       write(0,*) 'ERROR ! either a chk or a prm file'
        error_code = 1
        return
     end if    
@@ -282,16 +282,16 @@ contains
        end if
     end if
 
-    if ( rst_file /= "" ) then
-       inquire( file = rst_file, exist = file_exists )
+    if ( chk_file /= "" ) then
+       inquire( file = chk_file, exist = file_exists )
        if ( .not. file_exists ) then
-          write(0,*) 'ERROR ! cannot access '//trim(rst_file)
+          write(0,*) 'ERROR ! cannot access '//trim(chk_file)
           error_code = 1
           return
        end if
-       call units_open_unf(rst_file,'old',urst,err)
+       call units_open_unf(chk_file,'old',uchk,err)
        if( err /= 0 ) then
-          write(0,*) 'ERROR ! error opening file '//trim(rst_file)
+          write(0,*) 'ERROR ! error opening file '//trim(chk_file)
           error_code = 1
           return
        end if

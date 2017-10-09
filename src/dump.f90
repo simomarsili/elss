@@ -13,21 +13,21 @@ module dump
   public :: read_array_file,read_array_unit
   public :: dump_array_file,dump_array_unit
   public :: dump_prm_file,dump_prm_unit
-  public :: read_rst
-  public :: dump_rst
+  public :: read_chk
+  public :: dump_chk
   public :: dump_seq
   public :: dump_fasta
   public :: dump_energies
 
-  interface read_rst
-     module procedure read_rst_file
-     module procedure read_rst_unit
-  end interface read_rst
+  interface read_chk
+     module procedure read_chk_file
+     module procedure read_chk_unit
+  end interface read_chk
 
-  interface dump_rst
-     module procedure dump_rst_file
-     module procedure dump_rst_unit
-  end interface dump_rst
+  interface dump_chk
+     module procedure dump_chk_file
+     module procedure dump_chk_unit
+  end interface dump_chk
 
 contains
 
@@ -180,7 +180,7 @@ contains
 
   subroutine dump_prm_unit(unt,data_type,nvars,nclasses,&
                            array1,array2,error_code)
-    ! dump a restart file 
+    ! dump a checkpoint file 
     integer,          intent(in)  :: unt
     character(len=*), intent(in)  :: data_type
     integer,          intent(in)  :: nvars,nclasses
@@ -375,8 +375,8 @@ contains
     
   end subroutine dump_fasta
 
-  subroutine read_rst_unit(unt,data_type,nvars,nclasses,iproc,nproc,seq,prm,error_code)
-    ! read a restart file 
+  subroutine read_chk_unit(unt,data_type,nvars,nclasses,iproc,nproc,seq,prm,error_code)
+    ! read a checkpoint file 
     use random, only: random_seq
     use fasta, only: set_fasta_alphabet
     integer,          intent(in)                 :: unt
@@ -427,19 +427,19 @@ contains
 
     allocate(dummy(nvars),stat=err)
     if (np == 0) then 
-       ! no seqs found in restart 
+       ! no seqs found in checkpoint 
        ! => randomize 
        call random_seq(nvars,nclasses,seq)
     else 
        if (nproc == 1 .or. np == nproc) then 
-          ! single process or n. of seqs in restart matches nproc
+          ! single process or n. of seqs in checkpoint matches nproc
           ! => each proc reads a different seq
           do p = 1,np
              read(unt) dummy
              if (p == iproc+1) seq = dummy
           end do
        else
-          ! if nproc is larger than 1 and different from the num. of seqs in the restart 
+          ! if nproc is larger than 1 and different from the num. of seqs in the checkpoint 
           ! => randomize
           call random_seq(nvars,nclasses,seq)
        end if
@@ -451,9 +451,9 @@ contains
 
     call set_fasta_alphabet(data_type)
     
-  end subroutine read_rst_unit
+  end subroutine read_chk_unit
 
-  subroutine read_rst_file(filename,data_type,nvars,nclasses,iproc,nproc,seq,&
+  subroutine read_chk_file(filename,data_type,nvars,nclasses,iproc,nproc,seq,&
                            prm,error_code)
     ! should read both a filename or a unit
     use random, only: random_seq
@@ -476,15 +476,15 @@ contains
        return
     end if
 
-    call read_rst_unit(unt,data_type,nvars,nclasses,iproc,nproc,seq,prm,error_code)
+    call read_chk_unit(unt,data_type,nvars,nclasses,iproc,nproc,seq,prm,error_code)
     
     close(unt)
     
-  end subroutine read_rst_file
+  end subroutine read_chk_file
 
-  subroutine dump_rst_unit(unt,data_type,nvars,nclasses,nproc,seqs_table,prm,&
+  subroutine dump_chk_unit(unt,data_type,nvars,nclasses,nproc,seqs_table,prm,&
                            error_code)
-    ! dump a restart file 
+    ! dump a checkpoint file 
     integer,          intent(in)  :: unt
     character(len=*), intent(in)  :: data_type
     integer,          intent(in)  :: nvars,nclasses,nproc
@@ -504,11 +504,11 @@ contains
     end do
     write(unt) prm
 
-  end subroutine dump_rst_unit
+  end subroutine dump_chk_unit
 
-  subroutine dump_rst_file(filename,status,data_type,nvars,nclasses,nproc,&
+  subroutine dump_chk_file(filename,status,data_type,nvars,nclasses,nproc,&
                            seqs_table,prm,error_code)
-    ! dump a restart file 
+    ! dump a checkpoint file 
     character(len=*), intent(in)  :: filename
     character(len=*), intent(in)  :: status
     character(len=*), intent(in)  :: data_type
@@ -527,10 +527,10 @@ contains
        return
     end if
 
-    call dump_rst_unit(unt,data_type,nvars,nclasses,nproc,seqs_table,prm,error_code)
+    call dump_chk_unit(unt,data_type,nvars,nclasses,nproc,seqs_table,prm,error_code)
 
     close(unt)
 
-  end subroutine dump_rst_file
+  end subroutine dump_chk_file
 
 end module dump
