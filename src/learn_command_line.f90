@@ -305,7 +305,7 @@ contains
          'Usage:                                                                         '/&
          '    elss-learn [options] -i <data_file>                                        '/&
          '    elss-learn [options] --fasta <fasta_file>                                  '/&
-         '    (preceded by mpiexec -n <n_proc> for parallel execution)                   '/&
+         '    (prepend "mpiexec -n <n_proc>" for simulating multiple chains in parallel) '/&
          '                                                                               '/&
          'Description:                                                                   '/&
          '    Read a data matrix and fit a model of pairwise interacting categorical     '/&
@@ -368,7 +368,10 @@ contains
          '--seed <seed>, integer                                                         '/&
          '    Seed for initialization of pseudo-random number generator.                 '/&
          '    If == 0, the seed is computed from the system clock.                       '/&
-         '    [default: 0]                                                               '/)
+         '    [default: 0]                                                               '/&
+         '                                                                               '/&
+         'Examples:                                                                      '/&
+         '                                                                               '/)
 
   end subroutine command_line_read
 
