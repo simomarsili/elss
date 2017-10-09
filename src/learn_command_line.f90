@@ -154,11 +154,11 @@ contains
              error_code = 1
              return
           end if
-       case('--random_seed')
+       case('--seed')
           iarg = iarg + 1
           call read_opt_arg(iarg,nargs,rseed,err)
           if ( err/= 0 ) then
-             write(0,*) 'ERROR ! check random_seed'
+             write(0,*) 'ERROR ! check seed'
              error_code = 1
              return
           end if
@@ -179,7 +179,7 @@ contains
              error_code = 1
              return
           end if
-       case('--learn')
+       case('--niter')
           iarg = iarg + 1
           call read_opt_arg(iarg,nargs,niter,err)
           if ( err/= 0 ) then
@@ -357,15 +357,15 @@ contains
          '    Options are: gd, momentum, nag, adam.                                      '/&
          '    [default: adam]                                                            '/&
          '                                                                               '/&
-         '--learn <n>, integer                                                           '/&
-         '    Number of accelerated gradient descent steps.                              '/&
+         '--niter <n_iter>, integer                                                      '/&
+         '    Number of (accelerated) gradient descent steps.                            '/&
          '    [default: 2000]                                                            '/&
          '                                                                               '/&
          '-l, --lambda <regularization_strength>, float                                  '/&
          '    Parameter controlling the strength of l2 regularization.                   '/&
          '    [default: 0.01]                                                            '/&
          '                                                                               '/&
-         '--random_seed <seed>, integer                                                  '/&
+         '--seed <seed>, integer                                                         '/&
          '    Seed for initialization of pseudo-random number generator.                 '/&
          '    If == 0, the seed is computed from the system clock.                       '/&
          '    [default: 0]                                                               '/)

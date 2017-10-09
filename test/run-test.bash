@@ -50,10 +50,10 @@ rm chk 0.trj 0.ene
 command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
 
 echo "estimating model parameters... (dump: chk,prm,LEARN.log)"
-mpiexec -n $NPROC $EXE\-learn --fasta $DATA -n $NS --random_seed 123 --prefix learn >> log 2>&1;
+mpiexec -n $NPROC $EXE\-learn --fasta $DATA -n $NS --seed 123 --prefix learn >> log 2>&1;
 
 echo "sampling sequences from the model distribution...(dumps: 0.trj,SIM.log)"
-$EXE\-sample -c chk -n 100000 --random_seed 123 --prefix sample >> log 2>&1; 
+$EXE\-sample -c chk -n 100000 --seed 123 --prefix sample >> log 2>&1; 
 
 echo "checking data energies...(dumps: 0.ene,EVAL.log)"
 $EXE\-eval -c chk --fasta $DATA --prefix eval >> log 2>&1; 
