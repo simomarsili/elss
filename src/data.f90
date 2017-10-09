@@ -18,13 +18,12 @@ module data
 
 contains
 
-  subroutine data_read(iproc,udata,data_type,data_format,uwgt,wid,nvars,nclasses,&
+  subroutine data_read(iproc,udata,data_type,uwgt,wid,nvars,nclasses,&
                        nseqs,neff,seqs,error_code,error_string)
     use fasta, only: fasta_read
     integer,              intent(in)    :: iproc
     integer,              intent(in)    :: udata
     character(len=*),     intent(out)   :: data_type
-    character(len=*),     intent(in)    :: data_format
     integer,              intent(in)    :: uwgt
     real(kflt),           intent(in)    :: wid
     integer,              intent(inout) :: nvars
@@ -43,8 +42,8 @@ contains
     error_code = 0
     error_string = ''
 
-    select case(trim(data_format))
-    case('raw')
+    select case(trim(data_type))
+    case('int')
        
        ! get number of fields
        read(udata,'(a)',iostat=err) line
@@ -76,7 +75,7 @@ contains
           end if
        end do
 
-    case('FASTA')
+    case('bio', 'protein', 'nuc_acid')
 
        ! read sequences from MSA
        call fasta_read(udata,seqs,data_type,error_code,error_string)

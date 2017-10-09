@@ -32,7 +32,7 @@ module dump
 contains
 
   subroutine read_prm_unit(unt,nvars,nclasses,&
-                                    prm,data_type,data_format,error_code)
+                                    prm,data_type,error_code)
     use parser, only: parser_nfields,remove_comments
     use random, only: random_seq
     use fasta, only: set_fasta_alphabet
@@ -40,7 +40,6 @@ contains
     integer,    intent(inout)              :: nvars, nclasses
     real(kflt), intent(inout), allocatable :: prm(:)
     character(len=*), intent(inout)        :: data_type
-    character(len=*), intent(inout)        :: data_format
     integer,    intent(out)                :: error_code
     integer                         :: iv,jv
     integer                         :: is,js
@@ -60,23 +59,26 @@ contains
        if (len_trim(line) == 0) then 
           cycle 
        else
-          read(line,*) data_type,data_format, nv, nc
+          read(line,*) data_type, nv, nc
           exit
        end if
     end do
 
-    if (trim(data_format) == 'FASTA') then
-       if (trim(data_type) == 'protein' .and. nc /= 21) then
+    select case(trim(data_type))
+    case('protein')
+       if (nc /= 21) then
           write(0,*) 'ERROR ! in prm file, num. of classes must be 21'
           error_code = 1
           return
-       else if (trim(data_type) == 'nuc_acid' .and. nc /= 6) then
+       end if
+    case('nuc_acid')
+       if (nc /= 6) then
           write(0,*) 'ERROR ! in prm file, num. of classes must be 6'
           error_code = 1
           return
        end if
-    end if
-
+    end select
+       
     if (nvars == 0 .and. nclasses == 0) then 
        nvars = nv
        nclasses = nc
@@ -149,10 +151,10 @@ contains
 
   end subroutine read_prm_unit
 
-  subroutine dump_prm_file(filename,data_format,nvars,nclasses,&
+  subroutine dump_prm_file(filename,data_type,nvars,nclasses,&
                        array1,array2,error_code)
     character(len=*), intent(in)  :: filename
-    character(len=*), intent(in)  :: data_format
+    character(len=*), intent(in)  :: data_type
     integer,          intent(in)  :: nvars,nclasses
     real(kflt),       intent(in)  :: array1(nclasses,nvars)
     real(kflt),       intent(in)  :: array2(nclasses,nclasses,nvars*(nvars-1)/2)
@@ -169,18 +171,18 @@ contains
        return
     end if
 
-    call dump_prm_unit(unt,data_format,nvars,nclasses,&
+    call dump_prm_unit(unt,data_type,nvars,nclasses,&
                        array1,array2,error_code)
 
     close(unt)
 
   end subroutine dump_prm_file
 
-  subroutine dump_prm_unit(unt,data_format,nvars,nclasses,&
+  subroutine dump_prm_unit(unt,data_type,nvars,nclasses,&
                            array1,array2,error_code)
     ! dump a restart file 
     integer,          intent(in)  :: unt
-    character(len=*), intent(in)  :: data_format
+    character(len=*), intent(in)  :: data_type
     integer,          intent(in)  :: nvars,nclasses
     real(kflt),       intent(in)  :: array1(nclasses,nvars)
     real(kflt),       intent(in)  :: array2(nclasses,nclasses,nvars*(nvars-1)/2)
@@ -189,7 +191,7 @@ contains
 
     error_code = 0
 
-    write(unt,'(a,2(1x,i4))') trim(data_format), nvars, nclasses
+    write(unt,'(a,2(1x,i4))') trim(data_type), nvars, nclasses
     do iv = 1,nvars
        do is = 1,nclasses
           write(unt,'(2i5,f8.4)') iv,is,array1(is,iv)
@@ -373,13 +375,12 @@ contains
     
   end subroutine dump_fasta
 
-  subroutine read_rst_unit(unt,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,error_code)
+  subroutine read_rst_unit(unt,data_type,nvars,nclasses,iproc,nproc,seq,prm,error_code)
     ! read a restart file 
     use random, only: random_seq
     use fasta, only: set_fasta_alphabet
     integer,          intent(in)                 :: unt
     character(len=*), intent(inout)              :: data_type
-    character(len=*), intent(inout)              :: data_format
     integer,          intent(inout)              :: nvars,nclasses
     integer,          intent(in)                 :: iproc
     integer,          intent(in)                 :: nproc
@@ -393,7 +394,6 @@ contains
     error_code = 0
 
     read(unt) data_type
-    read(unt) data_format
     read(unt) nv
     read(unt) nc
     read(unt) np
@@ -453,13 +453,12 @@ contains
     
   end subroutine read_rst_unit
 
-  subroutine read_rst_file(filename,data_type,data_format,nvars,nclasses,iproc,nproc,seq,&
+  subroutine read_rst_file(filename,data_type,nvars,nclasses,iproc,nproc,seq,&
                            prm,error_code)
     ! should read both a filename or a unit
     use random, only: random_seq
     character(len=*), intent(in)                 :: filename
     character(len=*), intent(inout)              :: data_type
-    character(len=*), intent(inout)              :: data_format
     integer,          intent(inout)              :: nvars,nclasses
     integer,          intent(in)                 :: iproc
     integer,          intent(in)                 :: nproc
@@ -477,18 +476,17 @@ contains
        return
     end if
 
-    call read_rst_unit(unt,data_type,data_format,nvars,nclasses,iproc,nproc,seq,prm,error_code)
+    call read_rst_unit(unt,data_type,nvars,nclasses,iproc,nproc,seq,prm,error_code)
     
     close(unt)
     
   end subroutine read_rst_file
 
-  subroutine dump_rst_unit(unt,data_type,data_format,nvars,nclasses,nproc,seqs_table,prm,&
+  subroutine dump_rst_unit(unt,data_type,nvars,nclasses,nproc,seqs_table,prm,&
                            error_code)
     ! dump a restart file 
     integer,          intent(in)  :: unt
     character(len=*), intent(in)  :: data_type
-    character(len=*), intent(in)  :: data_format
     integer,          intent(in)  :: nvars,nclasses,nproc
     integer,          intent(in)  :: seqs_table(:,:)
     real(kflt),       intent(in)  :: prm(:)
@@ -498,7 +496,6 @@ contains
     error_code = 0
 
     write(unt) data_type
-    write(unt) data_format
     write(unt) nvars
     write(unt) nclasses
     write(unt) nproc
@@ -509,13 +506,12 @@ contains
 
   end subroutine dump_rst_unit
 
-  subroutine dump_rst_file(filename,status,data_type,data_format,nvars,nclasses,nproc,&
+  subroutine dump_rst_file(filename,status,data_type,nvars,nclasses,nproc,&
                            seqs_table,prm,error_code)
     ! dump a restart file 
     character(len=*), intent(in)  :: filename
     character(len=*), intent(in)  :: status
     character(len=*), intent(in)  :: data_type
-    character(len=*), intent(in)  :: data_format
     integer,          intent(in)  :: nvars,nclasses,nproc
     integer,          intent(in)  :: seqs_table(:,:)
     real(kflt),       intent(in)  :: prm(:)
@@ -531,7 +527,7 @@ contains
        return
     end if
 
-    call dump_rst_unit(unt,data_type,data_format,nvars,nclasses,nproc,seqs_table,prm,error_code)
+    call dump_rst_unit(unt,data_type,nvars,nclasses,nproc,seqs_table,prm,error_code)
 
     close(unt)
 

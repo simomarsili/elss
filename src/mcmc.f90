@@ -21,7 +21,7 @@ module mcmc
 contains
 
   subroutine mcmc_simulate(nvars,nclasses,seq,fields,couplings,&
-                           data_format,freq_single,freq_pair,beta,&
+                           data_type,freq_single,freq_pair,beta,&
                            mc_nsweeps,hot_start,nupdate,utrj,facc)
     use dump, only:     dump_seq, dump_energies, dump_fasta
     use averages, only: averages_initialize,averages_update
@@ -29,7 +29,7 @@ contains
     integer,          intent(inout) :: seq(:)
     real(kflt),       intent(in)    :: fields(nclasses,nvars)
     real(kflt),       intent(in)    :: couplings(nclasses,nclasses,nvars*(nvars-1)/2)
-    character(len=*), intent(in)    :: data_format  ! data format ('raw', 'FASTA')
+    character(len=*), intent(in)    :: data_type  ! data format ('unk', 'int', 'bio', 'protein', 'nuc_acid')
     real(kflt),       intent(out)   :: freq_single(nclasses,nvars)
     real(kflt),       intent(out)   :: freq_pair(nclasses,nclasses,nvars*(nvars-1)/2)
     real(kflt),       intent(in)    :: beta                ! inverse temperature
@@ -72,12 +72,13 @@ contains
     nacc = 0
 
     ! starting configuration
-    if (utrj > 0) then 
-       if (trim(data_format) == 'raw') then 
+    if (utrj > 0) then
+       select case(trim(data_type))
+       case ('int')
           call dump_seq(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
-       else if (trim(data_format) == 'FASTA') then 
+       case ('bio', 'protein', 'nuc_acid')
           call dump_fasta(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
-       end if
+       end select
     end if
 
     mc_loop: do
@@ -90,11 +91,12 @@ contains
        call averages_update(seq,freq_single,freq_pair)
 
        if (utrj > 0) then 
-          if (trim(data_format) == 'raw') then 
+          select case(trim(data_type))
+          case ('int')
              call dump_seq(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
-          else if (trim(data_format) == 'FASTA') then 
+          case ('bio', 'protein', 'nuc_acid')
              call dump_fasta(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
-          end if
+          end select
        end if
 
        ! every mc_nsteps:
