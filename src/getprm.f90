@@ -23,11 +23,13 @@ program getprm
   character(len=long_string_size) :: syntax = 'syntax'
   character(len=long_string_size) :: rst_file
   integer :: iv,jv,is,js,k
+  integer :: n_digits = -1
   character(len=1) :: protein_alphabet(21) = &
        ['A','C','D','E','F','G','H','I','K',&
        'L','M','N','P','Q','R','S','T','V','W','Y','-']
   character(len=1) :: nuc_acid_alphabet(6) = &
        ['A','C','G','T','U','-']
+  character(len=long_string_size) :: frmt
   
   ! read arguments
   call get_command(cmd)
@@ -49,8 +51,17 @@ program getprm
         ! prm file
         iarg = iarg + 1
         call read_opt_arg(iarg,nargs,rst_file,err)
-        if (err == 1) then
+        if (err == 2) then
            write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+           stop
+        end if
+     case('-d', '--digits')
+        ! the number of digits to the right of the decimal point
+        ! default: print with full precision
+        iarg = iarg + 1
+        call read_opt_arg(iarg,nargs,n_digits,err)
+        if (err == 2) then
+           write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <n>'
            stop
         end if
      case default
@@ -58,6 +69,8 @@ program getprm
         stop
      end select
   end do args_loop
+
+  write(frmt,*) 
 
   call units_open_unf(rst_file,'old',unt,err)
   
@@ -87,21 +100,29 @@ program getprm
      end do
   end if
   k = 0
+  write(frmt,*) '(i3,1x,1000f', n_digits + 4, '.', n_digits, ')'
   do iv = 1,nvars
-     do is = 1,nclasses
-        k = k + 1
-        write(*,'(i3,1x,i2,1x,f8.4)') iv,is,prm(k)
-     end do
+     !write(*,'(i3,1x,1000f8.4)') iv,prm(k+1:k+nclasses)
+     !write(*,*) iv,prm(k+1:k+nclasses)
+     if (n_digits >= 0) then
+        write(*,frmt) iv,prm(k+1:k+nclasses)
+     else
+        write(*,*) iv,prm(k+1:k+nclasses)
+     end if
+     k = k + nclasses
   end do
-  do jv = 1,nvars-1
-     do iv = jv+1,nvars
-        do js = 1,nclasses
-           do is = 1,nclasses
-              k = k + 1
-              ! order is inverted for printing 
-              write(*,'(2(i3,1x),2(i2,1x),f8.4)') jv,iv,js,is,prm(k)
-           end do
-        end do
+  write(frmt,*) '(2(i3,1x),1000f', n_digits + 4, '.', n_digits, ')'
+  do iv = 1,nvars-1
+     do jv = iv+1,nvars
+        ! order is inverted for printing 
+        !write(*,'(2(i3,1x),1000f8.4)') jv,iv,prm(k+1:k+nclasses**2)
+        ! (iv, jv) pair of features; inner loop over the states of jv
+        if (n_digits >= 0) then
+           write(*,frmt) iv,jv,prm(k+1:k+nclasses**2)
+        else
+           write(*,*) iv,jv,prm(k+1:k+nclasses**2)
+        end if
+        k = k + nclasses**2
      end do
   end do
 
