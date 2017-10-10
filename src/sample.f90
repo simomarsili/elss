@@ -136,15 +136,18 @@ program sample
   if (useq > 0) then
      ! read starting sequence (NB: overwrite chk)
      select case (trim(data_type))
-     case('raw')
+     case('int')
         read(useq,*) seq
-     case('FASTA')
+     case('bio', 'protein', 'nuc_acid')
         call fasta_read(useq,seqs0,data_type,err,err_string)
         if (err > 0) then
            write(0,*) 'ERROR ! cannot read from seq'
            stop
         end if
         seq = seqs0(:,1) ! take the first one as chk
+     case default
+        write(0,*) 'ERROR ! unknown data type'
+        stop
      end select
   end if
   

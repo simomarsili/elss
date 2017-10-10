@@ -147,7 +147,7 @@ contains
        end select
     end do
 
-    call set_fasta_alphabet(data_type)
+    if (trim(data_type) == 'bio') call set_fasta_alphabet(data_type)
 
   end subroutine read_prm_unit
 
@@ -449,7 +449,7 @@ contains
 
     deallocate(dummy)
 
-    call set_fasta_alphabet(data_type)
+    if (trim(data_type) == 'bio') call set_fasta_alphabet(data_type)
     
   end subroutine read_chk_unit
 
