@@ -53,7 +53,7 @@ program sample
   mode = 'SAMPLE'
   rseed = 0
   beta = 1.0_kflt
-  prefix = ''
+  prefix = 'sample'
 
   !================================================ init. unit identifiers
 
@@ -63,7 +63,6 @@ program sample
 
   call command_line_read(uprm,uchk,useq,rseed,beta,mc_nsweeps,nupdate,&
        prefix,err)
-  if (prefix=='') prefix = trim(mode)
 
   if (err /= 0) stop
 
