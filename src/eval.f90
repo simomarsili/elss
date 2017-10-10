@@ -26,7 +26,6 @@ program eval
   real(kflt)                 :: wid          ! %id for weights calculation
   integer                    :: uprm         ! prm unit
   integer                    :: uchk         ! chk unit
-  character(len=string_size) :: mode         ! run mode: EVAL, SIM, LEARN
   integer                    :: rseed        ! random seed
   character(len=long_string_size) :: prefix  ! prefix for output file
   integer                         :: iproc=0,nproc=1
@@ -48,7 +47,6 @@ program eval
   wid = -1
   uprm = 0
   uchk = 0
-  mode = 'EVAL'
   rseed = 0
   prefix = 'eval'
 
@@ -131,7 +129,6 @@ program eval
      write(ulog,'(a)')         '#==========================================='
      write(ulog,'(a)')         '#_________________elss_v0.3.1_______________'
      write(ulog,'(a)')         '#'
-     write(ulog,'(a)')         '#  mode  :    '//trim(mode)
      write(ulog,'(a)')         '#  format:    '//trim(data_type)
      if (uchk > 0) write(ulog,'(a)')&
           '#  reading checkpoint file        '

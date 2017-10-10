@@ -38,7 +38,6 @@ program learn
   integer                        :: nupdate      ! stride for averages aupdate
   integer                        :: niter        ! number of iter.
   real(kflt)                     :: lambda       ! Gaussian prior hyperparameter
-  character(len=string_size)     :: mode         ! run mode: EVAL, SIM, LEARN
   integer                        :: rseed        ! random seed
   real(kflt)                     :: beta         ! temperature of the run
   character(len=string_size)     :: algorithm
@@ -69,7 +68,6 @@ program learn
   algorithm = 'adam'
   niter = 2000
   lambda = 0.01_kflt
-  mode = 'LEARN'
   rseed = 0
   beta = 1.0_kflt
   prefix = 'learn'

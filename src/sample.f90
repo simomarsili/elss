@@ -25,7 +25,6 @@ program sample
   integer                    :: useq         ! seq unit
   integer                    :: mc_nsweeps   ! number of MC sweeps per gradient estimate
   integer                    :: nupdate      ! stride for averages aupdate
-  character(len=string_size) :: mode         ! run mode: EVAL, SIM, LEARN
   integer                    :: rseed        ! random seed
   real(kflt)                 :: beta         ! temperature of the run
   character(len=long_string_size) :: prefix
@@ -50,7 +49,6 @@ program sample
   useq = 0
   mc_nsweeps = 1000
   nupdate = 10
-  mode = 'SAMPLE'
   rseed = 0
   beta = 1.0_kflt
   prefix = 'sample'
@@ -121,7 +119,6 @@ program sample
      write(ulog,'(a)')         '#==========================================='
      write(ulog,'(a)')         '#_________________elss_v0.3.1_______________'
      write(ulog,'(a)')         '#'
-     write(ulog,'(a)')         '#  mode  :    '//trim(mode)
      write(ulog,'(a)')         '#  format:    '//trim(data_type)
      if (uchk > 0) write(ulog,'(a)')&
           '#  reading checkpoint file        '
