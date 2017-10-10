@@ -198,8 +198,7 @@ contains
          'elss-sample (elss v0.2.1)                                                      '/& 
          '                                                                               '/&
          'Usage:                                                                         '/&
-         '    elss-sample [options] -p <parameters_file>                                 '/&
-         '    elss-learn [options] -c <checkpoint_file>                                  '/&
+         '    elss-sample [options] (-c <chk_file>|-p <prm_file>)                        '/&
          '                                                                               '/&
          'Description:                                                                   '/&
          '    Simulate a trajectory in sequence space, using a model of pairwise         '/&
