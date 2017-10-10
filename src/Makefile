@@ -2,7 +2,7 @@
 INSTALLDIR=~/.local/bin
 
 EXE = elss-eval elss-sample elss-learn
-TOOLS = elss-getprm
+TOOLS = pchk
 FC = mpif90
 FFLAGS = -O2 -fconvert=little-endian -std=f2008
 #FFLAGS = -fast -heap-arrays # ifort (important: use -heap-arrays)
@@ -14,7 +14,7 @@ SRCS-eval = eval.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 eval_comma
 OBJS-eval = eval.o units.o random.o mcmc.o kinds.o data.o eval_command_line.o dump.o parser.o scoring.o constants.o averages.o cost.o mpi_wrapper.o map.o fasta.o arguments.o
 SRCS-sample = sample.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 sample_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90 arguments.f90
 OBJS-sample = sample.o units.o random.o mcmc.o kinds.o data.o sample_command_line.o dump.o parser.o scoring.o constants.o averages.o cost.o mpi_wrapper.o map.o fasta.o arguments.o
-SRCS-pchk = getprm.f90 kinds.f90 constants.f90 units.f90 arguments.f90
+SRCS-pchk = pchk.f90 kinds.f90 constants.f90 units.f90 arguments.f90
 OBJS-pchk = getprm.o kinds.o constants.o units.o arguments.o
 
 all: $(EXE) $(TOOLS)
@@ -24,7 +24,7 @@ elss-eval: $(OBJS-eval)
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-eval) $(LIBS)
 elss-sample: $(OBJS-sample) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-sample) $(LIBS)
-elss-getprm: $(OBJS-pchk) 
+pchk: $(OBJS-pchk) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-pchk) $(LIBS)
 
 .SUFFIXES: $(SUFFIXES) .f90 .f
@@ -58,7 +58,7 @@ map.o: map.f90 units.o kinds.o mpi_wrapper.o mcmc.o dump.o data.o constants.o co
 learn.o: learn.f90 learn_command_line.o mpi_wrapper.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o mcmc.o #mpi
 eval.o: eval.f90 eval_command_line.o random.o kinds.o units.o data.o map.o dump.o scoring.o constants.o mcmc.o 
 sample.o: sample.f90 sample_command_line.o random.o kinds.o units.o dump.o constants.o mcmc.o
-getprm.o = getprm.f90 kinds.o constants.o units.o arguments.o
+pchk.o = pchk.f90 kinds.o constants.o units.o arguments.o
 
 .PHONY: default install uninstall clean realclean debug showtargets
 
