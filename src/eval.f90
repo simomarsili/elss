@@ -50,7 +50,7 @@ program eval
   uchk = 0
   mode = 'EVAL'
   rseed = 0
-  prefix = ''
+  prefix = 'eval'
 
   !================================================ init. unit identifiers
 
@@ -59,7 +59,6 @@ program eval
   !================================================ read args
 
   call command_line_read(udata,data_type,uprm,uchk,prefix,err)
-  if (prefix=='') prefix = trim(mode)
   if (err /= 0) stop
 
   !================================================ init. the random number generator
