@@ -303,8 +303,7 @@ contains
          'elss-learn (elss v0.2.1)                                                       '/& 
          '                                                                               '/&
          'Usage:                                                                         '/&
-         '    elss-learn [options] -i <data_file>                                        '/&
-         '    elss-learn [options] --fasta <fasta_file>                                  '/&
+         '    elss-learn [options] (-i <data_file>|--fasta <MSA_file>                    '/&
          '    (prepend "mpiexec -n <n_proc>" for simulating multiple chains in parallel) '/&
          '                                                                               '/&
          'Description:                                                                   '/&
