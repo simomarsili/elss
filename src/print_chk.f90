@@ -2,7 +2,7 @@
 ! All rights reserved.
 ! License: BSD 3 clause
 
-program getprm
+program print_chk
   use kinds
   use constants
   use units, only: units_open_unf
@@ -126,4 +126,4 @@ program getprm
      end do
   end do
 
-end program getprm
+end program print_chk
