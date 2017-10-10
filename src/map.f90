@@ -43,12 +43,15 @@ contains
     dimm = dim1 + dim2
 
     tot_iter = 0
-    
-    write(ulog,'(a)') &
-         '# iter, '//&
-         ' max_abs_grad, sum(grad**2),'//&
-         '     data_ene, prior_energy,'//&
-         '     cpu_time'
+
+
+    if (iproc == 0) then
+       write(ulog,'(a)') &
+            '# iter, '//&
+            ' max_abs_grad, sum(grad**2),'//&
+            '     data_ene, prior_energy,'//&
+            '     cpu_time'
+    end if
 
     call map_all(algorithm,nvars,nclasses,seq,seqs_table,prm,fmodel,&
          fdata,data_type,ulog,beta,lambda,&
