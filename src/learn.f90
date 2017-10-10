@@ -61,6 +61,7 @@ program learn
   data_type = 'unk'
   uwgt = 0
   wid = -1
+  neff =  0.0_kflt
   uprm = 0
   uchk = 0
   mc_nsweeps = 1000
@@ -71,7 +72,7 @@ program learn
   mode = 'LEARN'
   rseed = 0
   beta = 1.0_kflt
-  prefix = ''
+  prefix = 'learn'
 
   !================================================ init. unit identifiers
 
@@ -82,7 +83,6 @@ program learn
   call command_line_read(udata,data_type,uwgt,&
        wid,uprm,uchk,rseed,beta,mc_nsweeps,nupdate,algorithm,niter,&
        lambda,prefix,err)
-  if (prefix=='') prefix = trim(mode)
   
   if (err /= 0) then
      stop
@@ -157,57 +157,42 @@ program learn
   
   close(udata)
 
-  ! open log file
-  filename = trim(prefix)//'.log'
-  call units_open(trim(filename),'unknown',ulog,err)
-  if(err /= 0) then
-     if (iproc == 0) write(0,*) "error opening file ", trim(filename)//'.log'
-     call mpi_wrapper_finalize(err)
-     stop
-  end if
-
-
-  !================================================ print a header
-
-  if ( iproc == 0 ) then
-     write(ulog,'(a)')         '#'
-     write(ulog,'(a)')         '#==========================================='
-     write(ulog,'(a)')         '#_________________elss_v0.3.1_______________'
-     write(ulog,'(a)')         '#'
-     write(ulog,'(a)')         '#  mode  :    '//trim(mode)
-     write(ulog,'(a)')         '#  format:    '//trim(data_type)
-     if (uchk > 0) write(ulog,'(a)')&
-          '#  reading checkpoint file        '
-     if (uprm > 0) write(ulog,'(a)')&
-          '#  reading parameter file         '
-     write(ulog,'(a,1x,i8)')   '#  n. of procs                  = ', nproc
-     write(ulog,'(a,1x,i8)')   '#  n. of variables              = ', nvars
-     write(ulog,'(a,1x,i8)')   '#  n. of classes                = ', nclasses
-     write(ulog,'(a,1x,i8)')   '#  n. of seqs                   = ', nseqs
-     write(ulog,'(a,1x,i8)')   '#  stride (sweeps) for updates  = ', nupdate
-     if (trim(mode) == 'SIM') &
-          write(ulog,'(a,1x,i8)')   '#  n. of MC sweeps              = ', mc_nsweeps
-     write(ulog,'(a,1x,f8.1)') '#  temperature factor           = ', 1.0_kflt / beta
-     if (trim(mode) == 'LEARN') then
-        if (wid > 0.0 .or. uwgt > 0.0) then
-           if (wid > 0.0) then
-              write(ulog,'(a,1x,f8.1)') &
-                   '#  %id for reweighting          = ', wid
-           else if (uwgt > 0.0) then
-              write(ulog,'(a)') &
-                   '#  reading weights from file...    '
-           end if
-           write(ulog,'(a,1x,f8.1)') '#  effective n. of seqs         = ', neff
-        end if
-        write(ulog,'(a,1x,f8.3)') '#  scaled prior (hyper-)parameter  = ', lambda
-        write(ulog,'(a,1x,i8)')   '#  MC sweeps per gradient est.  = ', mc_nsweeps
-        write(ulog,'(a,1x,i8)')   '#  n. of iterations       = ', niter
+  if (iproc == 0) then
+     
+     ! open log file
+     filename = trim(prefix)//'.log'
+     call units_open(trim(filename),'unknown',ulog,err)
+     if(err /= 0) then
+        write(0,*) "error opening file ", trim(filename)//'.log'
+        call mpi_wrapper_finalize(err)
+        stop
      end if
-     write(ulog,'(a)')         '#'
-     write(ulog,'(a)')         '#==========================================='
-     write(ulog,'(a)')         '#'
-  end if
 
+     ! and print a header
+     write(ulog, 101) adjustr(trim(data_type)), uchk, uprm, nproc, nvars,&
+          nclasses, nseqs, nupdate, beta, uwgt, wid, neff, lambda, mc_nsweeps,&
+          niter, adjustr(trim(algorithm))
+  end if
+  
+101 format(&
+         '# elss-learn (elss v0.2.1)          '/& 
+         '#                                   '/&
+         '# data type:              ',    a12  /&
+         '# chk file unit:          ',    i12  /&
+         '# prm file unit:          ',    i12  /&
+         '# n. procs:               ',    i12  /&
+         '# n. features:            ',    i12  /&
+         '# n. classes:             ',    i12  /&
+         '# n. samples:             ',    i12  /&
+         '# n. sweeps per update:   ',    i12  /&
+         '# temperature factor:     ',  f12.3  /&
+         '# weights file unit:      ',    i12  /&
+         '# %id threshold:          ',  f12.3  /&
+         '# neff:                   ',  f12.3  /&
+         '# lambda:                 ',  f12.3  /&
+         '# n. sweeps per gradient: ',    i12  /&
+         '# n. iterations:          ',    i12  /&
+         '# optimization algorithm: ',    a12  /)
 
   !================================================ allocate memory for map algorithm
   
