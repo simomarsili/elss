@@ -114,34 +114,31 @@ program eval
      close(udata)
   end if
 
-  ! open log file
-  filename = trim(prefix)//'.log'
-  call units_open(trim(filename),'unknown',ulog,err)
-  if(err /= 0) then
-     write(0,*) "error opening file ", trim(filename)//'.log'
-     stop
+  if (iproc == 0) then
+     
+     ! open log file
+     filename = trim(prefix)//'.log'
+     call units_open(trim(filename),'unknown',ulog,err)
+     if(err /= 0) then
+        write(0,*) "error opening file ", trim(filename)//'.log'
+        stop
+     end if
+
+     ! print a header
+     write(ulog, 101) adjustr(trim(data_type)), uchk, uprm, nvars,&
+          nclasses, nseqs
   end if
 
-  !================================================ print a header
-  
-  if ( iproc == 0 ) then
-     write(ulog,'(a)')         '#'
-     write(ulog,'(a)')         '#==========================================='
-     write(ulog,'(a)')         '#_________________elss_v0.3.1_______________'
-     write(ulog,'(a)')         '#'
-     write(ulog,'(a)')         '#  format:    '//trim(data_type)
-     if (uchk > 0) write(ulog,'(a)')&
-          '#  reading checkpoint file        '
-     if (uprm > 0) write(ulog,'(a)')&
-          '#  reading parameter file         '
-     write(ulog,'(a,1x,i8)')   '#  n. of variables              = ', nvars
-     write(ulog,'(a,1x,i8)')   '#  n. of classes                = ', nclasses
-     write(ulog,'(a,1x,i8)')   '#  n. of seqs                   = ', nseqs
-     write(ulog,'(a)')         '#'
-     write(ulog,'(a)')         '#==========================================='
-     write(ulog,'(a)')         '#'
-  end if
-
+101 format(&
+         '# elss-eval (elss v0.2.1)           '/& 
+         '#                                   '/&
+         '# data type:              ',    a12  /&
+         '# chk file unit:          ',    i12  /&
+         '# prm file unit:          ',    i12  /&
+         '# n. features:            ',    i12  /&
+         '# n. classes:             ',    i12  /&
+         '# n. samples:             ',    i12  /)
+         
   write(filename,*) iproc
   call units_open(trim(adjustl(filename))//'.ene','unknown',uene,err)
   if(err /= 0) then
