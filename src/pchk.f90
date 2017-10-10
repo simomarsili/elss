@@ -2,7 +2,7 @@
 ! All rights reserved.
 ! License: BSD 3 clause
 
-program print_chk
+program pchk
   use kinds
   use constants
   use units, only: units_open_unf
@@ -126,4 +126,4 @@ program print_chk
      end do
   end do
 
-end program print_chk
+end program pchk
