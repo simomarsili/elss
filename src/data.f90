@@ -132,51 +132,46 @@ contains
 
   end subroutine data_read
 
-  subroutine data_average(nvars,nclasses,nseqs,neff,seqs,&
-                          data_freq_single,data_freq_pair)
+  subroutine data_average(nvars, nclasses, nseqs, neff, seqs, &
+                          data_freq_single, data_freq_pair)
     integer,    intent(in)    :: nvars
     integer,    intent(in)    :: nclasses
     integer,    intent(in)    :: nseqs
     real(kflt), intent(inout) :: neff
-    integer,    intent(in)    :: seqs(nvars,nseqs)
-    real(kflt), intent(out)   :: data_freq_single(nclasses,nvars)
-    real(kflt), intent(out)   :: data_freq_pair(nclasses,nclasses,nvars*(nvars-1)/2)
+    integer,    intent(in)    :: seqs(nvars, nseqs)
+    real(kflt), intent(out)   :: data_freq_single(nclasses, nvars)
+    real(kflt), intent(out)   :: data_freq_pair(nclasses, nclasses, nvars*(nvars-1)/2)
     integer             :: err
     integer             :: nline
     integer,allocatable :: seq(:)
     real(kflt)          :: w
     integer             :: ngaps
-    integer             :: iv,jv
-    integer             :: k,kstart
-    integer             :: js
-    integer             :: i
-    logical             :: pseudocount=.true.
-    integer             :: nind
+    integer             :: iv, jv
+    integer             :: k, kstart
+    integer             :: i, js
+    logical             :: pseudocount = .false.
 
-    allocate(seq(nvars),stat=err)
-
-    ! allocate frequencies arrays 
-    nind = nvars * (nvars - 1) / 2
+    allocate(seq(nvars), stat=err)
 
     ! take averages
     data_freq_single = 0.0_kflt
     data_freq_pair = 0.0_kflt
-    do i = 1,nseqs
-       call data_averages_update(seqs(:,i),nvars,nclasses,ws(i),&
-                                 data_freq_single,data_freq_pair)
+    do i = 1, nseqs
+       call data_averages_update(seqs(:,i), nvars, nclasses, ws(i), &
+                                 data_freq_single, data_freq_pair)
     end do
 
-    if ( pseudocount ) then
-!!!!!!!! regularize (+1 sequence)
+    if (pseudocount) then
+       ! regularize (+1 sequence)
        neff = neff + 1.0_kflt
        do iv = 1,nvars
-          data_freq_single(:,iv) = data_freq_single(:,iv) + 1.0_kflt / real(nclasses)
+          data_freq_single(:, iv) = data_freq_single(:, iv) + 1.0_kflt / real(nclasses)
        end do
        k = 0
-       do jv = 1,nvars-1
-          do iv = jv+1,nvars
+       do jv = 1, nvars - 1
+          do iv = jv + 1, nvars
              k = k + 1
-             data_freq_pair(:,:,k) = data_freq_pair(:,:,k) + 1.0_kflt / real(nclasses**2)
+             data_freq_pair(:, :, k) = data_freq_pair(:, :, k) + 1.0_kflt / real(nclasses**2)
           end do
        end do
     end if
