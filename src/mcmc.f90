@@ -23,7 +23,7 @@ contains
   subroutine mcmc_simulate(nvars,nclasses,seq,fields,couplings,&
                            data_type,freq_single,freq_pair,beta,&
                            mc_nsweeps,hot_start,nupdate,utrj,facc)
-    use dump, only:     dump_seq, dump_energies, dump_fasta
+    use dump, only:     dump_seq, dump_energies
     use averages, only: averages_initialize,averages_update
     integer,          intent(in)    :: nvars,nclasses       ! nvars, nclasses
     integer,          intent(inout) :: seq(:)
@@ -73,12 +73,7 @@ contains
 
     ! starting configuration
     if (utrj > 0) then
-       select case(trim(data_type))
-       case ('int')
-          call dump_seq(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
-       case ('bio', 'protein', 'nuc_acid')
-          call dump_fasta(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
-       end select
+       call dump_seq(data_type,utrj,seq,mc_step/nvars,etot,efields,ecouplings)
     end if
 
     mc_loop: do
@@ -91,12 +86,7 @@ contains
        call averages_update(seq,freq_single,freq_pair)
 
        if (utrj > 0) then 
-          select case(trim(data_type))
-          case ('int')
-             call dump_seq(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
-          case ('bio', 'protein', 'nuc_acid')
-             call dump_fasta(utrj,seq,mc_step/nvars,etot,efields,ecouplings)
-          end select
+          call dump_seq(data_type,utrj,seq,mc_step/nvars,etot,efields,ecouplings)
        end if
 
        ! every mc_nsteps:

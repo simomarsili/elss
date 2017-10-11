@@ -16,7 +16,6 @@ module dump
   public :: read_chk
   public :: dump_chk
   public :: dump_seq
-  public :: dump_fasta
   public :: dump_energies
 
   interface read_chk
@@ -346,7 +345,23 @@ contains
     
   end subroutine dump_energies
 
-  subroutine dump_seq(unt,seq,time,etot,eh,ej)
+  subroutine dump_seq(data_type, unt, seq, time, etot, eh, ej)
+    character(len=*), intent(in) :: data_type
+    integer, intent(in) :: unt
+    integer, intent(in) :: seq(:)
+    integer, intent(in) :: time
+    real(kflt), intent(in) :: etot, eh, ej
+
+    select case(trim(data_type))
+    case ('int')
+       call dump_int(unt, seq, time, etot, eh, ej)
+    case ('bio', 'protein', 'nuc_acid')
+       call dump_fasta(unt, seq, time, etot, eh, ej)
+    end select
+
+  end subroutine dump_seq
+
+  subroutine dump_int(unt,seq,time,etot,eh,ej)
     integer, intent(in) :: unt
     integer, intent(in) :: seq(:)
     integer, intent(in) :: time
@@ -356,7 +371,7 @@ contains
     write(unt,'(10000i3)') seq
     flush(unt)
     
-  end subroutine dump_seq
+  end subroutine dump_int
 
   subroutine dump_fasta(unt,seq,time,etot,eh,ej)
     use fasta, only: fasta_alphabet
