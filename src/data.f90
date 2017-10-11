@@ -142,13 +142,8 @@ contains
     real(kflt), intent(out)   :: data_freq_single(nclasses, nvars)
     real(kflt), intent(out)   :: data_freq_pair(nclasses, nclasses, nvars*(nvars-1)/2)
     integer             :: err
-    integer             :: nline
     integer,allocatable :: seq(:)
-    real(kflt)          :: w
-    integer             :: ngaps
-    integer             :: iv, jv
-    integer             :: k, kstart
-    integer             :: i, js
+    integer             :: k, iv, jv
     logical             :: pseudocount = .false.
 
     allocate(seq(nvars), stat=err)
@@ -156,8 +151,8 @@ contains
     ! take averages
     data_freq_single = 0.0_kflt
     data_freq_pair = 0.0_kflt
-    do i = 1, nseqs
-       call data_averages_update(seqs(:,i), ws(i), data_freq_single, &
+    do k = 1, nseqs
+       call data_averages_update(seqs(:,k), ws(k), data_freq_single, &
                                  data_freq_pair)
     end do
 
