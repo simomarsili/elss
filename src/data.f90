@@ -157,8 +157,8 @@ contains
     data_freq_single = 0.0_kflt
     data_freq_pair = 0.0_kflt
     do i = 1, nseqs
-       call data_averages_update(seqs(:,i), nvars, nclasses, ws(i), &
-                                 data_freq_single, data_freq_pair)
+       call data_averages_update(seqs(:,i), ws(i), data_freq_single, &
+                                 data_freq_pair)
     end do
 
     if (pseudocount) then
@@ -183,27 +183,22 @@ contains
 
   end subroutine data_average
 
-  subroutine data_averages_update(seq,nvars,nclasses,w,&
-                                  data_freq_single,data_freq_pair)
+  subroutine data_averages_update(seq, w, data_freq_single, &
+                                  data_freq_pair)
     integer,    intent(in)    :: seq(:)
-    integer,    intent(in)    :: nvars
-    integer,    intent(in)    :: nclasses
     real(kflt), intent(in)    :: w
     real(kflt), intent(inout) :: data_freq_single(:,:)
     real(kflt), intent(inout) :: data_freq_pair(:,:,:)
+    integer :: nvars
+    integer :: k
     integer :: iv,jv
     integer :: is,js
-    integer :: k
-    integer :: ngaps
-    integer :: kstart
 
-    ngaps = count(seq == 1)
-
+    nvars = size(seq)
     do iv = 1,nvars
        is = seq(iv)
        data_freq_single(is,iv) = data_freq_single(is,iv) + w
     end do
-
     k = 0
     do jv = 1,nvars-1
        js = seq(jv)
