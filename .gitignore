@@ -1,5 +1,6 @@
 *~
 /src/elss*
+/src/pchk
 src/*.o
 src/*.mod
 test/*
@@ -11,4 +12,8 @@ user_guide/*
 !user_guide/ms.tex
 !user_guide/ms.bib
 !user_guide/Makefile
+save/*
+docs/*
+names
+TODO
 
