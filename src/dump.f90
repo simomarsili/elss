@@ -147,7 +147,12 @@ contains
        end select
     end do
 
-    if (trim(data_type) == 'bio') call set_fasta_alphabet(data_type)
+    select case (trim(data_type))
+    case('bio', 'protein', 'nuc_acid')
+       call set_fasta_alphabet(data_type)
+    case default
+       ! do nothing
+    end select
 
   end subroutine read_prm_unit
 
@@ -449,7 +454,12 @@ contains
 
     deallocate(dummy)
 
-    if (trim(data_type) == 'bio') call set_fasta_alphabet(data_type)
+    select case (trim(data_type))
+    case('bio', 'protein', 'nuc_acid')
+       call set_fasta_alphabet(data_type)
+    case default
+       ! do nothing
+    end select
     
   end subroutine read_chk_unit
 
