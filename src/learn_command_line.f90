@@ -12,7 +12,7 @@ module learn_command_line
 contains
 
   subroutine command_line_read(udata, data_type, uwgt, wid, uprm, uchk, rseed, &
-       beta, mc_nsweeps, nupdate, algorithm, niter, lambda,prefix, &
+       beta, mc_nsweeps, nupdate, algorithm, rate, niter, lambda,prefix, &
        error_code)
     use units, only: units_open, units_open_unf
     use arguments, only: read_opt, read_opt_arg
@@ -27,6 +27,7 @@ contains
     integer,          intent(inout) :: mc_nsweeps
     integer,          intent(inout) :: nupdate
     character(len=string_size), intent(inout) :: algorithm
+    real(kflt),       intent(inout) :: rate
     integer,          intent(inout) :: niter
     real(kflt),       intent(inout) :: lambda
     character(len=*), intent(out) :: prefix
@@ -139,7 +140,21 @@ contains
              error_code = 1
              return
           end if
-          beta = 1.0_kflt / beta 
+          beta = 1.0_kflt / beta
+       case('-r','--rate')
+          ! learning rate
+          iarg = iarg + 1
+          call read_opt_arg(iarg,nargs,rate,err)
+          if ( err/= 0 ) then
+             write(0,*) 'ERROR ! check learning rate'
+             error_code = 1
+             return
+          end if
+          if ( rate <= 0.0 ) then
+             write(0,*) 'ERROR ! learning rate must be > 0'
+             error_code = 1
+             return
+          end if
        case('-n','--nsweeps')
           ! num. of sweeps at each gradient evaluation
           iarg = iarg + 1
@@ -355,6 +370,10 @@ contains
          '--algorithm <algorithm_name>, string                                           '/&
          '    Options are: gd, momentum, nag, adam.                                      '/&
          '    [default: adam]                                                            '/&
+         '                                                                               '/&
+         '-r, --rate <learning_rate>, float                                              '/&
+         '    Learning rate for the run. Multiplicative factor in prm update.            '/&
+         '    [default: 0.01]                                                            '/&
          '                                                                               '/&
          '--niter <n_iter>, integer                                                      '/&
          '    Number of (accelerated) gradient descent steps.                            '/&
