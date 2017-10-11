@@ -67,7 +67,7 @@ contains
        do i = 1, nseqs
           read(udata, *, iostat=err) seqs(:, i)
           if(err > 0) then 
-             error_code = 20
+             error_code = 1
              return
           end if
        end do
@@ -98,14 +98,14 @@ contains
 
        rewind(uwgt)
        if (nn /= nseqs) then
-          error_code = 23
+          error_code = 2
           return
        end if
 
        do i = 1,nseqs
           read(uwgt, *, iostat=err) ws(i)
           if(err > 0) then 
-             error_code = 21
+             error_code = 2
              return
           end if
        end do
