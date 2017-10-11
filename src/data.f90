@@ -211,29 +211,32 @@ contains
 
   end subroutine data_averages_update
 
-  subroutine data_reweight(seqs,wid,iproc)
+  subroutine data_reweight(seqs, wid, iproc)
     use units, only: units_open
     integer,    intent(in) :: seqs(:,:)
     real(kflt), intent(in) :: wid
     integer,    intent(in) :: iproc
-    integer              :: nv,ns
     integer              :: err
-    integer              :: id,jd
-    integer, allocatable :: x(:),y(:)
-    integer              :: thr,uwgt
+    integer              :: nv, ns
+    integer              :: id, jd
+    integer, allocatable :: x(:), y(:)
+    integer              :: thr, uwgt
 
-    nv = size(seqs,1)
-    ns = size(seqs,2)
-
-    allocate(x(nv),y(nv),stat=err)
-
+    nv = size(seqs, 1)
+    ns = size(seqs, 2)
+    
+    allocate(x(nv), y(nv), stat=err)
+    
     thr = nint(nv * wid * 0.01_kflt)
     ws = 1.0_kflt
-    do id = 1,ns-1
-       if (iproc == 0 .and. mod(ns,10000)==0) write(0,'(a,f8.1)') 'computing weigths: ', 100.0*real(id)/real(ns)
-       x = seqs(:,id)
-       do jd = id+1,ns
-          y = seqs(:,jd)
+    do id = 1, ns - 1
+       if (iproc == 0 .and. mod(ns, 10000)==0) then
+          write(0,'(a,f8.1)') &
+               'computing weigths: ', 100.0 * real(id) / real(ns)
+       end if
+       x = seqs(:, id)
+       do jd = id + 1, ns
+          y = seqs(:, jd)
           if(count(x == y) >= thr) then
              ws(id) = ws(id) + 1.0_kflt
              ws(jd) = ws(jd) + 1.0_kflt
@@ -242,16 +245,15 @@ contains
     end do
     
     ws = 1.0_kflt / ws 
-
     if (iproc == 0) then 
-       call units_open('wgt','unknown',uwgt,err)
-       do id = 1,ns
-          write(uwgt,*) ws(id)
+       call units_open('wgt', 'unknown', uwgt, err)
+       do id = 1, ns
+          write(uwgt, *) ws(id)
        end do
        close(uwgt)
     end if
     
-    deallocate(x,y)
+    deallocate(x, y)
 
   end subroutine data_reweight
 
