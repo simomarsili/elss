@@ -187,25 +187,25 @@ contains
                                   data_freq_pair)
     integer,    intent(in)    :: seq(:)
     real(kflt), intent(in)    :: w
-    real(kflt), intent(inout) :: data_freq_single(:,:)
-    real(kflt), intent(inout) :: data_freq_pair(:,:,:)
+    real(kflt), intent(inout) :: data_freq_single(:, :)
+    real(kflt), intent(inout) :: data_freq_pair(:, :, :)
     integer :: nvars
     integer :: k
     integer :: iv,jv
     integer :: is,js
 
     nvars = size(seq)
-    do iv = 1,nvars
+    do iv = 1, nvars
        is = seq(iv)
-       data_freq_single(is,iv) = data_freq_single(is,iv) + w
+       data_freq_single(is, iv) = data_freq_single(is, iv) + w
     end do
     k = 0
-    do jv = 1,nvars-1
+    do jv = 1, nvars - 1
        js = seq(jv)
-       do iv = jv+1,nvars
+       do iv = jv + 1, nvars
           is = seq(iv)
           k = k + 1
-          data_freq_pair(is,js,k) = data_freq_pair(is,js,k) + w
+          data_freq_pair(is, js, k) = data_freq_pair(is, js, k) + w
        end do
     end do
 
