@@ -15,7 +15,7 @@ OBJS-eval = eval.o units.o random.o mcmc.o kinds.o data.o eval_command_line.o du
 SRCS-sample = sample.f90 units.f90 random.f90 mcmc.f90 kinds.f90 data.f90 sample_command_line.f90 dump.f90 parser.f90 scoring.f90 constants.f90 averages.f90 cost.f90 mpi_wrapper.f90 map.f90 fasta.f90 arguments.f90
 OBJS-sample = sample.o units.o random.o mcmc.o kinds.o data.o sample_command_line.o dump.o parser.o scoring.o constants.o averages.o cost.o mpi_wrapper.o map.o fasta.o arguments.o
 SRCS-pchk = pchk.f90 kinds.f90 constants.f90 units.f90 arguments.f90
-OBJS-pchk = getprm.o kinds.o constants.o units.o arguments.o
+OBJS-pchk = pchk.o kinds.o constants.o units.o arguments.o
 
 all: $(EXE) $(TOOLS)
 elss-learn: $(OBJS-learn) 
