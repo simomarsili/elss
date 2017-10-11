@@ -221,6 +221,7 @@ contains
     integer              :: id, jd
     integer, allocatable :: x(:), y(:)
     integer              :: thr, uwgt
+    logical              :: dump_weights = .false.
 
     nv = size(seqs, 1)
     ns = size(seqs, 2)
@@ -244,13 +245,16 @@ contains
        end do
     end do
     
-    ws = 1.0_kflt / ws 
-    if (iproc == 0) then 
-       call units_open('wgt', 'unknown', uwgt, err)
-       do id = 1, ns
-          write(uwgt, *) ws(id)
-       end do
-       close(uwgt)
+    ws = 1.0_kflt / ws
+
+    if (dump_weights) then
+       if (iproc == 0) then 
+          call units_open('wgt', 'unknown', uwgt, err)
+          do id = 1, ns
+             write(uwgt, *) ws(id)
+          end do
+          close(uwgt)
+       end if
     end if
     
     deallocate(x, y)
