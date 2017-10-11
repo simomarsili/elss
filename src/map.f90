@@ -16,10 +16,11 @@ module map
 
 contains
 
-  subroutine map_learn(algorithm,nvars,nclasses,niter,lambda,mc_nsweeps,beta,&
+  subroutine map_learn(algorithm,rate,nvars,nclasses,niter,lambda,mc_nsweeps,beta,&
        nupdate,data_type,ulog,fdata,seq,seqs_table,prm,fmodel)
     use dump, only: dump_array_file,dump_prm_file,dump_chk
     character(len=*), intent(in)  :: algorithm
+    real(kflt), intent(in) :: rate
     integer,          intent(inout)  :: nvars,nclasses
     integer,          intent(in)     :: niter
     real(kflt),       intent(in)     :: lambda
@@ -53,7 +54,7 @@ contains
             '     cpu_time'
     end if
 
-    call map_all(algorithm,nvars,nclasses,seq,seqs_table,prm,fmodel,&
+    call map_all(algorithm,rate,nvars,nclasses,seq,seqs_table,prm,fmodel,&
          fdata,data_type,ulog,beta,lambda,&
          niter,mc_nsweeps,tot_iter,nupdate)
     
@@ -77,7 +78,7 @@ contains
 
   end subroutine map_learn
 
-  subroutine map_all(algorithm,nvars,nclasses,seq,seqs_table,prm,fmodel,fdata,&
+  subroutine map_all(algorithm,eps_map,nvars,nclasses,seq,seqs_table,prm,fmodel,fdata,&
        data_type,ulog,beta,lambda,niter,&
        mc_nsweeps,tot_iter,nupdate)
     use mcmc, only:       mcmc_update_energy
@@ -85,6 +86,7 @@ contains
     use cost, only: compute_cost,compute_gradient
 
     character(len=*), intent(in)  :: algorithm
+    real(kflt), intent(in)       :: eps_map
     integer,    intent(inout)    :: nvars,nclasses
     integer,    intent(inout)    :: seq(:)
     integer,    intent(inout)    :: seqs_table(:,:)
@@ -99,7 +101,6 @@ contains
     integer,    intent(in)       :: mc_nsweeps
     integer,    intent(inout)    :: tot_iter
     integer,    intent(in)       :: nupdate
-    real(kflt)                      :: eps_map = 0.01_kflt
     integer                         :: iter
     character(len=long_string_size) :: filename
     integer                         :: nind, err
@@ -143,7 +144,6 @@ contains
           prm2 = 0.0_kflt
        end if
     case default
-       eps_map = 0.01_kflt
        if (iproc == 0) then 
           allocate(prm1(dimm),stat=err)
           allocate(prm2(dimm),stat=err)
