@@ -30,7 +30,6 @@ program sample
   character(len=long_string_size) :: prefix
   integer                         :: iproc=0,nproc=1
   integer                         :: err
-  character(long_string_size)     :: err_string
   integer                         :: dim1,dim2
   integer                         :: utrj,uene,ulog
   character(len=long_string_size) :: filename
@@ -139,7 +138,7 @@ program sample
      case('int')
         read(useq,*) seq
      case('bio', 'protein', 'nuc_acid')
-        call fasta_read(useq,seqs0,data_type,err,err_string)
+        call fasta_read(useq,seqs0,data_type,err)
         if (err > 0) then
            write(0,*) 'ERROR ! cannot read from seq'
            stop

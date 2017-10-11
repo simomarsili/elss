@@ -18,21 +18,20 @@ module data
 
 contains
 
-  subroutine data_read(iproc, udata, data_type, uwgt, wid, nvars, nclasses, &
-                       nseqs, neff, seqs, error_code, error_string)
+  subroutine data_read(iproc, udata, uwgt, wid, nvars, nclasses, data_type, &
+                       nseqs, neff, seqs, error_code)
     use fasta, only: fasta_read
     integer,              intent(in)    :: iproc
     integer,              intent(in)    :: udata
-    character(len=*),     intent(out)   :: data_type
     integer,              intent(in)    :: uwgt
     real(kflt),           intent(in)    :: wid
     integer,              intent(inout) :: nvars
     integer,              intent(inout) :: nclasses
+    character(len=*),     intent(out)   :: data_type
     integer,              intent(out)   :: nseqs
     real(kflt),           intent(out)   :: neff
     integer, allocatable, intent(out)   :: seqs(:,:)
     integer,              intent(out)   :: error_code
-    character(len=*),     intent(out)   :: error_string
     integer                                      :: err
     character(len=long_string_size)              :: line, newline
     integer                                      :: nlines
@@ -40,8 +39,6 @@ contains
     integer                                      :: i,nn
 
     error_code = 0
-    error_string = ''
-
     select case(trim(data_type))
     case('int')
        
@@ -78,7 +75,7 @@ contains
     case('bio', 'protein', 'nuc_acid')
 
        ! read sequences from MSA
-       call fasta_read(udata, seqs, data_type, error_code, error_string)
+       call fasta_read(udata, seqs, data_type, error_code)
        if (error_code /= 0) return
        nseqs = size(seqs, 2)
        if (nvars == 0) nvars = size(seqs, 1)

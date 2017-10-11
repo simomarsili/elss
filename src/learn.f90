@@ -43,7 +43,6 @@ program learn
   character(len=string_size)     :: algorithm
   character(len=long_string_size) :: prefix
   integer                         :: err
-  character(long_string_size)     :: err_string
   integer                         :: dim1,dim2
   integer                         :: utrj,uene,ulog
   character(len=long_string_size) :: filename
@@ -121,8 +120,8 @@ program learn
 
   !================================================ read data
 
-  call data_read(iproc,udata,data_type,uwgt,wid,&
-       nvars,nclasses,nseqs,neff,seqs,err,err_string)
+  call data_read(iproc,udata,uwgt,wid,&
+       nvars,nclasses,data_type,nseqs,neff,seqs,err)
 
   if (err /= 0) then
      if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'

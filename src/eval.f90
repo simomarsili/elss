@@ -30,7 +30,6 @@ program eval
   character(len=long_string_size) :: prefix  ! prefix for output file
   integer                         :: iproc=0,nproc=1
   integer                         :: err
-  character(long_string_size)     :: err_string
   integer                         :: dim1,dim2
   integer                         :: uene,ulog
   character(len=long_string_size) :: filename
@@ -88,8 +87,8 @@ program eval
 
   if (udata > 0) then ! TODO: udata should always be > 0 for eval; check in command line and remove if then
 
-     call data_read(iproc,udata,data_type,uwgt,wid,&
-          nvars,nclasses,nseqs,neff,seqs,err,err_string)
+     call data_read(iproc,udata,uwgt,wid,&
+          nvars,nclasses,data_type,nseqs,neff,seqs,err)
 
      if (err /= 0) then
         stop

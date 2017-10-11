@@ -68,13 +68,12 @@ contains
 
   end subroutine fasta_string2seq
 
-  subroutine fasta_read(unt, seqs, data_type, error_code, error_string)
+  subroutine fasta_read(unt, seqs, data_type, error_code)
     ! read n sequences from unit udata
     integer,              intent(in)  :: unt
     integer, allocatable, intent(out) :: seqs(:, :)
     character(len=*),     intent(out) :: data_type
     integer,              intent(out) :: error_code
-    character(len=*),     intent(out) :: error_string
     character(len=long_string_size) :: header
     character(len=long_string_size) :: string
     character(len=long_string_size) :: line
