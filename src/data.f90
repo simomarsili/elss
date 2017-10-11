@@ -18,8 +18,8 @@ module data
 
 contains
 
-  subroutine data_read(iproc,udata,data_type,uwgt,wid,nvars,nclasses,&
-                       nseqs,neff,seqs,error_code,error_string)
+  subroutine data_read(iproc, udata, data_type, uwgt, wid, nvars, nclasses, &
+                       nseqs, neff, seqs, error_code, error_string)
     use fasta, only: fasta_read
     integer,              intent(in)    :: iproc
     integer,              intent(in)    :: udata
@@ -46,8 +46,8 @@ contains
     case('int')
        
        ! get number of fields
-       read(udata,'(a)',iostat=err) line
-       call parser_nfields(line,newline,nfields)
+       read(udata, '(a)', iostat=err) line
+       call parser_nfields(line, newline, nfields)
        rewind(udata)
        
        ! set nvars
@@ -56,7 +56,7 @@ contains
        ! count data lines
        nseqs = 0
        do
-          read(udata,'(a)',iostat=err) line
+          read(udata, '(a)', iostat=err) line
           ! exit at end of file or empty line
           if( err < 0 .or. len_trim(line) == 0) exit
           nseqs = nseqs + 1
@@ -64,11 +64,11 @@ contains
        rewind(udata)
 
        ! allocate memory for data
-       allocate(seqs(nvars,nseqs),stat=err)
+       allocate(seqs(nvars, nseqs), stat=err)
 
        ! read data
-       do i = 1,nseqs
-          read(udata,*,iostat=err) seqs(:,i)
+       do i = 1, nseqs
+          read(udata, *, iostat=err) seqs(:, i)
           if(err > 0) then 
              error_code = 20
              return
@@ -78,35 +78,35 @@ contains
     case('bio', 'protein', 'nuc_acid')
 
        ! read sequences from MSA
-       call fasta_read(udata,seqs,data_type,error_code,error_string)
+       call fasta_read(udata, seqs, data_type, error_code, error_string)
        if (error_code /= 0) return
-       nseqs = size(seqs,2)
-       if (nvars == 0) nvars = size(seqs,1)
+       nseqs = size(seqs, 2)
+       if (nvars == 0) nvars = size(seqs, 1)
 
     end select
 
-    allocate(ws(nseqs),stat=err)
+    allocate(ws(nseqs), stat=err)
     ! initialize weigths to one
     ws = 1.0_kflt
 
-    if ( uwgt > 0 ) then 
+    if (uwgt > 0) then 
        ! count lines
        nn = 0
        do
-          read(uwgt,'(a)',iostat=err) line
+          read(uwgt, '(a)', iostat=err) line
           ! exit at end of file or empty line
           if( err < 0 .or. len_trim(line) == 0) exit
           nn = nn + 1
        end do
 
        rewind(uwgt)
-       if ( nn /= nseqs ) then
+       if (nn /= nseqs) then
           error_code = 23
           return
        end if
 
        do i = 1,nseqs
-          read(uwgt,*,iostat=err) ws(i)
+          read(uwgt, *, iostat=err) ws(i)
           if(err > 0) then 
              error_code = 21
              return
@@ -115,9 +115,9 @@ contains
 
     end if
 
-    if ( wid > 0.0_kflt ) then 
+    if (wid > 0.0_kflt) then 
 
-       call data_reweight(seqs,wid,iproc)
+       call data_reweight(seqs, wid, iproc)
 
     end if
 
