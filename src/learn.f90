@@ -40,6 +40,7 @@ program learn
   real(kflt)                     :: lambda       ! Gaussian prior hyperparameter
   integer                        :: rseed        ! random seed
   real(kflt)                     :: beta         ! temperature of the run
+  real(kflt)                     :: rate         ! learning rate
   character(len=string_size)     :: algorithm
   character(len=long_string_size) :: prefix
   integer                         :: err
@@ -65,6 +66,7 @@ program learn
   mc_nsweeps = 1000
   nupdate = 10
   algorithm = 'adam'
+  rate = 0.01_kflt
   niter = 2000
   lambda = 0.01_kflt
   rseed = 0
@@ -78,7 +80,7 @@ program learn
   !================================================ read args
 
   call command_line_read(udata,data_type,uwgt,&
-       wid,uprm,uchk,rseed,beta,mc_nsweeps,nupdate,algorithm,niter,&
+       wid,uprm,uchk,rseed,beta,mc_nsweeps,nupdate,algorithm,rate,niter,&
        lambda,prefix,err)
   
   if (err /= 0) then
@@ -189,7 +191,8 @@ program learn
          '# lambda:                 ',  f12.3  /&
          '# n. sweeps per gradient: ',    i12  /&
          '# n. iterations:          ',    i12  /&
-         '# optimization algorithm: ',    a12  /)
+         '# optimization algorithm: ',    a12  /&
+         '# learning rate:          ',  f12.3  /)
 
   !================================================ allocate memory for map algorithm
   
@@ -205,7 +208,7 @@ program learn
   !================================================ maximum a posteriori estimate of parameters
   
   ! inv. temperature for MAP estimation is set to 1
-  call map_learn(algorithm,nvars,nclasses,niter,lambda,mc_nsweeps,&
+  call map_learn(algorithm,rate,nvars,nclasses,niter,lambda,mc_nsweeps,&
        1.0_kflt,nupdate,data_type,ulog,fdata,seq,seqs_table,prm,fmodel)
   
   !================================================ compute and print scores
