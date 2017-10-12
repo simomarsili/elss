@@ -85,33 +85,30 @@ program eval
 
   !================================================ read data
 
-  if (udata > 0) then ! TODO: udata should always be > 0 for eval; check in command line and remove if then
-
-     call data_read(iproc,udata,uwgt,wid,&
-          nvars,nclasses,data_type,nseqs,neff,seqs,err)
-
-     if (err /= 0) then
-        stop
-     end if
-
-     !================================================ allocate memory for the run and initialize
-
-     dim1 = nvars * nclasses
-     dim2 = nvars * (nvars - 1) * nclasses**2 / 2
-     if (uprm == 0 .and. uchk == 0) then
-
-        allocate(seq(nvars),stat=err)
-        allocate(prm(dim1+dim2),stat=err)
-        seq = 0
-        prm = 0.0_kflt
-
-        !================================================ initialize system configuration
-
-        call random_seq(nvars,nclasses,seq)
-
-     end if
-     close(udata)
+  call data_read(iproc,udata,uwgt,wid,&
+       nvars,nclasses,data_type,nseqs,neff,seqs,err)
+  
+  if (err /= 0) then
+     stop
   end if
+  
+  !================================================ allocate memory for the run and initialize
+
+  dim1 = nvars * nclasses
+  dim2 = nvars * (nvars - 1) * nclasses**2 / 2
+  if (uprm == 0 .and. uchk == 0) then
+     
+     allocate(seq(nvars),stat=err)
+     allocate(prm(dim1+dim2),stat=err)
+     seq = 0
+     prm = 0.0_kflt
+     
+     !================================================ initialize system configuration
+     
+     call random_seq(nvars,nclasses,seq)
+     
+  end if
+  close(udata)
 
   if (iproc == 0) then
      

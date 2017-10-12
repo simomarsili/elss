@@ -86,6 +86,8 @@ contains
     ntot = 0
     nnuc = 0
     nprot = 0
+    nuc = 0
+    prot = 0
     do
        read(unt,'(a)',iostat=err) line
        ! exit at end of file or empty line
@@ -96,11 +98,9 @@ contains
              nnuc = nnuc + nuc
              nprot = nprot + prot
           end if
-          nuc = 1
-          prot = 1
        else
-          if (.not. is_nuc_acid(line)) nuc = 0
-          if (.not. is_protein(line)) prot = 0
+          if (is_nuc_acid(line)) nuc = 1
+          if (is_protein(line)) prot = 1
        end if
     end do
     rewind(unt)

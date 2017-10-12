@@ -19,12 +19,12 @@ contains
     character(len=*), intent(out) :: parsed
     integer :: i, n, toks
     
-    i = 1
-    n = len_trim(line)
     toks = 0
     nfields = 0
     parsed = ""
 
+    n = len_trim(line)
+    i = 1
     outer: do while(i <= n)
        do while(any(delimiters == line(i:i)))
           i = i + 1
@@ -53,8 +53,9 @@ contains
     character(len=1) :: a
     integer :: i, n
     
-    n = len_trim(line)
     parsed = line
+    n = len_trim(line)
+    i = 1
     do while(i <= n)
        a = line(i:i)
        if (any(delimiters == a)) then
@@ -73,6 +74,7 @@ contains
     integer :: i, n
     
     n = len_trim(line)
+    i = 1
     do while(i <= n)
        a = line(i:i)
        if (a == "#") then 
