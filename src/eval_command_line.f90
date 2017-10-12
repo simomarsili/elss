@@ -8,32 +8,7 @@ module eval_command_line
   implicit none
   private
   public :: command_line_read
-  character(len=1), parameter                  :: nl=achar(10)
-  character(len=long_string_size)              :: syntax = nl//& 
-       '                                       elss-eval (v0.3.1)                                      '//nl//&
-       '                                    ========================                                   '//nl//&
-       nl//&
-       nl//&
-       'Option                         Description                                     (Default Value)  '//nl//&
-       '------------------------------------------------------------------------------------------------'//nl//&
-       ' (-p|--prm) <path_to_file>     parameters file                                 (None)           '//nl//&   
-       '        OR'//nl//&   
-       ' (-c|--chk) <path_to_file>     checkpoint file                                 (None)           '//nl//&   
-       nl//&
-       ' --fasta <path_to_file>        MSA file (FASTA format)                         (None)           '//nl//&
-       nl//&
-       nl//&
-       ' (-h|--help)                   print this help message                         (None)           '//nl//&
-       nl//&
-       ' --prefix <string>             prefix for output files                         (None)           '//nl//&
-       '------------------------------------------------------------------------------------------------'//nl//&
-       nl//&
-       nl//&
-       '------------------------------------------------------------------------------------------------'//nl//&
-       ' For more information and usage examples, please check the project github repository:           '//nl//&
-       ' https://github.com/simomarsili/elss                                                            '//nl//&
-       '------------------------------------------------------------------------------------------------'//nl//&
-       '                                                                                                    '
+
 contains
   
   subroutine command_line_read(udata,data_type,uprm,uchk,prefix,error_code)

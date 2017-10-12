@@ -42,7 +42,7 @@ contains
     integer,    intent(out)                :: error_code
     integer                         :: iv,jv
     integer                         :: is,js
-    integer                         :: k,a,b,c,d
+    integer                         :: k
     integer                         :: index
     real(kflt)                      :: x
     character(len=long_string_size) :: line, newline
