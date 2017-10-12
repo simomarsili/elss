@@ -53,7 +53,6 @@ contains
     real(kflt), intent(out) :: scores(nvars,nvars)
 
     integer :: iv,jv
-    integer :: is,js
     integer :: k
 
     scores = 0.0_kflt
@@ -75,8 +74,7 @@ contains
     real(kflt), intent(inout) :: scores(nvars,nvars)
     real(kflt) :: mi(nvars),mj(nvars),mm
     integer    :: iv,jv
-    integer    :: k
-
+    
     mm = sum(scores) / real(nvars**2)
     do iv = 1,nvars
        mi(iv) = sum(scores(iv,:)) / real(nvars)
