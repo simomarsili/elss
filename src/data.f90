@@ -12,8 +12,6 @@ module data
   public :: data_read
   public :: data_average
 
-  character(len=long_string_size), allocatable :: labels(:)
-  character(len=long_string_size), allocatable :: data_labels(:)
   real(kflt), allocatable                      :: ws(:)
 
 contains
@@ -34,7 +32,6 @@ contains
     integer,              intent(out)   :: error_code
     integer                                      :: err
     character(len=long_string_size)              :: line, newline
-    integer                                      :: nlines
     integer                                      :: nfields
     integer                                      :: i,nn
 

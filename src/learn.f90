@@ -21,7 +21,6 @@ program learn
   real(kflt)              :: neff         ! effective number of seqs
   integer,    allocatable :: seq(:)    ! seq array
   integer,    allocatable :: seqs(:,:) ! data matrix
-  integer,    allocatable :: seqs0(:,:)
   real(kflt), allocatable :: prm(:)       ! parameters array
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
   real(kflt), allocatable :: fdata(:)     ! empirical frequencies
@@ -47,8 +46,6 @@ program learn
   integer                         :: dim1,dim2
   integer                         :: utrj,uene,ulog
   character(len=long_string_size) :: filename
-  real(kflt)                      :: facc
-  integer                         :: j
   real(kflt)                      :: etot,efields,ecouplings
   logical                         :: hot_start
 

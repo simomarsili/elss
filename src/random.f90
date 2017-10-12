@@ -39,7 +39,6 @@ contains
   subroutine random_seq(nv, nc, seq)
     integer, intent(in)    :: nv, nc
     integer, intent(inout) :: seq(:)
-    integer    :: err
     integer    :: iv, ic
     real(kflt) :: rnd
 
