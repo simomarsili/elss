@@ -31,11 +31,9 @@ program sample
   integer                         :: iproc=0,nproc=1
   integer                         :: err
   integer                         :: dim1,dim2
-  integer                         :: utrj,uene,ulog
+  integer                         :: utrj,ulog
   character(len=long_string_size) :: filename
   real(kflt)                      :: facc
-  integer                         :: j
-  real(kflt)                      :: etot,efields,ecouplings
   logical                         :: hot_start
 
   !================================================ set defaults

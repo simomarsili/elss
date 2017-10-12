@@ -11,8 +11,7 @@ module map
 
   public :: map_learn
 
-  real(kflt) :: data_energy,regularization_energy,&
-       data_energy1,regularization_energy1
+  real(kflt) :: data_energy, regularization_energy
 
 contains
 
@@ -37,7 +36,7 @@ contains
     character(len=long_string_size) :: filename
     integer                         :: tot_iter
     integer                         :: dim1,dim2,dimm
-    integer                         :: err,unt
+    integer                         :: err
 
     dim1 = nvars*nclasses
     dim2 = nvars*(nvars-1)*nclasses**2/2
@@ -102,17 +101,14 @@ contains
     integer,    intent(inout)    :: tot_iter
     integer,    intent(in)       :: nupdate
     integer                         :: iter
-    character(len=long_string_size) :: filename
-    integer                         :: nind, err
+    integer                         :: err
     integer                         :: dim1, dim2, dimm
     real(kflt), allocatable         :: grd(:)
     real(kflt), allocatable         :: prm1(:)
     real(kflt), allocatable         :: prm2(:)
-    real(kflt)                      :: tfista,tpfista,mnest
     real                            :: elapsed
     real(kflt)                      :: facc
     real(kflt),parameter            :: gamma1=0.9_kflt,gamma2=0.999_kflt
-    logical                         :: fixed_gamma = .true.
     real(kflt)                      :: g1,g2
     integer, parameter              :: nt0=10
 

@@ -44,10 +44,8 @@ program learn
   character(len=long_string_size) :: prefix
   integer                         :: err
   integer                         :: dim1,dim2
-  integer                         :: utrj,uene,ulog
+  integer                         :: ulog
   character(len=long_string_size) :: filename
-  real(kflt)                      :: etot,efields,ecouplings
-  logical                         :: hot_start
 
   !================================================ set defaults
 

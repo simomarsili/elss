@@ -14,21 +14,19 @@ program pchk
   integer,       allocatable :: seq(:,:)
   real(kflt),    allocatable :: prm(:)
   integer                    :: p,np,err
-  integer                    :: nv,nc
   character(len=long_string_size) :: cmd
   integer                         :: nargs
   character(len=long_string_size) :: arg
   integer                         :: iarg
-  logical                         :: file_exists
   character(len=long_string_size) :: syntax = 'syntax'
   character(len=long_string_size) :: chk_file
-  integer :: iv,jv,is,js,k
+  integer :: iv,jv,k
   integer :: n_digits = -1
-  character(len=1) :: protein_alphabet(21) = &
-       ['A','C','D','E','F','G','H','I','K',&
-       'L','M','N','P','Q','R','S','T','V','W','Y','-']
-  character(len=1) :: nuc_acid_alphabet(6) = &
-       ['A','C','G','T','U','-']
+!  character(len=1) :: protein_alphabet(21) = &
+!       ['A','C','D','E','F','G','H','I','K',&
+!       'L','M','N','P','Q','R','S','T','V','W','Y','-']
+!  character(len=1) :: nuc_acid_alphabet(6) = &
+!       ['A','C','G','T','U','-']
   character(len=long_string_size) :: frmt
   
   ! read arguments
