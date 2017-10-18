@@ -29,7 +29,7 @@ contains
     character(len=*), intent(in)     :: data_type  ! data format ('unk', 'bio', 'protein', 'nuc_acid')
     integer,          intent(in)     :: ulog
     real(kflt),       intent(in)     :: fdata(:)
-    character(len=long_string_size)  :: prefix
+    character(len=*), intent(in)     :: prefix
     integer,          intent(inout)  :: seq(:)
     integer,          intent(inout)  :: seqs_table(:,:)
     real(kflt),       intent(inout)  :: prm(:)
