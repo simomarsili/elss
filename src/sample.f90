@@ -115,6 +115,18 @@ program sample
         stop
      end if
 
+     ! open trj file
+     if (len_trim(prefix) == 0) then
+        filename = 'trj'
+     else
+        filename = trim(prefix)//'.trj'        
+     end if
+     call units_open(filename,'unknown',utrj,err)
+     if(err /= 0) then
+        write(0,*) "error opening file ", trim(filename)
+        stop
+     end if
+
      ! print a header
      write(ulog, 101) adjustr(trim(data_type)), uchk, uprm, nvars,&
           nclasses, mc_nsweeps, nupdate, beta
@@ -150,18 +162,6 @@ program sample
         write(0,*) 'ERROR ! unknown data type'
         stop
      end select
-  end if
-
-  ! open trj file
-  if (len_trim(prefix) == 0) then
-     filename = 'trj'
-  else
-     filename = trim(prefix)//'.trj'        
-  end if
-  call units_open(filename,'unknown',utrj,err)
-  if(err /= 0) then
-     write(0,*) "error opening file ", trim(filename)
-     stop
   end if
 
   hot_start = .false.
