@@ -47,7 +47,7 @@ program eval
   uprm = 0
   uchk = 0
   rseed = 0
-  prefix = 'eval'
+  prefix = ''
 
   !================================================ init. unit identifiers
 
@@ -111,15 +111,31 @@ program eval
   close(udata)
 
   if (iproc == 0) then
-     
+
      ! open log file
-     filename = trim(prefix)//'.log'
+     if (len_trim(prefix) == 0) then
+        filename = 'log'
+     else
+        filename = trim(prefix)//'.log'        
+     end if
      call units_open(trim(filename),'unknown',ulog,err)
      if(err /= 0) then
-        write(0,*) "error opening file ", trim(filename)//'.log'
+        write(0,*) "error opening file ", trim(filename)
         stop
      end if
 
+     ! open trj file
+     if (len_trim(prefix) == 0) then
+        filename = 'ene'
+     else
+        filename = trim(prefix)//'.ene'        
+     end if
+     call units_open(filename,'unknown',uene,err)
+     if(err /= 0) then
+        write(0,*) "error opening file ", trim(filename)
+        stop
+     end if
+     
      ! print a header
      write(ulog, 101) adjustr(trim(data_type)), uchk, uprm, nvars,&
           nclasses, nseqs
@@ -135,13 +151,6 @@ program eval
          '# n. classes:             ',    i12  /&
          '# n. samples:             ',    i12  /)
          
-  write(filename,*) iproc
-  call units_open(trim(adjustl(filename))//'.ene','unknown',uene,err)
-  if(err /= 0) then
-     if (iproc == 0) write(0,*) "error opening file ", trim(adjustl(filename))//'.ene'
-     stop
-  end if
-  
   do j = 1,nseqs
      call mcmc_compute_energy(nvars,nclasses,seqs(:,j),prm(1:dim1),prm(dim1+1:dim1+dim2),efields,ecouplings,etot)
      call dump_energies(uene,etot,efields,ecouplings)
