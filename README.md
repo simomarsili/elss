@@ -56,14 +56,24 @@ find Gnu Make 4.1 already installed.
 $ sudo apt-get install git
 ```
 
-## Compiling
+## Compiling and installing
 
 To compile **elss**, type `make` in the `src` directory:
 ```bash
 $ cd src; make
 ```
-
 This will build the `elss` executables (`elss-learn`, `elss-sample` and `elss-eval`).
+
+To install the executables, type `make install`:
+```bash
+$ cd src; make install
+```
+for the default installation dir (`/usr/local/bin`)
+or use `DESTDIR` to override it.  
+For example, to use `~/.local` instead of `/usr/local`:
+```bash
+$ cd src; make install DESTDIR=~/.local
+```
 
 ## Testing
 
