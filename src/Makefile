@@ -1,5 +1,6 @@
 #INSTALLDIR=/usr/local/bin
-INSTALLDIR=~/.local/bin
+bindir=bin
+DESTDIR=/usr/local
 
 EXE = elss-eval elss-sample elss-learn
 TOOLS = pchk
@@ -63,11 +64,11 @@ pchk.o = pchk.f90 kinds.o constants.o units.o arguments.o
 .PHONY: default install uninstall clean realclean debug showtargets
 
 install: $(EXE)
-	mkdir -p $(INSTALLDIR)
-	cp elss-* $(INSTALLDIR)
+	mkdir -p $(DESTDIR)/$(bindir)
+	cp elss-* $(DESTDIR)/$(bindir)
 
 uninstall:
-	rm -f $(INSTALLDIR)/elss-*
+	rm -f $(DESTDIR)/$(bindir)/elss-*
 
 # clean: remove useless files, but keep executables
 clean:
