@@ -1,119 +1,142 @@
-# elss
+# **elss**
 
-**elss** is a Monte Carlo (MC) code for the analysis and the inference of energy landscapes in protein sequence spaces,
-within the framework of [Direct Coupling Analysis (DCA)](https://en.wikipedia.org/wiki/Direct_coupling_analysis).
-**elss** can either be used to simulate a trajectory with a user-defined energy function, or to infer a data-driven statistical model
-from a multiple sequence alignment (MSA) via maximum a posteriori (MAP) estimation. Learning of the model's parameters is carried out using a
-stochastic approximation of the gradients of the partition function based on Markov chain Monte Carlo simulations.
+**elss** generates multivariate discrete data that preserve the correlations
+observed in a real set of samples. The probabilistic model used for the generation
+of artificial samples takes into account only pairwise interactions among variables.
+Learning of the model's parameters is carried out using maximum a posteriori
+(MAP) estimation and a stochastic MCMC approximation of the gradient of the cost
+function.
 
-# Obtaining the source
+<!---
+**elss** has been recently used to show that a minimal model of
+amino acids interacting in pairs is able to capture higher-order correlations
+from sequences of proteins with a common ancestor (i.e. the presence of
+clusters of sequences with specific biological functions, see our paper
+[From residue coevolution to protein conformational ensembles and functional dynamics](http://www.pnas.org/content/112/44/13567)).
+-->
+
+## Obtaining the source
 
 All **elss** source code is hosted on Github. 
-You can download the latest version of the code using [this link](https://github.com/simomarsili/elss/archive/v0.2.1.tar.gz). 
+You can download the latest version of the code using
+[this link](https://github.com/simomarsili/elss/archive/v0.2.1.tar.gz). 
 
-# Prerequisites
+## Prerequisites
 
-In order to compile **elss**, you will need to have a **Fortran compiler** installed on your machine.   
-For gfortran, it is necessary to use version 4.6.0 or above.
-If you are using Debian or a Debian derivative such as Ubuntu, you can install the gfortran compiler using the following command:
+In order to compile **elss**, you will need a **Fortran compiler** installed on your machine.
+If you are using Debian or a Debian derivative such as Ubuntu, you can install the gfortran
+compiler using the following command:
 
-    sudo apt-get install gfortran
+```bash
+$ sudo apt-get install gfortran
+```
 
 The inference algorithm works by simulating a swarm of persistent Markov chains. 
-To compile **elss** with support for parallel runs on a distributed-memory architecture, you will need to have a valid **MPI implementation** installed on your machine. 
+To compile **elss** with support for parallel runs on a distributed-memory architecture,
+you will need to have a valid **MPI implementation** installed on your machine. 
 The code has been tested and is known to work with the latest versions of both OpenMPI and MPICH.   
+
 OpenMPI (recommended) can be installed on Debian derivatives with:
-
-    sudo apt-get install openmpi-bin libopenmpi1.10 libopenmpi-dev
-
+```bash
+$ sudo apt-get install openmpi-bin libopenmpi-dev
+```
 For details on running MPI jobs with OpenMPI see [this link](https://www.open-mpi.org/faq/?category=running)
 
 Alternatively, MPICH can be installed with:
-
-    sudo apt-get install mpich libmpich-dev
+```bash
+$ sudo apt-get install mpich libmpich-dev
+```
 
 The compiling and linking of source files is handled by **Gnu Make**. 
-If you are using Debian or a Debian derivative such as Ubuntu, you should find 3.81 already installed. 
+If you are using Debian or a Debian derivative such as Ubuntu, you should
+find Gnu Make 4.1 already installed. 
 
-(optional) **git** version control software for obtaining source code
+(optional) **git** version control software for obtaining the source code:
+```bash
+$ sudo apt-get install git
+```
 
-    sudo apt-get install git
+## Compiling
 
-# Compiling ###
+To compile **elss**, type `make` in the `src` directory:
+```bash
+$ cd src; make
+```
 
-To compile **elss**, from the project root directory enter the src directory and type make:
+This will build the `elss` executables (`elss-learn`, `elss-sample` and `elss-eval`).
 
-    (cd src; make) 
+## Testing
 
-This will build the executable elss.
+Run the `run-test.bash` script in the test directory: 
+```bash
+$ cd test; bash run-test.bash
+```
 
-# Testing
+## Input data format
 
-Run the **run-test.bash** script in the test directory: 
+The input data should be encoded as space/tab separated integer labels,
+with variables as columns and samples as rows:
+```bash
+$ head encoded.txt
+20 13  8 21  4 17 18  8 19 24
+12  0 13  0  6  4 12  4 13 19
+19  4  2  7 13 14 11 14  6 24
+ 6 14 21  4 17 13 12  4 13 19
+ 3  4 15  0 17 19 12  4 13 19
+ 2  0 19  4  6 14 17  8  4 18
+ 2 14 13  3  8 19  8 14 13 18
+```
 
-    (cd test; ./run-test.bash)
+The code assumes that all variables share a common set of classes.  
+Aletrnatively, **elss** can read directly biological sequence data from a
+multiple sequence alignment file in FASTA format:
+```bash
+$ head data.fa
+>G3VGV0_SARHA/14-174
+LAVMGTCCVGKTALTIQFTKNRFMTQYNPTCQDFYRKHTVADEERRQLDIVDTTSTEAFYCLRDQAMRWGEGFLLVYSVNDPHSFENVNVLWDHLQKLKGRVPMVLVANKVDVTDRLVNPRQGQEVARRFGVPYVETSAKSKEGVEQAFHELV
+>A2FI73_TRIVA/11-193
+VVTIGETAVGKTSIISRLVNARFSENESPTIGNFLMHEENIGNQKIELQIWDTAGQEKYRALSPIYCRDAAVGLIIYDVTNKDTFNKIDNWIKLFKDVADEALVYIVGNKCDKIELTVERNAIE-VFSDQGYNCFFTSAKTGEGINDLFHDIC
+>T0LCH1_9MICR/12-173
+IAILGYYSVGKSSLSLKYVRNQFNPNEESTIASYLTKSMSTKDSTIQFEIWDTAGQERYNSLVSIYYKNADAALIVYDITSRDSFEAAKQWVYELNFQKPDFLKILVGNKTDMEERQVDFEEGKEYAMQQNLIFLEASAKSGENVSKIFELFA
+>Q3SDV0_PARTE/13-174
+IVLVGDSGSGKTTLFMKHAEQQFCQNLSPTIIEFHNKFVEYQRKMIKLQLWDTAGQETFRSISQNYYRKANSIFFIYDITNKQSFERVYQWMNEAKQLAPDLIKVLIGNKSDLINRQVSFDEGKLFALENDLEFFELSAFGNRNLEDPIYYVL
+>IFT27_TRYB2/7-170
+VAVVGAPTVGKTAFVQMLHSNTFPKNYLMTLCDFIVKEVPVDDNTVEMIIFDVSGQREYEPMVSSYLQNTAVFIVMYDVSNKVTFEACARWVNQVRTNSK-SVGILIANKSDLSDAEVTDRQGKDLANANKMKFYKISTLRGVGITEPIDEIA
+```
 
-# A simple example
+## Basic usage
 
-    $ elss -p prm -n 10000 
+The standard workflow starts by fitting a model to data (using `elss-learn`)
+and then sampling artificial data from the fitted model (using the `elss-sample`
+executable). We will discuss in detail the example calculations used as tests
+(see `test` directory and `run-test.bash`). For a full list of options and 
+more details, run the executables with the `-h` flag *e.g.* `elss-learn -h`.
 
-the program will read custom values for the parameters of the energy function from file _prm_ (**-p prm**); then it will simulate a (10000 sweeps long) trajectory (**-n 10000**) starting from a random sequence. Sampled sequences will be saved to file **0.trj** (in FASTA format) every 10 sweeps. 
 
-    $ cat 0.trj
-    >       0     -113.204       -4.367     -108.837
-    IYVGNLPYTSTHEDLNTHAKTYDEIENVHMAYSD-SNFRGFAFVEFHDKEDAAKALSG--D---------
-    >      10     -121.961       -4.167     -117.794
-    IYIGNLIYSMTNDELTQAFETYGDISRVSIILDDTGKPKGYAFVRFVEKEGVKLCVAQLKA---------
-    >      20     -100.255       -3.609      -96.646
-    LYMDLLDESVSAADLKVQFGKFGEECRVFHVRDANGFSKGRAFVEFKSRDQAVSAMEHR--R--------
-    ...
-    >   10000      -96.654       -4.599      -92.055
-    VFVGGLPQSVTTA-LLEHFTDAGEKEEVMIGGDDSERSKGFAFVTFCQEEQCEKFVDESNYKEILGRQV-
-    
-Same analysis with small differences: 
+### elss-learn
+The fitting process corresponds to a first-order iterative minimization
+of a cost function including two terms, one proportional to the
+likelihood of the parameters and a regularization term.
 
-    $ elss -p prm --seq start.fa -n 10000 --nupdate 1 
-    
-In this case, the starting sequence will be read from file **start.fa** (**--seq start.fa**) in FASTA format, and sequences will be dumped at every sweep (**--nupdate 1**). 
+```bash
+$ mpiexec -n 4 elss-learn --fasta 10.fa --niter 2000 -n 1000
+```
+- `mpiexec -n 4`: compute the gradient using 4 independent Markov chains
+- `--fasta PF00076.fa`: read data from file `PF00076.fa` in FASTA format
+- `--niter 2000`: set the number of iterations
+- `-n 1000`: set the length of each simulated trajectory to 1000 MC sweeps
 
-# A slightly more complex example
+The run will produce a binary checkpoint file `chk`,
+that contains all the fitted parameters.
 
-    $ mpiexec -n 8 elss --fasta PF00076.fa --learn-agd 2000 -n 10000 --lambda 0.01
-    $ elss -r rst -n 100000
+### elss-sample
 
-First line: the program reads a MSA from file **PF00076.fa** (**--fasta PF00076.fa**) and compute the maximum-a-posteriori estimate of the parameters of the energy function. The algorithm takes 2000 accelerated gradient descent steps (**--learn-agd 2000**), computing the gradient of the objective function from the accumulated statistics of 8 (**mpiexec -n 8**) _persistent_, 10000 sweeps long Markov chains (**--nsweeps 10000**). 
-The option --lambda controls regularization strength. Higher values correspond to more regularized solutions. The default is 0.01. 
-Output files: the files _prm_ (a file containing the estimated parameters), _rst_ (a binary restart file) and _LEARN.log_, a log file. 
-
-Second line: **elss** will read the final energy model from the previous calculation (_-r rst_) and simulate a (100000 sweeps long) trajectory in sequence space starting from a random sequence. The command will dump the file _0.trj__ (see previous example). 
-
-# Format of the parameter file
-The parameter file is the result of the inference algorithm, and can be modified to investigate the effect of perturbations to the energy function. 
-
-    $ cat prm
-    # flag L q
-    protein 70 21
-    # biases
-    1  2 -2.0 
-    20 21  0.5
-    ...
-    # couplings
-    55 70  5  20 1.0
-    ...
-
-- the \# symbol is used to mark comments
-- the first line contains: 
-    - a flag describing the output format ("_protein_", do not change this)
-    - the number of positions in the protein and 
-    - the number of symbols in the amino acids alphabet (21 = 20 natural amino acids + the gap symbol (\-)
-- the next lines define the parameters of the energy function
-- amino acids are coded using their numerical index in alphabetical order (gap has index 21)
-- lines with three fields define specific biases e.g.:  
-    the line "1 1 -2.0" introduces a potential term in the energy function that stabilizes (-2.0)
-    the amino acid no. 2 (CYS) at position 1. 
-- lines with five fields define interaction terms between amino acids at different positions.  
-    the line "55 70 5 20  1.0" in the example introduces a potential term in the energy function that disfavours    
-    the amino acid pair PHE and TYR at positions no. 55 and 70 respectevly. 
+The `chk` file can be used as input to `elss-sample`:
+```bash
+$ elss-sample --chk chk -n 100000
+```
+- `--chk chk` read the fitted model from checkpoint file `chk`
+- `-n 100000`
 
 # Contributing
 
