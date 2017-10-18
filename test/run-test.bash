@@ -45,14 +45,14 @@ Running tests...
 ================
 '
 
-rm chk 0.trj 0.ene
+rm chk trj 0.ene
 
 command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
 
-echo "estimating model parameters... (chk, prm, learn.log)"
+echo "estimating model parameters... (chk, prm, log)"
 mpiexec -n $NPROC $EXE\-learn --fasta $DATA -n $NS --seed 123 >> log 2>&1;
 
-echo "sampling sequences from the model distribution... (0.trj, sample.log)"
+echo "sampling sequences from the model distribution... (trj, log)"
 $EXE\-sample -c chk -n 100000 --seed 123 >> log 2>&1; 
 
 echo "checking data energies... (0.ene, eval.log)"
@@ -68,9 +68,9 @@ Checking results
     # check diffs
     tests_ok=true
     
-    if ! cmp 0.trj 0.TRJ >/dev/null 2>&1; then
-	echo "0.trj: RESULTS DIFFER..."
-	echo "check files 0.TRJ and 0.trj for minor numerical diffs and log file"
+    if ! cmp trj TRJ >/dev/null 2>&1; then
+	echo "trj: RESULTS DIFFER..."
+	echo "check files TRJ and trj for minor numerical diffs and log file"
 	tests_ok=false
     fi
     
