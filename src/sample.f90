@@ -48,7 +48,7 @@ program sample
   nupdate = 10
   rseed = 0
   beta = 1.0_kflt
-  prefix = 'sample'
+  prefix = ''
 
   !================================================ init. unit identifiers
 
@@ -104,10 +104,14 @@ program sample
   if (iproc == 0) then
      
      ! open log file
-     filename = trim(prefix)//'.log'
+     if (len_trim(prefix) == 0) then
+        filename = 'log'
+     else
+        filename = trim(prefix)//'.log'        
+     end if
      call units_open(trim(filename),'unknown',ulog,err)
      if(err /= 0) then
-        write(0,*) "error opening file ", trim(filename)//'.log'
+        write(0,*) "error opening file ", trim(filename)
         stop
      end if
 
@@ -147,11 +151,16 @@ program sample
         stop
      end select
   end if
-  
-  write(filename,*) iproc
-  call units_open(trim(adjustl(filename))//'.trj','unknown',utrj,err)
+
+  ! open trj file
+  if (len_trim(prefix) == 0) then
+     filename = 'trj'
+  else
+     filename = trim(prefix)//'.trj'        
+  end if
+  call units_open(filename,'unknown',utrj,err)
   if(err /= 0) then
-     if (iproc == 0) write(0,*) "error opening file ", trim(adjustl(filename))//'.trj'
+     write(0,*) "error opening file ", trim(filename)
      stop
   end if
 
