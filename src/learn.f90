@@ -161,7 +161,7 @@ program learn
      end if
      call units_open(filename,'unknown',ulog,err)
      if(err /= 0) then
-        write(0,*) "error opening file ", trim(filename)//'.log'
+        write(0,*) "error opening file ", trim(filename)
         call mpi_wrapper_finalize(err)
         stop
      end if
