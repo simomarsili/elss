@@ -70,7 +70,7 @@ $ cd src; make install
 ```
 for the default installation dir (`/usr/local/bin`)
 or use `DESTDIR` to override it.  
-For example, to use `~/.local` instead of `/usr/local`:
+For example, to install in `~/.local` instead of `/usr/local`:
 ```bash
 $ cd src; make install DESTDIR=~/.local
 ```
@@ -98,43 +98,31 @@ $ head encoded.txt
 ```
 
 The code assumes that all variables share a common set of classes.  
-Aletrnatively, **elss** can read directly biological sequence data from a
-multiple sequence alignment file in FASTA format:
-```bash
-$ head data.fa
->G3VGV0_SARHA/14-174
-LAVMGTCCVGKTALTIQFTKNRFMTQYNPTCQDFYRKHTVADEERRQLDIVDTTSTEAFYCLRDQAMRWGEGFLLVYSVNDPHSFENVNVLWDHLQKLKGRVPMVLVANKVDVTDRLVNPRQGQEVARRFGVPYVETSAKSKEGVEQAFHELV
->A2FI73_TRIVA/11-193
-VVTIGETAVGKTSIISRLVNARFSENESPTIGNFLMHEENIGNQKIELQIWDTAGQEKYRALSPIYCRDAAVGLIIYDVTNKDTFNKIDNWIKLFKDVADEALVYIVGNKCDKIELTVERNAIE-VFSDQGYNCFFTSAKTGEGINDLFHDIC
->T0LCH1_9MICR/12-173
-IAILGYYSVGKSSLSLKYVRNQFNPNEESTIASYLTKSMSTKDSTIQFEIWDTAGQERYNSLVSIYYKNADAALIVYDITSRDSFEAAKQWVYELNFQKPDFLKILVGNKTDMEERQVDFEEGKEYAMQQNLIFLEASAKSGENVSKIFELFA
->Q3SDV0_PARTE/13-174
-IVLVGDSGSGKTTLFMKHAEQQFCQNLSPTIIEFHNKFVEYQRKMIKLQLWDTAGQETFRSISQNYYRKANSIFFIYDITNKQSFERVYQWMNEAKQLAPDLIKVLIGNKSDLINRQVSFDEGKLFALENDLEFFELSAFGNRNLEDPIYYVL
->IFT27_TRYB2/7-170
-VAVVGAPTVGKTAFVQMLHSNTFPKNYLMTLCDFIVKEVPVDDNTVEMIIFDVSGQREYEPMVSSYLQNTAVFIVMYDVSNKVTFEACARWVNQVRTNSK-SVGILIANKSDLSDAEVTDRQGKDLANANKMKFYKISTLRGVGITEPIDEIA
-```
+Alternatively, biological sequence data can be directly read from a
+multiple sequence alignment file in FASTA format.
 
 ## Basic usage
 
-The standard workflow starts by fitting a model to data (using `elss-learn`)
-and then sampling artificial data from the fitted model (using the `elss-sample`
-executable). We will discuss in detail the example calculations used as tests
-(see `test` directory and `run-test.bash`). For a full list of options and 
-more details, run the executables with the `-h` flag *e.g.* `elss-learn -h`.
+The standard workflow has two steps:
+1) fitting a model to data (using the `elss-learn` executable) and
+2) sampling artificial data from the fitted model (using `elss-sample`).  
 
+For a full list of options and details, run with the `-h` flag
+*e.g.* `elss-learn -h`.
 
 ### elss-learn
 The fitting process corresponds to a first-order iterative minimization
 of a cost function including two terms, one proportional to the
 likelihood of the parameters and a regularization term.
-
+The `elss-learn` options control the parameters of the minimization run.
+Example:
 ```bash
-$ mpiexec -n 4 elss-learn --fasta 10.fa --niter 2000 -n 1000
+$ mpiexec -n 4 elss-learn --fasta 1.fa --niter 2000 -n 10000
 ```
 - `mpiexec -n 4`: compute the gradient using 4 independent Markov chains
-- `--fasta PF00076.fa`: read data from file `PF00076.fa` in FASTA format
-- `--niter 2000`: set the number of iterations
-- `-n 1000`: set the length of each simulated trajectory to 1000 MC sweeps
+- `--fasta 1.fa`: read data from file `1.fa` in FASTA format
+- `--niter 2000`: set the number of iterations to 2000
+- `-n 10000`: set the length of each MC chain to 1000 MC sweeps
 
 The run will produce a binary checkpoint file `chk`,
 that contains all the fitted parameters.
@@ -143,10 +131,13 @@ that contains all the fitted parameters.
 
 The `chk` file can be used as input to `elss-sample`:
 ```bash
-$ elss-sample --chk chk -n 100000
+$ elss-sample --chk chk -n 100000 -u 100
 ```
-- `--chk chk` read the fitted model from checkpoint file `chk`
-- `-n 100000`
+- `--chk chk`: read the fitted model from file `chk`
+- `-n 100000`: run a MC trajectory for 100000 MC sweeps
+- `-u 100`: dump a configuration every 100 MC sweeps
+The output of the calculation is a `trj` file containing 1000 (100000/100)
+configurations sampled according to the fitted pairwise model.
 
 # Contributing
 
