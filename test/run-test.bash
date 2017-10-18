@@ -45,7 +45,7 @@ Running tests...
 ================
 '
 
-rm chk trj 0.ene
+rm chk trj ene
 
 command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
 
@@ -55,7 +55,7 @@ mpiexec -n $NPROC $EXE\-learn --fasta $DATA -n $NS --seed 123 >> log 2>&1;
 echo "sampling sequences from the model distribution... (trj, log)"
 $EXE\-sample -c chk -n 100000 --seed 123 >> log 2>&1; 
 
-echo "checking data energies... (0.ene, eval.log)"
+echo "checking data energies... (ene, log)"
 $EXE\-eval -c chk --fasta $DATA >> log 2>&1; 
 
 if [ $NITER -eq 2000 ] && [ $NS -eq 1000 ] && [ $NPROC -eq 4 ] && [ $DATA == '10.fa' ]
@@ -74,9 +74,9 @@ Checking results
 	tests_ok=false
     fi
     
-    if ! cmp 0.ene 0.ENE >/dev/null 2>&1; then
-	echo "0.ene: RESULTS DIFFER..."
-	echo "check files 0.ENE and 0.ene for minor numerical diffs and log file"
+    if ! cmp ene ENE >/dev/null 2>&1; then
+	echo "ene: RESULTS DIFFER..."
+	echo "check files ENE and ene for minor numerical diffs and log file"
 	tests_ok=false
     fi
 
