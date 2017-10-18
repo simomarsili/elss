@@ -66,7 +66,7 @@ program learn
   lambda = 0.01_kflt
   rseed = 0
   beta = 1.0_kflt
-  prefix = 'learn'
+  prefix = ''
 
   !================================================ init. unit identifiers
 
@@ -154,8 +154,12 @@ program learn
   if (iproc == 0) then
      
      ! open log file
-     filename = trim(prefix)//'.log'
-     call units_open(trim(filename),'unknown',ulog,err)
+     if (len_trim(prefix) == 0) then
+        filename = 'log'
+     else
+        filename = trim(prefix)//'.log'        
+     end if
+     call units_open(filename,'unknown',ulog,err)
      if(err /= 0) then
         write(0,*) "error opening file ", trim(filename)//'.log'
         call mpi_wrapper_finalize(err)
@@ -204,7 +208,7 @@ program learn
   
   ! inv. temperature for MAP estimation is set to 1
   call map_learn(algorithm,rate,nvars,nclasses,niter,lambda,mc_nsweeps,&
-       1.0_kflt,nupdate,data_type,ulog,fdata,seq,seqs_table,prm,fmodel)
+       1.0_kflt,nupdate,data_type,ulog,fdata,prefix,seq,seqs_table,prm,fmodel)
   
   !================================================ compute and print scores
   

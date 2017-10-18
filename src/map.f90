@@ -16,7 +16,7 @@ module map
 contains
 
   subroutine map_learn(algorithm,rate,nvars,nclasses,niter,lambda,mc_nsweeps,beta,&
-       nupdate,data_type,ulog,fdata,seq,seqs_table,prm,fmodel)
+       nupdate,data_type,ulog,fdata,prefix,seq,seqs_table,prm,fmodel)
     use dump, only: dump_array_file,dump_prm_file,dump_chk
     character(len=*), intent(in)  :: algorithm
     real(kflt), intent(in) :: rate
@@ -29,21 +29,29 @@ contains
     character(len=*), intent(in)     :: data_type  ! data format ('unk', 'bio', 'protein', 'nuc_acid')
     integer,          intent(in)     :: ulog
     real(kflt),       intent(in)     :: fdata(:)
+    character(len=long_string_size)  :: prefix
     integer,          intent(inout)  :: seq(:)
     integer,          intent(inout)  :: seqs_table(:,:)
     real(kflt),       intent(inout)  :: prm(:)
     real(kflt),       intent(out)    :: fmodel(:)
-    character(len=long_string_size) :: filename
+    character(len=long_string_size) :: chk_file, prm_file
     integer                         :: tot_iter
     integer                         :: dim1,dim2,dimm
     integer                         :: err
+
+    if (len_trim(prefix) == 0) then
+       chk_file = 'chk'
+       prm_file = 'prm'
+    else
+       chk_file = trim(prefix)//'.chk'
+       prm_file = trim(prefix)//'.prm'
+    end if
 
     dim1 = nvars*nclasses
     dim2 = nvars*(nvars-1)*nclasses**2/2
     dimm = dim1 + dim2
 
     tot_iter = 0
-
 
     if (iproc == 0) then
        write(ulog,'(a)') &
@@ -60,14 +68,13 @@ contains
     tot_iter = tot_iter + 1
     
     if(iproc == 0) then
-       write(filename,*) tot_iter
-       call dump_prm_file('prm',data_type,nvars,nclasses,&
+       call dump_prm_file(prm_file,data_type,nvars,nclasses,&
             prm(1:dim1),prm(dim1+1:dimm),err)
        if( err /= 0 ) then 
           call mpi_wrapper_finalize(err)
           stop
        end if
-       call dump_chk('chk','replace',data_type,nvars,nclasses,nproc,&
+       call dump_chk(chk_file,'replace',data_type,nvars,nclasses,nproc,&
             seqs_table,prm,err)
        if( err /= 0 ) then 
           call mpi_wrapper_finalize(err)
