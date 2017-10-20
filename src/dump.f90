@@ -207,10 +207,10 @@ contains
        write(unt,*) iv,array1(:,iv)
     end do
     k = 0
-    do iv = 1,nvars-1
-       do jv = iv+1,nvars
+    do jv = 1,nvars-1
+       do iv = jv+1,nvars
           k = k + 1
-          write(unt,*) iv,jv,array2(:,:,k)
+          write(unt,*) jv, iv, array2(:,:,k)
        end do
     end do
 
