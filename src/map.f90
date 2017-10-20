@@ -68,7 +68,7 @@ contains
     tot_iter = tot_iter + 1
     
     if(iproc == 0) then
-       call dump_prm_file(prm_file,data_type,nvars,nclasses,&
+       call dump_prm_file(prm_file,data_type,nvars,nclasses,nproc,seqs_table,&
             prm(1:dim1),prm(dim1+1:dimm),err)
        if( err /= 0 ) then 
           call mpi_wrapper_finalize(err)
