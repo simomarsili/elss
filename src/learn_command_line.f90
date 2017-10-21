@@ -11,7 +11,7 @@ module learn_command_line
 
 contains
 
-  subroutine command_line_read(udata, data_type, uwgt, wid, uprm, uchk, rseed, &
+  subroutine command_line_read(udata, data_type, uwgt, wid, uchk, rseed, &
        beta, mc_nsweeps, nupdate, algorithm, rate, niter, lambda,prefix, &
        error_code)
     use units, only: units_open, units_open_unf
@@ -20,7 +20,6 @@ contains
     character(len=*), intent(inout) :: data_type
     integer,          intent(inout) :: uwgt
     real(kflt),       intent(inout) :: wid
-    integer,          intent(inout) :: uprm
     integer,          intent(inout) :: uchk
     integer,          intent(inout) :: rseed
     real(kflt),       intent(inout) :: beta
@@ -35,7 +34,6 @@ contains
     integer                         :: err
     character(len=long_string_size) :: data_file
     character(len=long_string_size) :: ww_file
-    character(len=long_string_size) :: prm_file
     character(len=long_string_size) :: chk_file
     character(len=long_string_size) :: cmd
     integer                         :: nargs
@@ -57,7 +55,6 @@ contains
     ! initialize filenames
     data_file = ''
     ww_file = ''
-    prm_file = ''
     chk_file = ''
     
     iarg = 0
@@ -80,15 +77,6 @@ contains
           end select
           iarg = iarg + 1
           call read_opt_arg(iarg,nargs,data_file,err)
-          if (err == 1) then
-             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
-             error_code = 1
-             return
-          end if
-       case('-p','--prm')
-          ! prm file
-          iarg = iarg + 1
-          call read_opt_arg(iarg,nargs,prm_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -186,7 +174,6 @@ contains
              return
           end if
        case('--algorithm')
-          ! prm file
           iarg = iarg + 1
           call read_opt_arg(iarg,nargs,algorithm,err)
           if (err == 2) then
@@ -231,27 +218,6 @@ contains
           return
        end select
     end do args_loop
-
-    if (prm_file /= "" .and. chk_file /= "") then
-       write(0,*) 'ERROR ! either a chk or a prm file'
-       error_code = 1
-       return
-    end if    
-
-    if ( prm_file /= "" ) then
-       inquire( file = prm_file, exist = file_exists )
-       if ( .not. file_exists ) then
-          write(0,*) 'ERROR ! cannot access '//trim(prm_file)
-          error_code = 1
-          return
-       end if
-       call units_open(prm_file,'old',uprm,err)
-       if( err /= 0 ) then
-          write(0,*) 'ERROR ! error opening file '//trim(prm_file)
-          error_code = 1
-          return
-       end if
-    end if
 
     if ( chk_file /= "" ) then
        inquire( file = chk_file, exist = file_exists )
@@ -343,9 +309,6 @@ contains
          '                                                                               '/&
          '--prefix <str>                                                                 '/&         
          '    Prefix of output files.                                                    '/&
-         '                                                                               '/&
-         '-p, --prm <prm_file>                                                           '/&
-         '    Read the initial guess for parameters from file <prm_file>.                '/&
          '                                                                               '/&
          '-c, --chk <chk_file>                                                           '/&
          '    Restart a previous calculation from checkpoint file <chk_file>             '/&
