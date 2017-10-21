@@ -5,7 +5,7 @@
 program eval
   use kinds
   use constants
-  use dump,        only: read_chk,read_prm_unit,dump_energies
+  use dump,        only: read_chk,dump_energies
   use eval_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
@@ -24,7 +24,6 @@ program eval
   integer                    :: udata        ! data unit
   integer                    :: uwgt         ! ww unit
   real(kflt)                 :: wid          ! %id for weights calculation
-  integer                    :: uprm         ! prm unit
   integer                    :: uchk         ! chk unit
   integer                    :: rseed        ! random seed
   character(len=long_string_size) :: prefix  ! prefix for output file
@@ -44,7 +43,6 @@ program eval
   data_type = 'unk'
   uwgt = 0
   wid = -1
-  uprm = 0
   uchk = 0
   rseed = 0
   prefix = ''
@@ -55,23 +53,12 @@ program eval
 
   !================================================ read args
 
-  call command_line_read(udata,data_type,uprm,uchk,prefix,err)
+  call command_line_read(udata,data_type,uchk,prefix,err)
   if (err /= 0) stop
 
   !================================================ init. the random number generator
 
   call random_initialize(rseed,iproc)
-
-  !================================================ read prms for the run
-
-  if (uprm > 0) then
-     call read_prm_unit(uprm,nvars,nclasses,&
-          prm,data_type,err)
-     if (err /= 0) then
-        stop
-     end if
-     close(uprm)
-  end if
 
   !================================================ read checkpoint file
 
@@ -96,18 +83,7 @@ program eval
 
   dim1 = nvars * nclasses
   dim2 = nvars * (nvars - 1) * nclasses**2 / 2
-  if (uprm == 0 .and. uchk == 0) then
-     
-     allocate(seq(nvars),stat=err)
-     allocate(prm(dim1+dim2),stat=err)
-     seq = 0
-     prm = 0.0_kflt
-     
-     !================================================ initialize system configuration
-     
-     call random_seq(nvars,nclasses,seq)
-     
-  end if
+
   close(udata)
 
   if (iproc == 0) then
@@ -137,7 +113,7 @@ program eval
      end if
      
      ! print a header
-     write(ulog, 101) adjustr(trim(data_type)), uchk, uprm, nvars,&
+     write(ulog, 101) adjustr(trim(data_type)), uchk, nvars,&
           nclasses, nseqs
   end if
 
@@ -146,7 +122,6 @@ program eval
          '#                                   '/&
          '# data type:              ',    a12  /&
          '# chk file unit:          ',    i12  /&
-         '# prm file unit:          ',    i12  /&
          '# n. features:            ',    i12  /&
          '# n. classes:             ',    i12  /&
          '# n. samples:             ',    i12  /)

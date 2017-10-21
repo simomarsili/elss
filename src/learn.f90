@@ -6,7 +6,7 @@ program learn
   use kinds
   use constants
   use mpi_wrapper
-  use dump,        only: read_chk,read_prm_unit,dump_energies
+  use dump,        only: read_chk,dump_energies
   use learn_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
@@ -31,7 +31,6 @@ program learn
   integer                        :: udata        ! data unit
   integer                        :: uwgt         ! ww unit
   real(kflt)                     :: wid          ! %id for weights calculation
-  integer                        :: uprm         ! prm unit
   integer                        :: uchk         ! chk unit
   integer                        :: mc_nsweeps   ! number of MC sweeps per gradient estimate
   integer                        :: nupdate      ! stride for averages aupdate
@@ -56,7 +55,6 @@ program learn
   uwgt = 0
   wid = -1
   neff =  0.0_kflt
-  uprm = 0
   uchk = 0
   mc_nsweeps = 1000
   nupdate = 10
@@ -75,7 +73,7 @@ program learn
   !================================================ read args
 
   call command_line_read(udata,data_type,uwgt,&
-       wid,uprm,uchk,rseed,beta,mc_nsweeps,nupdate,algorithm,rate,niter,&
+       wid,uchk,rseed,beta,mc_nsweeps,nupdate,algorithm,rate,niter,&
        lambda,prefix,err)
   
   if (err /= 0) then
@@ -89,19 +87,6 @@ program learn
   !================================================ init. the random number generator
 
   call random_initialize(rseed,iproc)
-
-  !================================================ read prms for the run
-
-  if (uprm > 0) then
-     call read_prm_unit(uprm,nvars,nclasses,&
-          prm,data_type,err)
-     if (err /= 0) then
-        if(iproc == 0) write(0,*) 'ERROR ! cannot read from prm'
-        call mpi_wrapper_finalize(err)
-        stop
-     end if
-     close(uprm)
-  end if
 
   !================================================ read checkpoint file
   
@@ -130,12 +115,9 @@ program learn
 
   dim1 = nvars * nclasses
   dim2 = nvars * (nvars - 1) * nclasses**2 / 2
-  if (uprm == 0 .and. uchk == 0) then
+  if (uchk == 0) then
      allocate(prm(dim1+dim2),stat=err)
      prm = 0.0_kflt
-  end if
-  if (uchk == 0) then
-     ! allocate seq
      allocate(seq(nvars),stat=err)
      seq = 0
      call random_seq(nvars,nclasses,seq)
@@ -167,7 +149,7 @@ program learn
      end if
 
      ! and print a header
-     write(ulog, 101) adjustr(trim(data_type)), uchk, uprm, nproc, nvars,&
+     write(ulog, 101) adjustr(trim(data_type)), uchk, nproc, nvars,&
           nclasses, nseqs, nupdate, beta, uwgt, wid, neff, lambda, mc_nsweeps,&
           niter, adjustr(trim(algorithm))
   end if
@@ -177,7 +159,6 @@ program learn
          '#                                   '/&
          '# data type:              ',    a12  /&
          '# chk file unit:          ',    i12  /&
-         '# prm file unit:          ',    i12  /&
          '# n. procs:               ',    i12  /&
          '# n. features:            ',    i12  /&
          '# n. classes:             ',    i12  /&

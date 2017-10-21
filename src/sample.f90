@@ -6,7 +6,7 @@ program sample
   use kinds
   use constants
   use fasta,       only : fasta_read
-  use dump,        only: read_chk,read_prm_unit
+  use dump,        only: read_chk
   use sample_command_line
   use units,       only: units_initialize,units_open
   use random,      only: random_initialize,random_seq
@@ -20,7 +20,6 @@ program sample
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
   character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
   ! command line parameters
-  integer                    :: uprm         ! prm unit
   integer                    :: uchk         ! chk unit
   integer                    :: useq         ! seq unit
   integer                    :: mc_nsweeps   ! number of MC sweeps per gradient estimate
@@ -41,7 +40,6 @@ program sample
   nvars = 0
   nclasses = 0
   data_type = 'unk'
-  uprm = 0
   uchk = 0
   useq = 0
   mc_nsweeps = 1000
@@ -56,7 +54,7 @@ program sample
 
   !================================================ read args
 
-  call command_line_read(uprm,uchk,useq,rseed,beta,mc_nsweeps,nupdate,&
+  call command_line_read(uchk,useq,rseed,beta,mc_nsweeps,nupdate,&
        prefix,err)
 
   if (err /= 0) stop
@@ -64,18 +62,6 @@ program sample
   !================================================ init. the random number generator
 
   call random_initialize(rseed,iproc)
-
-  !================================================ read prms for the run
-
-  if (uprm > 0) then
-     call read_prm_unit(uprm,nvars,nclasses,&
-          prm,data_type,err)
-     if (err /= 0) then
-        write(0,*) 'ERROR ! cannot read from prm'
-        stop
-     end if
-     close(uprm)
-  end if
 
   !================================================ read checkpoint file
   
@@ -128,7 +114,7 @@ program sample
      end if
 
      ! print a header
-     write(ulog, 101) adjustr(trim(data_type)), uchk, uprm, nvars,&
+     write(ulog, 101) adjustr(trim(data_type)), uchk, nvars,&
           nclasses, mc_nsweeps, nupdate, beta
   end if
 
@@ -137,7 +123,6 @@ program sample
          '#                                   '/&
          '# data type:              ',    a12  /&
          '# chk file unit:          ',    i12  /&
-         '# prm file unit:          ',    i12  /&
          '# n. features:            ',    i12  /&
          '# n. classes:             ',    i12  /&
          '# n. sweeps:              ',    i12  /&
