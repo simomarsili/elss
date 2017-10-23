@@ -17,7 +17,7 @@ contains
 
   subroutine map_learn(algorithm,rate,nvars,nclasses,niter,lambda,mc_nsweeps,beta,&
        nupdate,data_type,ulog,fdata,prefix,seq,seqs_table,prm,fmodel)
-    use dump, only: dump_array_file,dump_chk
+    use dump, only: dump_chk
     character(len=*), intent(in)  :: algorithm
     real(kflt), intent(in) :: rate
     integer,          intent(inout)  :: nvars,nclasses
