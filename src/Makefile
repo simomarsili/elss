@@ -3,7 +3,7 @@ bindir=bin
 DESTDIR=/usr/local
 
 EXE = elss-eval elss-sample elss-learn
-TOOLS = pchk
+TOOLS = elss-pchk
 FC = mpif90
 FFLAGS = -O2 -fconvert=little-endian -std=f2008 -fimplicit-none
 #FFLAGS = -fast -heap-arrays # ifort (important: use -heap-arrays)
@@ -25,7 +25,7 @@ elss-eval: $(OBJS-eval)
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-eval) $(LIBS)
 elss-sample: $(OBJS-sample) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-sample) $(LIBS)
-pchk: $(OBJS-pchk) 
+elss-pchk: $(OBJS-pchk) 
 	$(FC) $(LDFLAGS) -o $@ $(OBJS-pchk) $(LIBS)
 
 .SUFFIXES: $(SUFFIXES) .f90 .f
