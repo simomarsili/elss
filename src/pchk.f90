@@ -15,11 +15,9 @@ program pchk
   integer                    :: p,np,err
   integer :: unt
   character(len=long_string_size) :: cmd
-  integer                         :: nargs
   character(len=long_string_size) :: arg
-  integer                         :: iarg
-  character(len=long_string_size) :: syntax = 'syntax'
   character(len=long_string_size) :: source
+  integer                         :: iarg, nargs
   integer :: iv,jv,k,a,b
   integer :: n_digits = -1
   character(len=long_string_size) :: frmt
