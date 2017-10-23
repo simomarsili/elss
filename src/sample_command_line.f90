@@ -11,12 +11,11 @@ module sample_command_line
 
 contains
 
-  subroutine command_line_read(uchk,useq,rseed,beta,mc_nsweeps,nupdate,&
+  subroutine command_line_read(uchk,rseed,beta,mc_nsweeps,nupdate,&
                                prefix,error_code)
     use units, only: units_open,units_open_unf
     use arguments, only: read_opt,read_opt_arg
     integer,                    intent(inout) :: uchk
-    integer,                    intent(inout) :: useq
     integer,                    intent(inout) :: rseed
     real(kflt),                 intent(inout) :: beta
     integer,                    intent(inout) :: mc_nsweeps
@@ -25,7 +24,6 @@ contains
     integer,                    intent(out)   :: error_code
     integer                         :: err
     character(len=long_string_size) :: chk_file
-    character(len=long_string_size) :: seq_file
     character(len=long_string_size) :: cmd
     integer                         :: nargs
     character(len=long_string_size) :: arg
@@ -46,7 +44,6 @@ contains
 
     ! default 
     chk_file = ''
-    seq_file = ''
 
     iarg = 0
     args_loop: do while(iarg < nargs)
@@ -62,15 +59,6 @@ contains
           ! chk file
           iarg = iarg + 1
           call read_opt_arg(iarg,nargs,chk_file,err)
-          if (err == 1) then
-             write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
-             error_code = 1
-             return
-          end if
-       case('-s','--seq')
-          ! seq file
-          iarg = iarg + 1
-          call read_opt_arg(iarg,nargs,seq_file,err)
           if (err == 1) then
              write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
              error_code = 1
@@ -144,21 +132,6 @@ contains
        return
     end if
 
-    if ( seq_file /= "" ) then
-       inquire( file = seq_file, exist = file_exists )
-       if ( .not. file_exists ) then
-          write(0,*) 'ERROR ! cannot access '//trim(seq_file)
-          error_code = 1
-          return
-       end if
-       call units_open(seq_file,'old',useq,err)
-       if( err /= 0 ) then
-          write(0,*) 'ERROR ! error opening file '//trim(seq_file)
-          error_code = 1
-          return
-       end if
-    end if
-
 100 format(&
          'elss-sample (elss v0.2.1)                                                      '/& 
          '                                                                               '/&
@@ -194,11 +167,6 @@ contains
          '    Seed for the initialization of the pseudo-random number generator.         '/&
          '    If == 0, the seed is generated from system clock.                          '/&
          '    [default: 0]                                                               '/&
-         '                                                                               '/&
-         '-s, --seq <file>, string                                                       '/&
-         '    Read the starting sequence from file <file>.                               '/&
-         '    Overrides the starting sequence read in checkpoint file.                   '/&
-         '    [default: generate random starting sequence]                               '/&
          '                                                                               '/&
          'Examples:                                                                      '/&
          '                                                                               '/)
