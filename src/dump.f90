@@ -140,17 +140,15 @@ contains
        ! no seqs found in checkpoint 
        ! => randomize 
        call random_seq(nvars,nclasses,seq)
-    else 
-       if (nproc == 1 .or. np == nproc) then 
-          ! single process or n. of seqs in checkpoint matches nproc
-          ! => each proc reads a different seq
+    else
+       if (np >= nproc) then
+          ! if there are more samples than chains, read the starting points from the chk file
           do p = 1,np
              read(unt) dummy
              if (p == iproc+1) seq = dummy
           end do
        else
-          ! if nproc is larger than 1 and different from the num. of seqs in the checkpoint 
-          ! => randomize
+          ! else, randomize
           call random_seq(nvars,nclasses,seq)
        end if
     end if
