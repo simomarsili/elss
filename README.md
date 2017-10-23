@@ -111,7 +111,7 @@ For a full list of options and details, run with the `-h` flag
 *e.g.* `elss-learn -h`.
 
 ### elss-learn
-The fitting process corresponds to a first-order iterative minimization
+The fitting consists in the first-order iterative minimization
 of a cost function including two terms, one proportional to the
 likelihood of the parameters and a regularization term.
 The `elss-learn` options control the parameters of the minimization run.
