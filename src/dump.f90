@@ -155,11 +155,12 @@ contains
 
   end subroutine read_prm_unit
 
-  subroutine dump_prm_file(filename,data_type,nvars,nclasses,&
+  subroutine dump_prm_file(filename,data_type,nvars,nclasses,nproc,seqs,&
                        array1,array2,error_code)
     character(len=*), intent(in)  :: filename
     character(len=*), intent(in)  :: data_type
-    integer,          intent(in)  :: nvars,nclasses
+    integer,          intent(in)  :: nvars,nclasses,nproc
+    integer,          intent(in)  :: seqs(:,:)
     real(kflt),       intent(in)  :: array1(nclasses,nvars)
     real(kflt),       intent(in)  :: array2(nclasses,nclasses,nvars*(nvars-1)/2)
     integer,          intent(out) :: error_code
@@ -175,45 +176,41 @@ contains
        return
     end if
 
-    call dump_prm_unit(unt,data_type,nvars,nclasses,&
+    call dump_prm_unit(unt,data_type,nvars,nclasses,nproc,seqs,&
                        array1,array2,error_code)
 
     close(unt)
 
   end subroutine dump_prm_file
 
-  subroutine dump_prm_unit(unt,data_type,nvars,nclasses,&
-                           array1,array2,error_code)
+  subroutine dump_prm_unit(unt,data_type,nvars,nclasses,nproc,seqs,&
+       array1,array2,error_code)
     ! dump a checkpoint file 
     integer,          intent(in)  :: unt
     character(len=*), intent(in)  :: data_type
-    integer,          intent(in)  :: nvars,nclasses
+    integer,          intent(in)  :: nvars,nclasses,nproc
+    integer,          intent(in)  :: seqs(:,:)
     real(kflt),       intent(in)  :: array1(nclasses,nvars)
     real(kflt),       intent(in)  :: array2(nclasses,nclasses,nvars*(nvars-1)/2)
     integer,          intent(out) :: error_code
-    integer :: iv,jv,is,js,k
-
+    integer :: iv,jv,is,js,k,p
+    
     error_code = 0
-
-    write(unt,'(a,2(1x,i4))') trim(data_type), nvars, nclasses
-    do iv = 1,nvars
-       do is = 1,nclasses
-          write(unt,'(2i5,f8.4)') iv,is,array1(is,iv)
+    write(unt,'(a)') '# <data_type> <nvars> <nclasses> <nseq> <nproc>'
+    write(unt,'(a,3(1x,i4))') trim(data_type), nvars, nclasses, nproc
+    if (nproc > 0) then
+       do p = 1,nproc
+          write(unt,'(a,1000(1x,i2))') '# ',seqs(:,p)
        end do
+    end if
+    do iv = 1,nvars
+       write(unt,*) iv,array1(:,iv)
     end do
     k = 0
     do jv = 1,nvars-1
        do iv = jv+1,nvars
           k = k + 1
-          !          do is = 1,nclasses
-          !             do js = 1,nclasses
-          !                write(unt,'(4i4,f10.5)') iv,jv,is,js,array2(is,js,k)
-          ! order is inverted for printing 
-          do js = 1,nclasses
-             do is = 1,nclasses
-                write(unt,'(4i5,f8.4)') jv,iv,js,is,array2(is,js,k)
-             end do
-          end do
+          write(unt,*) jv, iv, array2(:,:,k)
        end do
     end do
 
