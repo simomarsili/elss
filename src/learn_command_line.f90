@@ -284,24 +284,24 @@ contains
          'elss-learn (elss v0.2.1)                                                       '/& 
          '                                                                               '/&
          'Usage:                                                                         '/&
-         '    elss-learn [options] (-i <data_file>|--fasta <MSA_file>                    '/&
-         '    (prepend "mpiexec -n <n_proc>" for simulating multiple chains in parallel) '/&
+         '    elss-learn [options] (-i <file> | --fasta <file>)                          '/&
+         '    (prepend "mpiexec -n <n_proc>" for multiple parallel MC chains)            '/&
          '                                                                               '/&
          'Description:                                                                   '/&
-         '    Read a data matrix and fit a model of pairwise interacting categorical     '/&
-         '    variables. Valid input formats are the FASTA format for biological multiple'/&
-         '    sequence alignments, or plain space/tab separated values.                  '/&
-         '    The fitted parameters are dumped in a `chk` file that can be an input to   '/&
+         '    Fit a model of pairwise interacting, categorical variables to input data.  '/&
+         '    Valid formats are the FASTA format for biological multiple sequence        '/&
+         '    alignments, or plain space/tab separated integer values.                   '/&
+         '    The fitted parameters are dumped in a checkpoint file `chk` that           '/&
+         '    can be used as input to:                                                   '/&
          '    - elss-sample, to generate artificial samples according to the fitted model'/&
          '    - elss-eval, to measure the relative probability of new samples            '/&
          '      according to the model).                                                 '/&
          '                                                                               '/&
          'Required:                                                                      '/&
          '-i, --int <data_file>                                                          '/&
-         '    Path to data file.                                                         '/&
-         '                                                                               '/&
+         '    Path to data file, or:                                                     '/&
          '--fasta <data_file>                                                            '/&
-         '    Path to FASTA multiple sequence alignment.                                 '/&
+         '    Path to a multiple sequence alignment in FASTA format.                     '/&
          '                                                                               '/&
          'Options:                                                                       '/&
          '-h, --help                                                                     '/&
@@ -319,7 +319,7 @@ contains
          '                                                                               '/&
          '-u, --nupdate <n>, integer                                                     '/&
          '    During gradient estimate: update model averages every <n> sweeps.          '/&
-         '    [default: 1000]                                                            '/&
+         '    [default: 10]                                                              '/&
          '                                                                               '/&
          '--wid <%id>, float                                                             '/&
          '    Compute data averages reweighting each sample according to its similarity  '/&
@@ -339,7 +339,7 @@ contains
          '    [default: 0.01]                                                            '/&
          '                                                                               '/&
          '--niter <n_iter>, integer                                                      '/&
-         '    Number of (accelerated) gradient descent steps.                            '/&
+         '    Number of iterations in the minimization process.                          '/&
          '    [default: 2000]                                                            '/&
          '                                                                               '/&
          '-l, --lambda <regularization_strength>, float                                  '/&
@@ -347,8 +347,8 @@ contains
          '    [default: 0.01]                                                            '/&
          '                                                                               '/&
          '--seed <seed>, integer                                                         '/&
-         '    Seed for initialization of pseudo-random number generator.                 '/&
-         '    If == 0, the seed is computed from the system clock.                       '/&
+         '    Seed for the initialization of the pseudo-random number generator.         '/&
+         '    If == 0, the seed is generated from system clock.                          '/&
          '    [default: 0]                                                               '/&
          '                                                                               '/&
          'Examples:                                                                      '/&
