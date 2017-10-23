@@ -14,7 +14,7 @@ program pchk
   integer,       allocatable :: seqs(:,:)
   real(kflt),    allocatable :: prm(:)
   real(kflt), allocatable :: array1(:), array2(:)
-  integer                    :: p,np,err
+  integer                    :: id,ndata,err
   integer :: unt
   integer, parameter :: string_len = 100000
   character(len=string_len) :: cmd
@@ -101,24 +101,24 @@ program pchk
      read(unt) data_type
      read(unt) nvars
      read(unt) nclasses
-     read(unt) np
+     read(unt) ndata
      allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
-     if (np > 0) then
-        allocate(seqs(nvars,np),stat=err)
+     if (ndata > 0) then
+        allocate(seqs(nvars,ndata),stat=err)
         seqs = 0
-        do p = 1,np
-           read(unt) seqs(:,p)
+        do id = 1,ndata
+           read(unt) seqs(:,id)
         end do
      end if
      prm = 0.0_kflt
      read(unt) prm
      close(unt)
      ! dump formatted file to standard output
-     write(*,'(a)') '# <data_type> <nvars> <nclasses> <nseq>'
-     write(*,'(a,3(1x,i4))') trim(data_type), nvars, nclasses, np
-     if (np > 0) then
-        do p = 1,np
-           write(*,'(1000(1x,i2))') seqs(:,p)
+     write(*,'(a)') '# <data_type> <nvars> <nclasses> <ndata>'
+     write(*,'(a,3(1x,i4))') trim(data_type), nvars, nclasses, ndata
+     if (ndata > 0) then
+        do id = 1,ndata
+           write(*,'(1000(1x,i2))') seqs(:,id)
         end do
      end if
      k = 0
@@ -154,23 +154,23 @@ program pchk
         call parser_nfields(line, parsed_line, nfields)
         if (nvars == 0) then
            ! if the first valid line, read system size and allocate
-           read(parsed_line,*) data_type, nvars, nclasses, np
+           read(parsed_line,*) data_type, nvars, nclasses, ndata
            allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
            prm = 0.0_kflt
            allocate(array1(nclasses), array2(nclasses**2), stat=err)
-           if (np > 0) then
-              allocate(seqs(nvars,np),stat=err)
-              p = 1
+           if (ndata > 0) then
+              allocate(seqs(nvars,ndata),stat=err)
+              id = 1
               do
-                 if (p > np) exit
+                 if (id > ndata) exit
                  ! read sequence line
                  read(unt,'(a)',iostat=err) line
                  if (err < 0) exit
                  call remove_comments(line)
                  if (len_trim(line) == 0) cycle
                  call parser_nfields(line, parsed_line, nfields)
-                 read(parsed_line,*) seqs(:,p)
-                 p = p + 1
+                 read(parsed_line,*) seqs(:,id)
+                 id = id + 1
               end do
               cycle
            end if
@@ -196,9 +196,9 @@ program pchk
      write(unt) data_type
      write(unt) nvars
      write(unt) nclasses
-     write(unt) np
-     do p = 1,np
-        write(unt) seqs(:,p)
+     write(unt) ndata
+     do id = 1,ndata
+        write(unt) seqs(:,id)
      end do
      write(unt) prm
      close(unt)
