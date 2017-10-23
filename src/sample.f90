@@ -21,7 +21,6 @@ program sample
   character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
   ! command line parameters
   integer                    :: uchk         ! chk unit
-  integer                    :: useq         ! seq unit
   integer                    :: mc_nsweeps   ! number of MC sweeps per gradient estimate
   integer                    :: nupdate      ! stride for averages aupdate
   integer                    :: rseed        ! random seed
@@ -41,7 +40,6 @@ program sample
   nclasses = 0
   data_type = 'unk'
   uchk = 0
-  useq = 0
   mc_nsweeps = 1000
   nupdate = 10
   rseed = 0
@@ -54,8 +52,7 @@ program sample
 
   !================================================ read args
 
-  call command_line_read(uchk,useq,rseed,beta,mc_nsweeps,nupdate,&
-       prefix,err)
+  call command_line_read(uchk,rseed,beta,mc_nsweeps,nupdate,prefix,err)
 
   if (err /= 0) stop
 
@@ -131,24 +128,6 @@ program sample
 
   !================================================ run a simulation
   
-  if (useq > 0) then
-     ! read starting sequence (NB: overwrite chk)
-     select case (trim(data_type))
-     case('int')
-        read(useq,*) seq
-     case('bio', 'protein', 'nuc_acid')
-        call fasta_read(useq,seqs0,data_type,err)
-        if (err > 0) then
-           write(0,*) 'ERROR ! cannot read from seq'
-           stop
-        end if
-        seq = seqs0(:,1) ! take the first one as chk
-     case default
-        write(0,*) 'ERROR ! unknown data type'
-        stop
-     end select
-  end if
-
   hot_start = .false.
   call mcmc_simulate(nvars,nclasses,seq,&
        prm(1:dim1),prm(dim1+1:dim1+dim2),data_type,&
