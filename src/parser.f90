@@ -3,9 +3,10 @@
 ! License: BSD 3 clause
 
 module parser
+  use constants
   implicit none
   private
-  public :: parser_nfields, cleanline, remove_comments
+  public :: parser_nfields, cleanline, remove_comments, parse_next_line
   ! possible delimiters are: space, tab, comma, colon, semicolon
   !  character(len=1) :: delimiters(5)=[" ", achar(9), ",", ":", ";"]   
   ! accepted delimiters are space and tab
@@ -13,6 +14,24 @@ module parser
   
 contains
 
+  subroutine parse_next_line(unt, line, parsed_line, nfields, err)
+    integer, intent(in) :: unt
+    character(len=*), intent(out) :: line
+    character(len=*), intent(out) :: parsed_line
+    integer, intent(out) :: nfields
+    integer, intent(out) :: err
+
+    do
+       read(unt,'(a)', iostat=err) line
+       if (err < 0) exit
+       call remove_comments(line)
+       if (len_trim(line) == 0) cycle
+       call parser_nfields(line, parsed_line, nfields)
+       exit
+    end do
+
+  end subroutine parse_next_line
+  
   subroutine parser_nfields(line, parsed, nfields)
     character(len=*), intent(in)  :: line
     integer,          intent(out) :: nfields

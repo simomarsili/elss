@@ -7,7 +7,8 @@ program pchk
   use constants
   use units, only: units_initialize, units_open, units_open_unf
   use arguments, only: read_opt, read_opt_arg
-  use parser, only: parser_nfields,remove_comments    
+  use parser, only: parser_nfields,remove_comments, parse_next_line
+  implicit none
   
   character(len=string_size) :: data_type
   integer                    :: nvars=0, nclasses=0
@@ -16,16 +17,15 @@ program pchk
   real(kflt), allocatable :: array1(:), array2(:)
   integer                    :: id,ndata,err
   integer :: unt
-  integer, parameter :: string_len = 100000
-  character(len=string_len) :: cmd
-  character(len=string_len) :: arg
-  character(len=string_len) :: source
+  character(len=long_string_size) :: cmd
+  character(len=long_string_size) :: arg
+  character(len=long_string_size) :: source
   integer                         :: iarg, nargs
   integer :: nfields
   integer :: iv,jv,k,a,b
   integer :: n_digits = -1
-  character(len=string_len) :: frmt
-  character(len=string_len) :: line, parsed_line
+  character(len=long_string_size) :: frmt
+  character(len=long_string_size) :: line, parsed_line
   integer :: flag=0 ! 1: u -> f; 2: f-> u
 
   call units_initialize()
@@ -145,48 +145,47 @@ program pchk
   case (2)
      ! open formatted file
      call units_open(source,'old',unt,err)
+     call parse_next_line(unt, line, parsed_line, nfields, err)
+     if (err < 0) then
+        write(0,*) "input file can be converted to a valid checkpoint file"
+        stop
+     end if
+     ! if the first valid line, read system size and allocate
+     read(parsed_line,*) data_type, nvars, nclasses, ndata
+     allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
+     prm = 0.0_kflt
+     allocate(array1(nclasses), array2(nclasses**2), stat=err)
+     if (ndata > 0) then
+        allocate(seqs(nvars,ndata),stat=err)
+        id = 1
+        do
+           if (id > ndata) exit
+           ! read sequence line
+           read(unt,'(a)',iostat=err) line
+           if (err < 0) exit
+           call remove_comments(line)
+           if (len_trim(line) == 0) cycle
+           call parser_nfields(line, parsed_line, nfields)
+           read(parsed_line,*) seqs(:,id)
+           id = id + 1
+        end do
+     end if
      do
-        ! read and parse a single line
-        read(unt,'(a)',iostat=err) line
-        if (err < 0) exit
-        call remove_comments(line)
-        if (len_trim(line) == 0) cycle
-        call parser_nfields(line, parsed_line, nfields)
-        if (nvars == 0) then
-           ! if the first valid line, read system size and allocate
-           read(parsed_line,*) data_type, nvars, nclasses, ndata
-           allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
-           prm = 0.0_kflt
-           allocate(array1(nclasses), array2(nclasses**2), stat=err)
-           if (ndata > 0) then
-              allocate(seqs(nvars,ndata),stat=err)
-              id = 1
-              do
-                 if (id > ndata) exit
-                 ! read sequence line
-                 read(unt,'(a)',iostat=err) line
-                 if (err < 0) exit
-                 call remove_comments(line)
-                 if (len_trim(line) == 0) cycle
-                 call parser_nfields(line, parsed_line, nfields)
-                 read(parsed_line,*) seqs(:,id)
-                 id = id + 1
-              end do
-              cycle
-           end if
+        call parse_next_line(unt, line, parsed_line, nfields, err)
+        if (err < 0) then
+           exit
+        end if
+        if (nfields == nclasses + 1) then
+           read(parsed_line, *) iv
+           k = (iv - 1) * nclasses
+           read(parsed_line, *) iv, prm(k + 1 : k + nclasses)
+        else if (nfields == nclasses**2 + 2) then
+           read(parsed_line, *) jv, iv
+           k = (2 * nvars - jv) * (jv - 1) / 2 + iv - jv
+           k = nvars * nclasses + (k - 1) * nclasses**2
+           read(parsed_line, *) jv, iv, prm(k + 1 : k + nclasses**2)
         else
-           if (nfields == nclasses + 1) then
-              read(parsed_line, *) iv
-              k = (iv - 1) * nclasses
-              read(parsed_line, *) iv, prm(k + 1 : k + nclasses)
-           else if (nfields == nclasses**2 + 2) then
-              read(parsed_line, *) jv, iv
-              k = (2 * nvars - jv) * (jv - 1) / 2 + iv - jv
-              k = nvars * nclasses + (k - 1) * nclasses**2
-              read(parsed_line, *) jv, iv, prm(k + 1 : k + nclasses**2)
-           else
-              write(0,*) "invalid number of lines in chk file: ", nfields
-           end if
+           write(0,*) "invalid number of lines in chk file: ", nfields
         end if
      end do
      close(unt)
