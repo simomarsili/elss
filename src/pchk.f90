@@ -98,9 +98,9 @@ program pchk
      ! open unformatted file
      call units_open_unf(source,'old',unt,err)
      ! read unformatted file
-     read(unt) data_type
      read(unt) nvars
      read(unt) nclasses
+     read(unt) data_type
      read(unt) ndata
      allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
      if (ndata > 0) then
@@ -114,8 +114,10 @@ program pchk
      read(unt) prm
      close(unt)
      ! dump formatted file to standard output
-     write(*,'(a)') '# <data_type> <nvars> <nclasses> <ndata>'
-     write(*,'(a,3(1x,i4))') trim(data_type), nvars, nclasses, ndata
+     write(*,*) nvars
+     write(*,*) nclasses
+     write(*,*) trim(data_type)
+     write(*,*) ndata
      if (ndata > 0) then
         do id = 1,ndata
            write(*,'(1000(1x,i2))') seqs(:,id)
@@ -145,16 +147,61 @@ program pchk
   case (2)
      ! open formatted file
      call units_open(source,'old',unt,err)
+
+     ! read nvars
      call parse_next_line(unt, line, parsed_line, nfields, err)
      if (err < 0) then
         write(0,*) "input file can be converted to a valid checkpoint file"
         stop
      end if
-     ! if the first valid line, read system size and allocate
-     read(parsed_line,*) data_type, nvars, nclasses, ndata
+     read(parsed_line, *, iostat=err) nvars
+     if (err < 0) then
+        write(0,*) "check n. of features"
+        stop
+     end if
+
+     ! read nclasses
+     call parse_next_line(unt, line, parsed_line, nfields, err)
+     if (err < 0) then
+        write(0,*) "input file can be converted to a valid checkpoint file"
+        stop
+     end if
+     read(parsed_line, *, iostat=err) nclasses
+     if (err < 0) then
+        write(0,*) "check n. of classes"
+        stop
+     end if
+
+     ! read data type
+     call parse_next_line(unt, line, parsed_line, nfields, err)
+     if (err < 0) then
+        write(0,*) "input file can be converted to a valid checkpoint file"
+        stop
+     end if
+     read(parsed_line, *, iostat=err) data_type
+     if (err < 0) then
+        write(0,*) "check output data type format"
+        stop
+     end if
+
+     ! read ndata
+     call parse_next_line(unt, line, parsed_line, nfields, err)
+     if (err < 0) then
+        write(0,*) "input file can be converted to a valid checkpoint file"
+        stop
+     end if
+     read(parsed_line, *, iostat=err) ndata
+     if (err < 0) then
+        write(0,*) "check n. of samples in .chk file"
+        stop
+     end if
+     
+     ! if the first lines are ok, allocate
      allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
      prm = 0.0_kflt
      allocate(array1(nclasses), array2(nclasses**2), stat=err)
+
+     ! read samples
      if (ndata > 0) then
         allocate(seqs(nvars,ndata),stat=err)
         id = 1
@@ -192,9 +239,9 @@ program pchk
      ! dump an unformatted file <source>.chk
      source = trim(source)//'.chk'
      call units_open_unf(source,'unknown',unt,err)
-     write(unt) data_type
      write(unt) nvars
      write(unt) nclasses
+     write(unt) data_type     
      write(unt) ndata
      do id = 1,ndata
         write(unt) seqs(:,id)
