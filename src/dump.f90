@@ -103,9 +103,9 @@ contains
 
     error_code = 0
 
-    read(unt) data_type
     read(unt) nv
     read(unt) nc
+    read(unt) data_type
     read(unt) np
 
     if (nvars == 0 .and. nclasses == 0) then 
@@ -208,9 +208,9 @@ contains
 
     error_code = 0
 
-    write(unt) data_type
     write(unt) nvars
     write(unt) nclasses
+    write(unt) data_type
     write(unt) nproc
     do p = 1,nproc
        write(unt) seqs_table(:,p)
