@@ -1,4 +1,4 @@
-! Copyright (C) 2015-2017, Simone Marsili 
+! Copyright (C) 2015-2017, Simone Marsili
 ! All rights reserved.
 ! License: BSD 3 clause
 
@@ -9,7 +9,7 @@ program pchk
   use arguments, only: read_opt, read_opt_arg
   use parser, only: parser_nfields,remove_comments, parse_next_line
   implicit none
-  
+
   character(len=string_size) :: data_type
   integer                    :: nvars=0, nclasses=0
   integer,       allocatable :: seqs(:,:)
@@ -27,16 +27,17 @@ program pchk
   character(len=long_string_size) :: frmt
   character(len=long_string_size) :: line, parsed_line
   integer :: flag=0 ! 1: u -> f; 2: f-> u
+  integer :: nerrs=0
 
   call units_initialize()
-  
+
   ! read arguments
   call get_command(cmd)
   nargs = command_argument_count()
-  
+
   ! call with no args
   if (nargs == 0) then
-     write(0,*) 'help'
+     write(0,100)
      stop
   end if
 
@@ -48,20 +49,20 @@ program pchk
      select case(trim(arg))
      case('-h','--help')
         ! print help and exit
-        write(0,*) 'help'
+        write(0,100)
         stop
      case('-u')
         ! unformatted file
         if (flag == 0) then
            flag = 1
         else
-           write(0,*) "either -u <unformatted_file > or -f <formatted_file> option"
+           write(0,*) "ERROR: either -u <chk_file > or -f <formatted_file> option"
            stop
         end if
         iarg = iarg + 1
         call read_opt_arg(iarg,nargs,source,err)
-        if (err == 2) then
-           write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+        if (err > 0) then
+           write(0,*) 'ERROR ! option "-u": missing argument'
            stop
         end if
      case('-f')
@@ -69,13 +70,13 @@ program pchk
         if (flag == 0) then
            flag = 2
         else
-           write(0,*) "either -u <unformatted_file > or -f <formatted_file> option"
+           write(0,*) "ERROR: either -u <chk_file > or -f <formatted_file> option"
            stop
         end if
         iarg = iarg + 1
         call read_opt_arg(iarg,nargs,source,err)
-        if (err == 2) then
-           write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <filename>'
+        if (err > 0) then
+           write(0,*) 'ERROR ! option "-f": missing argument'
            stop
         end if
      case('-d', '--digits')
@@ -84,11 +85,12 @@ program pchk
         iarg = iarg + 1
         call read_opt_arg(iarg,nargs,n_digits,err)
         if (err == 2) then
-           write(0,*) 'ERROR ! missing argument: '//trim(arg)//' <n>'
+           write(0,*) 'ERROR ! option "-d": missing argument'
            stop
         end if
      case default
         write(0,*) 'ERROR ! unkown argument '//trim(arg)
+        write(0,100)
         stop
      end select
   end do args_loop
@@ -156,7 +158,7 @@ program pchk
      ! read nvars
      call parse_next_line(unt, line, parsed_line, nfields, err)
      if (err < 0) then
-        write(0,*) "input file can be converted to a valid checkpoint file"
+        write(0,*) "ERROR: invalid formatted input file"
         stop
      end if
      read(parsed_line, *, iostat=err) nvars
@@ -200,7 +202,7 @@ program pchk
         write(0,*) "check n. of samples in .chk file"
         stop
      end if
-     
+
      ! if the first lines are ok, allocate
      allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
      prm = 0.0_kflt
@@ -237,7 +239,8 @@ program pchk
            k = nvars * nclasses + (k - 1) * nclasses**2
            read(parsed_line, *) jv, iv, prm(k + 1 : k + nclasses**2)
         else
-           write(0,*) "invalid number of lines in chk file: ", nfields
+           write(0,*) "invalid checkpoint file"
+           stop
         end if
      end do
      close(unt)
@@ -246,14 +249,41 @@ program pchk
      call units_open_unf(source,'unknown',unt,err)
      write(unt) nvars
      write(unt) nclasses
-     write(unt) data_type     
+     write(unt) data_type
      write(unt) ndata
      do id = 1,ndata
         write(unt) seqs(:,id)
      end do
      write(unt) prm
      close(unt)
-     
+
   end select
+
+100 format(&
+       'elss-pchk (elss v0.2.1)                                                        '/&
+       '                                                                               '/&
+       'Usage:                                                                         '/&
+       '    elss-pchk [-d <digits>] (-u <chk_file> | -f <formatted_file>)              '/&
+       '                                                                               '/&
+       'Description:                                                                   '/&
+       '    Convert a checkpoint file to a human-readable plain text file and viceversa'/&
+       '                                                                               '/&
+       'Required:                                                                      '/&
+       '-u <chk_file>                                                                  '/&
+       '    Print the content of <chk_file> to text file <chk_file>.txt                '/&
+       '-f <formatted_file>                                                            '/&
+       '    Generate a checkpoint file <formatted_file>.chk from the params in         '/&
+       '    <formatted_file>                                                           '/&
+       '                                                                               '/&
+       'Options:                                                                       '/&
+       '-h, --help                                                                     '/&
+       '    Display this help and exit.                                                '/&
+       '                                                                               '/&
+       '-d, --digits <number_of_digits>, integer                                       '/&
+       '    For formatted floating points, the number of digits to the right           '/&
+       '    of the decimal point.                                                      '/&
+       '                                                                               '/&
+       'Examples:                                                                      '/&
+       '                                                                               '/)
 
 end program pchk
