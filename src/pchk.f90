@@ -116,15 +116,17 @@ program pchk
      ! dump formatted file to standard output
      source = trim(source)//'.txt'
      call units_open(source,'unknown',unt,err)
-     write(unt,*) nvars
-     write(unt,*) nclasses
-     write(unt,*) trim(data_type)
-     write(unt,*) ndata
+     write(unt,'(i10, 1x, a)') nvars, "# n. of variables"
+     write(unt,'(i10, 1x, a)') nclasses, "# n. of classes"
+     write(unt,'(a10, 1x, a)') trim(data_type), "# n. output data format"
+     write(unt,'(i10, 1x, a)') ndata, "# n. samples in checkpoint"
      if (ndata > 0) then
+        write(unt, '(a)') "# samples start here"
         do id = 1,ndata
-           write(unt,'(1000(1x,i2))') seqs(:,id)
+           write(unt,'(1000(i2, 1x))') seqs(:,id)
         end do
      end if
+     write(unt, '(a)') "# parms start here"
      k = 0
      write(frmt,*) '(i3,1x,1000f', n_digits + 4, '.', n_digits, ')'
      do iv = 1,nvars
