@@ -114,22 +114,24 @@ program pchk
      read(unt) prm
      close(unt)
      ! dump formatted file to standard output
-     write(*,*) nvars
-     write(*,*) nclasses
-     write(*,*) trim(data_type)
-     write(*,*) ndata
+     source = trim(source)//'.txt'
+     call units_open(source,'unknown',unt,err)
+     write(unt,*) nvars
+     write(unt,*) nclasses
+     write(unt,*) trim(data_type)
+     write(unt,*) ndata
      if (ndata > 0) then
         do id = 1,ndata
-           write(*,'(1000(1x,i2))') seqs(:,id)
+           write(unt,'(1000(1x,i2))') seqs(:,id)
         end do
      end if
      k = 0
      write(frmt,*) '(i3,1x,1000f', n_digits + 4, '.', n_digits, ')'
      do iv = 1,nvars
         if (n_digits >= 0) then
-           write(*,frmt) iv,prm(k+1:k+nclasses)
+           write(unt,frmt) iv,prm(k+1:k+nclasses)
         else
-           write(*,*) iv,prm(k+1:k+nclasses)
+           write(unt,*) iv,prm(k+1:k+nclasses)
         end if
         k = k + nclasses
      end do
@@ -137,13 +139,14 @@ program pchk
      do jv = 1,nvars-1
         do iv = jv+1,nvars
            if (n_digits >= 0) then
-              write(*,frmt) jv, iv, prm(k+1:k+nclasses**2)
+              write(unt,frmt) jv, iv, prm(k+1:k+nclasses**2)
            else
-              write(*,*) jv, iv, prm(k+1:k+nclasses**2)
+              write(unt,*) jv, iv, prm(k+1:k+nclasses**2)
            end if
            k = k + nclasses**2
         end do
      end do
+     close(unt)
   case (2)
      ! open formatted file
      call units_open(source,'old',unt,err)
