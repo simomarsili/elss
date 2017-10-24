@@ -158,7 +158,7 @@ program pchk
      ! read nvars
      call parse_next_line(unt, line, parsed_line, nfields, err)
      if (err < 0) then
-        write(0,*) "ERROR: invalid formatted input file"
+        write(0,*) "ERROR: invalid input file"
         stop
      end if
      read(parsed_line, *, iostat=err) nvars
@@ -170,7 +170,7 @@ program pchk
      ! read nclasses
      call parse_next_line(unt, line, parsed_line, nfields, err)
      if (err < 0) then
-        write(0,*) "input file can be converted to a valid checkpoint file"
+        write(0,*) "ERROR: invalid input file"
         stop
      end if
      read(parsed_line, *, iostat=err) nclasses
@@ -182,7 +182,7 @@ program pchk
      ! read data type
      call parse_next_line(unt, line, parsed_line, nfields, err)
      if (err < 0) then
-        write(0,*) "input file can be converted to a valid checkpoint file"
+        write(0,*) "ERROR: invalid input file"
         stop
      end if
      read(parsed_line, *, iostat=err) data_type
@@ -194,7 +194,7 @@ program pchk
      ! read ndata
      call parse_next_line(unt, line, parsed_line, nfields, err)
      if (err < 0) then
-        write(0,*) "input file can be converted to a valid checkpoint file"
+        write(0,*) "ERROR: invalid input file"
         stop
      end if
      read(parsed_line, *, iostat=err) ndata
@@ -235,6 +235,10 @@ program pchk
            read(parsed_line, *) iv, prm(k + 1 : k + nclasses)
         else if (nfields == nclasses**2 + 2) then
            read(parsed_line, *) jv, iv
+           if (jv > iv) then
+              write(0,*) "ERROR: when reading couplings line p q {couplings}, it must be q > p"
+              stop
+           end if
            k = (2 * nvars - jv) * (jv - 1) / 2 + iv - jv
            k = nvars * nclasses + (k - 1) * nclasses**2
            read(parsed_line, *) jv, iv, prm(k + 1 : k + nclasses**2)
