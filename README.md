@@ -1,10 +1,14 @@
 # **elss**
 
-**elss** can generate artificial discrete data learning from correlations observed in real data. 
-The probabilistic model used for the generation of
-artificial samples takes into account only pairwise interactions among features/variables.
-**elss** was originally developed for the generation of artificial
-protein sequences with correlated amino acids, see [this paper](http://www.pnas.org/content/112/44/13567)).
+**elss** is a Monte Carlo code for the modeling of protein sequence data 
+(and more generally multivariate discrete data).
+The basic usage of the code consists in 1) learning a probabilistic model 
+for the joint distribution of variables from the correlations in real samples 
+and 2) generating artificial discrete data sampled from the model via Markov chain Monte Carlo sampling.
+
+**elss** was originally developed to show that models for protein sequences with 
+correlated amino acids can be learned and resampled using MCMC methods 
+([paper](http://www.pnas.org/content/112/44/13567)).
 
 ## Obtaining the source
 
@@ -88,7 +92,8 @@ $ head encoded.txt
  2 14 13  3  8 19  8 14 13 18
 ```
 
-The code assumes that all variables share a common set of classes.  
+The code assumes that all variables share a common set of categorical classes, 
+encoded as integers ranging from the min to max value found in the input samples.  
 Alternatively, biological sequence data can be directly read from a
 multiple sequence alignment file in FASTA format.
 
@@ -99,17 +104,17 @@ The standard workflow has two steps:
 2) the sampling of artificially generated data from the fitted model (using `elss-sample`).  
 
 ### elss-learn
-The fitting consists in the first-order iterative minimization
+The fitting consists in a first-order iterative minimization
 of a cost function including two terms, a term proportional to the 
 parameters' likelihood and a regularization term.
 Example:
 ```bash
 $ mpiexec -n 4 elss-learn --fasta 1.fa --niter 2000 -n 10000
 ```
-- `mpiexec -n 4`: compute the gradient using 4 independent Markov chains
+- `mpiexec -n 4`: compute the gradient of the cost function simulating 4 independent Markov chains
 - `--fasta 1.fa`: read data from file `1.fa` in FASTA format
-- `--niter 2000`: set the number of iterations to 2000
-- `-n 10000`: set the length of each MC chain to 1000 MC sweeps
+- `--niter 2000`: set the number of iterations for iterative minimization to 2000
+- `-n 10000`: set the length of each MC chain (per gradient evaluation) to 1000 MC sweeps
 
 The run will produce a binary checkpoint file `chk`,
 that contains all the fitted parameters.
@@ -117,20 +122,20 @@ For a full list of options and details, type `elss-learn -h`.
 
 ### elss-sample
 
-The checkpoint file produced by `elss-learn` can be passed used as input
-to `elss-sample`:
+`elss-sample` reads the parameters contained in the checkpoint file produced by `elss-learn` 
+and simulate a MC trajectory sampling from a model of pairwise-interacting variables:
 ```bash
 $ elss-sample --chk chk -n 100000 -u 100
 ```
 - `--chk chk`: read the fitted model from checkpoint file `chk`
 - `-n 100000`: run a MC trajectory for 100000 MC sweeps
-- `-u 100`: dump a configuration every 100 MC sweeps to a `trj` file.
+- `-u 100`: dump a configuration every 100 MC sweeps to a `trj` file.  
 The output of the calculation is a `trj` file containing 1000 (100000/100)
 configurations sampled according to the fitted pairwise model.
 For a full list of options and details, type `elss-sample -h`.
 
 ### The checkpoint (.chk) files
-A `chk` file is an unformatted binary file containing a set of fitted
+A checkpoint file is an unformatted binary file containing a set of fitted
 parameters and all the informations needed to restart a
 previously interrupted optimization. For example, the command:
 ```bash
@@ -138,7 +143,8 @@ $ mpiexec -n 4 elss-learn --chk old.chk --fasta 1.fa --niter 2000 -n 10000
 ```
 will restart the optimization process from the values found in `old.chk`.
 
-A checkpoint file can be printed in a plain text file using the `elss-pchk` tool together with the `-u` option:
+A checkpoint file can be converted to a plain text file using the `elss-pchk` tool together with the `-u` option.
+The command `elss-pchk -u <file>` will generate a file named `<file>.txt`, that is:
 ```bash
 $ elss-pchk -u chk
 $ head chk.txt
@@ -154,9 +160,9 @@ $ head chk.txt
 # parms start here
            1  0.36794536927277111      -0.38797251076999351       0.45155637053903591      ....
 ```
-A custom checkpoint file can be generated from a file containing user-defined parameters,
-using the `-f` option. Given a valid input file <file> of parameters, 
-the command `elss-pchk -f <file>` will generate a checkpoint file named `<file>.chk`.
+Viceversa, a custom text file containing user-defined parameters can be used 
+to generate a checkpoint file using the `-f` option. Given a valid input file <file> of parameters, 
+the command `elss-pchk -f <file>` will generate an unformatted checkpoint file named `<file>.chk`.
 
 The lines of a valid input file to `elss-pchk -f` will contain, in this order:
 - the number of features/variables in the system, NF
@@ -166,11 +172,13 @@ The lines of a valid input file to `elss-pchk -f` will contain, in this order:
 - NS lines, each containing a sample encoded as a space/tab separated array of integer labels
 - an arbitrary number of lines each containing the biases for each class of a given variable, with this format:  
   p x(1) x(2) ... x(NC)  
-  where the {x} are the elements of the NC-long array of biases
+  where the {x} are the elements of the NC-long array of biases for variable p.  
+  The program will set to zero the biases for those variables that are not explicitly defined.
 - an arbitrary number of lines each containing the matrix of couplings for a pair of variables, with this format:  
   p q x(1,1) x(1,2) ... x(1,NC) ...  
   where the {x} are the elements of the NC x NC array of couplings for the variables p and q, iterated sequentally in row-major order.  
-  **NB: q > p**
+  **NB: q > p**  
+  The program will set to zero the couplings for those pairs that are not explicitly defined.
 - all characters following the `#` symbol are comments and are ignored
 - empty lines are ignored
 
