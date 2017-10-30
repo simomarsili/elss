@@ -14,7 +14,7 @@ correlated amino acids can be learned and resampled using MCMC methods
 
 All **elss** source code is hosted on Github. 
 The latest version can be downloaded using 
-[this link](https://github.com/simomarsili/elss/archive/v0.2.1.tar.gz). 
+[this link](https://github.com/simomarsili/elss/archive/v0.3.tar.gz). 
 
 ## Prerequisites
 
@@ -208,4 +208,3 @@ If you are going to publish results obtained using the software, please cite the
 [From residue coevolution to protein conformational ensembles and functional dynamics](http://www.pnas.org/content/112/44/13567)  
 L. Sutto, S. Marsili, A. Valencia, F.L. Gervasio  
 Proceedings of the National Academy of Sciences 112(44):13567-13572 (2015)
-
