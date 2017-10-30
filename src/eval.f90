@@ -16,6 +16,7 @@ program eval
   integer                 :: nclasses     ! total number of classes
   integer                 :: nseqs     ! total number of samples
   real(kflt)              :: neff         ! effective number of seqs
+  integer                 :: delta_class
   integer,    allocatable :: seq(:)    ! seq array
   integer,    allocatable :: seqs(:,:) ! data matrix
   real(kflt), allocatable :: prm(:)       ! parameters array
@@ -73,7 +74,7 @@ program eval
   !================================================ read data
 
   call data_read(iproc,udata,uwgt,wid,&
-       nvars,nclasses,data_type,nseqs,neff,seqs,err)
+       nvars,nclasses,data_type,nseqs,neff,seqs,delta_class,err)
   
   if (err /= 0) then
      stop
