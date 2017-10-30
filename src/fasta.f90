@@ -1,132 +1,155 @@
-! Copyright (c) 2016 Simone Marsili
-!
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in
-! the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-! the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-!
-! The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-!
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
-! A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-! ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+! Copyright (C) 2015-2017, Simone Marsili 
+! All rights reserved.
+! License: BSD 3 clause
 
 module fasta
   use constants
   implicit none
   private 
-  public :: protein_alphabet
-  public :: fasta_init
   public :: fasta_read
-  public :: fasta_string2seq
-  character(len=1) :: protein_alphabet(21) = &
-       ['A','C','D','E','F','G','H','I','K',&
-       'L','M','N','P','Q','R','S','T','V','W','Y','-']
-  character(len=1) :: nuc_acid_alphabet(6) = &
-       ['A','C','G','T','U','-']
-  integer          :: aamap(239) ! 239 is n. of ascii codes (0 is null)
+  public :: set_fasta_alphabet
+  public :: fasta_alphabet
+  integer, parameter         :: kprot=21, knuc=6
+  ! TODO: "gap" symbol should map to index 1
+  character(len=kprot)       :: protein_alphabet='-ACDEFGHIKLMNPQRSTVWY'
+  character(len=knuc)        :: nuc_acid_alphabet='-ACGTU'
+  character(len=string_size) :: fasta_alphabet
 
 contains
 
-  subroutine fasta_init()
-    integer :: k,nn
+  subroutine set_fasta_alphabet(data_type)
+    character(len=*), intent(in) :: data_type
     
-    aamap = 0
-    do k = 1,21
-       nn = iachar(protein_alphabet(k))
-       aamap(nn) = k
-    end do
+    select case(data_type)
+    case('protein')
+       fasta_alphabet = protein_alphabet
+    case('nuc_acid')
+       fasta_alphabet = nuc_acid_alphabet
+    case default
+       write(0,*) 'warning: not a valid alphabet for bioseqs'
+    end select
     
-  end subroutine fasta_init
+  end subroutine set_fasta_alphabet
 
-  function aa_to_class(aa) result(c)
-    ! takes an a.a. as input, return its index
-    character(len=1), intent(in)  :: aa
-    integer :: c
+  function is_nuc_acid(string) result(res)
+    ! check if a string contains only natural nucleotides symbols
+    character(len=*), intent(in) :: string
+    logical :: res
     
-    c = aamap(iachar(aa))
+    if (verify(trim(string), trim(nuc_acid_alphabet)) == 0) then
+       res = .true.
+    else
+       res = .false.
+    end if
+    
+  end function is_nuc_acid
+  
+  function is_protein(string) result(res)
+    ! check if a string contain only natural amino acids symbols
+    character(len=*), intent(in) :: string
+    logical :: res
+    
+    if (verify(trim(string), trim(protein_alphabet)) == 0) then
+       res = .true.
+    else
+       res = .false.
+    end if
+    
+  end function is_protein
 
-  end function aa_to_class
-
-  subroutine fasta_string2seq(string,seq,error_code,error_string)
+  subroutine fasta_string2seq(alphabet, string,seq)
     ! read a sequence, return an array of integer
+    character(len=*), intent(in)  :: alphabet
     character(len=*), intent(in)  :: string
     integer,          intent(out) :: seq(:)
-    integer,          intent(out) :: error_code
-    character(len=*), intent(out) :: error_string
-    integer :: i,n,index
-    integer :: err
+    integer :: i
 
-    error_string = ''
-    n = len_trim(string)
-    do i = 1,n
-       index = aa_to_class(string(i:i))
-       if ( index == 0 ) then ! symbol is not in protein_alphabet
-          error_code = 24
-          error_string = string(i:i)
-          return
-       else
-          seq(i) = index
-       end if
-    end do
-    
+    seq = [(index(trim(alphabet), string(i:i)), i = 1, len_trim(string))]
+
   end subroutine fasta_string2seq
 
-  subroutine fasta_read(unt,seqs,error_code,error_string)
+  subroutine fasta_read(unt, seqs, data_type, error_code)
     ! read n sequences from unit udata
     integer,              intent(in)  :: unt
-    integer, allocatable, intent(out) :: seqs(:,:)
+    integer, allocatable, intent(out) :: seqs(:, :)
+    character(len=*),     intent(out) :: data_type
     integer,              intent(out) :: error_code
-    character(len=*),     intent(out) :: error_string
     character(len=long_string_size) :: header
     character(len=long_string_size) :: string
     character(len=long_string_size) :: line
-    integer, allocatable :: seq(:)
-    integer                         :: k,nn,nv
+    integer, allocatable            :: seq(:)
+    integer                         :: k, ns, nv, nnuc, nprot, ntot, nuc, prot
     integer                         :: err
-
-    call fasta_init()
-
-    ! simply count seqs
-    nn = 0
+    
+    ! count seqs and Ls
+    ns = 0
+    ntot = 0
+    nnuc = 0
+    nprot = 0
+    nuc = 0
+    prot = 0
     do
        read(unt,'(a)',iostat=err) line
        ! exit at end of file or empty line
        if ( err < 0 .or. len_trim(line) == 0 ) exit
-       if ( line(1:1) == ">" ) nn = nn + 1
+       if ( line(1:1) == ">" ) then
+          ntot = ntot + 1
+          if (ntot > 1) then 
+             nnuc = nnuc + nuc
+             nprot = nprot + prot
+          end if
+       else
+          if (is_nuc_acid(line)) nuc = 1
+          if (is_protein(line)) prot = 1
+       end if
     end do
     rewind(unt)
+    nnuc = nnuc + nuc
+    nprot = nprot + prot
+
+    ! set data type
+    if (nnuc > nprot) then
+       data_type = 'nuc_acid'
+       ns = nnuc
+    else
+       data_type = 'protein'
+       ns = nprot
+    end if
+
+    call set_fasta_alphabet(data_type)
 
     string = ""
     k = 1
     read(unt,'(a)',iostat=err) header
-    if (header(1:1) /= '>') then 
-       error_code = 43
-    end if
     do
        read(unt,'(a)',iostat=err) line
-       if (err < 0) then 
-          if (k == 1) then 
-             nv = len_trim(string)
-             allocate(seq(nv),stat=err)
-             allocate(seqs(nv,nn),stat=err)
+       if (err < 0) then
+          ! eof 
+          if (k == 1) then
+             write(0,*) 'ERROR ! empty alignment'
+             error_code = 1
           end if
-          call fasta_string2seq(string,seq,error_code,error_string)
-          if (error_code > 0) return
-          seqs(:,k) = seq
-          exit 
+          call fasta_string2seq(fasta_alphabet,string,seq)
+          if (all(seq > 0)) seqs(:,k) = seq
+          exit          
        end if
        if (line(1:1) == ">") then 
           header = line
-          if (k == 1) then 
-             nv = len_trim(string)
-             allocate(seq(nv),stat=err)
-             allocate(seqs(nv,nn),stat=err)
+          if (header(1:1) /= '>') then 
+             write(0,*) 'ERROR ! not a valid FASTA file'
+             error_code = 2
           end if
-          call fasta_string2seq(string,seq,error_code,error_string)
-          if (error_code > 0) return
-          seqs(:,k) = seq
+          if (k == 1) then
+             nv = len_trim(string)
+             allocate(seq(nv), stat=err)
+             allocate(seqs(nv, ns), stat=err)
+          end if
+          call fasta_string2seq(fasta_alphabet, string,seq)
           string = ""
-          k = k + 1
+          if (all(seq > 0)) then
+             seqs(:, k) = seq
+             k = k + 1
+          end if
           cycle
        else
           string = trim(string)//trim(line)

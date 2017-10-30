@@ -12,7 +12,9 @@ Requirements/Tested on
 '
 
 DATA=10.fa
-NS=10000
+NS=1000
+NITER=2000
+LAMBDA=0.01
 NPROC=4
 
 # check 
@@ -27,15 +29,13 @@ then
     echo "run this script in test dir. Aborting."; exit 1; 
 fi
 
-# check executable 
-(cd $src_dir && 
-    if [ ! -f elss ]; then
+# always compile
+(cd $src_dir &&
 	command -v mpif90 >/dev/null 2>&1 || { echo >&2 "mpif90 is required but it's not installed.  Aborting."; exit 1; }
-	echo "compiling elss..."
-	make realclean; 
-	make; 
-    fi
-) &> log ; 
+ echo "compiling elss..."
+ make realclean; 
+ make; 
+) &> log ;
 
 EXE=$src_dir/elss
 
@@ -45,31 +45,51 @@ Running tests...
 ================
 '
 
+rm chk trj ene
+
 command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
 
-echo "estimating model parameters... (dump: rst,prm,LEARN.log)"
-mpiexec -n $NPROC $EXE --nsweeps $NS --fasta $DATA --learn-agd 2000 --random_seed 123 --lambda 0.01>> log 2>&1; 
-#mpiexec -n 4 $EXE --nsweeps $NS --fasta PF00076.fa --learn-agd 1000 -w PF00076.w >> log 2>&1; 
+echo "fitting model parameters... (chk, prm, log)"
+mpiexec -n $NPROC $EXE\-learn --fasta $DATA -n $NS --seed 123 >> log 2>&1;
 
-echo "sampling sequences from the model distribution...(dumps: 0.trj,SIM.log)"
-$EXE -r rst --nsweeps 100000 --random_seed 123 >> log 2>&1; 
+echo "sampling sequences from the model distribution... (trj, log)"
+$EXE\-sample -c chk -n 100000 --seed 123 >> log 2>&1; 
 
-echo "checking data energies...(dumps: 0.ene,EVAL.log)"
-$EXE -r rst --fasta $DATA --random_seed 123 >> log 2>&1; 
+echo "checking data energies... (ene, log)"
+$EXE\-eval -c chk --fasta $DATA >> log 2>&1;
 
-if [ $NS -eq 10000 ] && [ $NPROC -eq 4 ] && [ $DATA == '10.fa' ]
+#echo "checking prms... "
+#$EXE\-pchk -u chk > chk.dat; 
+
+if [ $NITER -eq 2000 ] && [ $NS -eq 1000 ] && [ $NPROC -eq 4 ] && [ $DATA == '10.fa' ]
 then 
-echo '
+    echo '
 ================
 Checking results
 ================
 '
-    # check diffs 
-    if ! cmp 0.trj 0.TRJ >/dev/null 2>&1; then
-	echo "RESULTS DIFFER..."
-	echo "check files 0.TRJ and 0.trj for minor numerical diffs"
-	echo "check log file"
-    else
+    # check diffs
+    tests_ok=true
+    
+    if ! cmp trj TRJ >/dev/null 2>&1; then
+	echo "trj: RESULTS DIFFER..."
+	echo "check files TRJ and trj for minor numerical diffs and log file"
+	tests_ok=false
+    fi
+    
+    if ! cmp ene ENE >/dev/null 2>&1; then
+	echo "ene: RESULTS DIFFER..."
+	echo "check files ENE and ene for minor numerical diffs and log file"
+	tests_ok=false
+    fi
+
+#    if ! cmp chk.dat CHK.dat >/dev/null 2>&1; then
+#	echo "ene: RESULTS DIFFER..."
+#	echo "check files chk.dat and CHK.dat for minor numerical diffs and log file"
+#	tests_ok=false
+#    fi
+
+    if [ "$tests_ok" = true ] ; then
 	echo "!!! TESTS OK !!!"
     fi
 fi 
