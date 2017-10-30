@@ -17,7 +17,7 @@ module data
 contains
 
   subroutine data_read(iproc, udata, uwgt, wid, nvars, nclasses, data_type, &
-                       nseqs, neff, seqs, delta_class, error_code)
+                       nseqs, neff, seqs, error_code)
     use fasta, only: fasta_read
     integer,              intent(in)    :: iproc
     integer,              intent(in)    :: udata
@@ -29,12 +29,11 @@ contains
     integer,              intent(out)   :: nseqs
     real(kflt),           intent(out)   :: neff
     integer, allocatable, intent(out)   :: seqs(:,:)
-    integer,              intent(out)   :: delta_class
     integer,              intent(out)   :: error_code
     integer                                      :: err
     character(len=long_string_size)              :: line, newline
     integer                                      :: nfields
-    integer                                      :: i,nn
+    integer                                      :: i,nn,cmin
 
     error_code = 0
     select case(trim(data_type))
@@ -117,8 +116,11 @@ contains
     end if
 
     ! first class is set to one
-    delta_class = minval(seqs) - 1
-    seqs = seqs - delta_class
+    cmin = minval(seqs)
+    if (iproc == 0 .and. cmin < 0) then
+       write(0, *) "WARNING: class indices should start from zero."
+    end if
+    seqs = seqs - cmin + 1
     ! set n. of classes per variable as the max value in data
     if (nclasses == 0) nclasses = maxval(seqs)
 

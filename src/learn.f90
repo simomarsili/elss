@@ -104,7 +104,7 @@ program learn
   !================================================ read data
 
   call data_read(iproc,udata,uwgt,wid,&
-       nvars,nclasses,data_type,nseqs,neff,seqs,delta_class,err)
+       nvars,nclasses,data_type,nseqs,neff,seqs,err)
 
   if (err /= 0) then
      if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'
