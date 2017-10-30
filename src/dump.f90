@@ -58,7 +58,7 @@ contains
     real(kflt), intent(in) :: etot,eh,ej
 
     write(unt,'(a,1x,i8,3(1x,f12.3))') '>', time, etot, eh, ej
-    write(unt,'(10000i3)') seq
+    write(unt,'(10000i3)') seq - 1 ! class index start from zero
     flush(unt)
     
   end subroutine dump_int
