@@ -4,7 +4,7 @@
 (and more generally multivariate discrete data).
 The basic usage of the code consists in 1) learning a probabilistic model 
 for the joint distribution of variables from the correlations in real samples 
-and 2) generating artificial discrete data sampled from the model via Markov chain Monte Carlo sampling.
+and 2) generating artificial discrete data sampled from the model via Markov chain Monte Carlo (MCMC) sampling.
 
 **elss** was originally developed to show that pairwise models for protein sequences with 
 correlated amino acids can be learned and resampled using MCMC methods 
@@ -92,8 +92,8 @@ $ head encoded.txt
  2 14 13  3  8 19  8 14 13 18
 ```
 
-The code assumes that all variables share a common set of categorical classes, 
-encoded as integers starting from zero.  
+The code assumes that all variables share a common set of classes, 
+encoded as integer indices starting from zero.  
 Alternatively, biological sequence data can be directly read from a
 multiple sequence alignment file in FASTA format.
 
