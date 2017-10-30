@@ -156,7 +156,7 @@ program learn
   end if
   
 101 format(&
-         '# elss-learn (elss v0.2.1)          '/& 
+         '# elss-learn (elss v0.3)          '/& 
          '#                                   '/&
          '# data type:              ',    a12  /&
          '# chk file unit:          ',    i12  /&
