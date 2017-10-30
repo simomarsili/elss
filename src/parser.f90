@@ -1,37 +1,49 @@
-! Copyright (c) 2016 Simone Marsili
-!
-! Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in
-! the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-! the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-!
-! The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-!
-! THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
-! A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-! ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+! Copyright (C) 2015-2017, Simone Marsili 
+! All rights reserved.
+! License: BSD 3 clause
 
 module parser
+  use constants
   implicit none
   private
-  public :: parser_nfields, cleanline, remove_comments
+  public :: parser_nfields, cleanline, remove_comments, parse_next_line
   ! possible delimiters are: space, tab, comma, colon, semicolon
-  !  character(len=1) :: delimiters(5)=[" ", achar(9), ",", ":", ";"]
-  character(len=1) :: delimiters(2)=[" ", achar(9)] ! accepted delimiters are space and tab
+  !  character(len=1) :: delimiters(5)=[" ", achar(9), ",", ":", ";"]   
+  ! accepted delimiters are space and tab
+  character(len=1) :: delimiters(2) = [" ", achar(9)]
   
 contains
 
-  subroutine parser_nfields(line,parsed,nfields)
-    character(len=*),intent(in)  :: line
-    integer,         intent(out) :: nfields
-    character(len=*),intent(out) :: parsed
-    integer i, n, toks
+  subroutine parse_next_line(unt, line, parsed_line, nfields, err)
+    integer, intent(in) :: unt
+    character(len=*), intent(out) :: line
+    character(len=*), intent(out) :: parsed_line
+    integer, intent(out) :: nfields
+    integer, intent(out) :: err
+
+    do
+       read(unt,'(a)', iostat=err) line
+       if (err < 0) exit
+       call remove_comments(line)
+       if (len_trim(line) == 0) cycle
+       call parser_nfields(line, parsed_line, nfields)
+       exit
+    end do
+
+  end subroutine parse_next_line
+  
+  subroutine parser_nfields(line, parsed, nfields)
+    character(len=*), intent(in)  :: line
+    integer,          intent(out) :: nfields
+    character(len=*), intent(out) :: parsed
+    integer :: i, n, toks
     
-    i = 1
-    n = len_trim(line)
     toks = 0
     nfields = 0
     parsed = ""
 
+    n = len_trim(line)
+    i = 1
     outer: do while(i <= n)
        do while(any(delimiters == line(i:i)))
           i = i + 1
@@ -54,18 +66,18 @@ contains
     
   end subroutine parser_nfields
 
-  subroutine cleanline(line,parsed)
+  subroutine cleanline(line, parsed)
     character(len=*), intent(in)  :: line
     character(len=*), intent(out) :: parsed
     character(len=1) :: a
+    integer :: i, n
     
-    integer :: i,n
-    
-    n = len_trim(line)
     parsed = line
+    n = len_trim(line)
+    i = 1
     do while(i <= n)
        a = line(i:i)
-       if ( any(delimiters == a) ) then
+       if (any(delimiters == a)) then
           parsed(i:i) = " "
        else
           parsed(i:i) = a
@@ -78,9 +90,10 @@ contains
   subroutine remove_comments(line)
     character(len=*), intent(inout)  :: line
     character(len=1) :: a
-    integer :: i,n
+    integer :: i, n
     
     n = len_trim(line)
+    i = 1
     do while(i <= n)
        a = line(i:i)
        if (a == "#") then 
