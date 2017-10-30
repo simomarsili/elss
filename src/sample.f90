@@ -116,7 +116,7 @@ program sample
   end if
 
 101 format(&
-         '# elss-sample (elss v0.2.1)          '/& 
+         '# elss-sample (elss v0.3)          '/& 
          '#                                   '/&
          '# data type:              ',    a12  /&
          '# chk file unit:          ',    i12  /&
