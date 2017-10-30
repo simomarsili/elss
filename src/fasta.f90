@@ -11,8 +11,8 @@ module fasta
   public :: fasta_alphabet
   integer, parameter         :: kprot=21, knuc=6
   ! TODO: "gap" symbol should map to index 1
-  character(len=kprot)       :: protein_alphabet='ACDEFGHIKLMNPQRSTVWY-'
-  character(len=knuc)        :: nuc_acid_alphabet='ACGTU-'
+  character(len=kprot)       :: protein_alphabet='-ACDEFGHIKLMNPQRSTVWY'
+  character(len=knuc)        :: nuc_acid_alphabet='-ACGTU'
   character(len=string_size) :: fasta_alphabet
 
 contains
