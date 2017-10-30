@@ -93,7 +93,7 @@ $ head encoded.txt
 ```
 
 The code assumes that all variables share a common set of categorical classes, 
-encoded as integers ranging from the min to max value found in the input samples.  
+encoded as integers starting from zero.  
 Alternatively, biological sequence data can be directly read from a
 multiple sequence alignment file in FASTA format.
 
