@@ -6,7 +6,7 @@ The basic usage of the code consists in 1) learning a probabilistic model
 for the joint distribution of variables from the correlations in real samples 
 and 2) generating artificial discrete data sampled from the model via Markov chain Monte Carlo sampling.
 
-**elss** was originally developed to show that models for protein sequences with 
+**elss** was originally developed to show that pairwise models for protein sequences with 
 correlated amino acids can be learned and resampled using MCMC methods 
 ([paper](http://www.pnas.org/content/112/44/13567)).
 
