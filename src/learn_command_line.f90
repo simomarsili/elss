@@ -291,15 +291,15 @@ contains
          '    Fit a model of pairwise interacting, categorical variables to input data.  '/&
          '    Valid formats are the FASTA format for biological multiple sequence        '/&
          '    alignments, or plain space/tab separated integer values.                   '/&
-         '    The fitted parameters are dumped in a checkpoint file `chk` that           '/&
-         '    can be used as input to:                                                   '/&
-         '    - elss-sample, to generate artificial samples according to the fitted model'/&
+         '    The fitted parameters are dumped to an unformatted checkpoint file `chk`   '/&
+         '    that can be used as input to:                                              '/&
+         '    - elss-sample, to generate artificial samples according to the model       '/&
          '    - elss-eval, to measure the relative probability of new samples            '/&
-         '      according to the model).                                                 '/&
+         '      according to the model.                                                  '/&
          '                                                                               '/&
          'Required:                                                                      '/&
          '-i, --int <data_file>                                                          '/&
-         '    Path to data file, or:                                                     '/&
+         '    Path to data file (space/tab separated integers), or:                      '/&
          '--fasta <data_file>                                                            '/&
          '    Path to a multiple sequence alignment in FASTA format.                     '/&
          '                                                                               '/&
