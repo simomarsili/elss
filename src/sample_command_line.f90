@@ -11,13 +11,14 @@ module sample_command_line
 
 contains
 
-  subroutine command_line_read(uchk,rseed,beta,mc_nsweeps,nupdate,&
+  subroutine command_line_read(uchk,rseed,beta,istart,mc_nsweeps,nupdate,&
                                prefix,error_code)
     use units, only: units_open,units_open_unf
     use arguments, only: read_opt,read_opt_arg
     integer,                    intent(inout) :: uchk
     integer,                    intent(inout) :: rseed
     real(kflt),                 intent(inout) :: beta
+    integer,                    intent(inout) :: istart
     integer,                    intent(inout) :: mc_nsweeps
     integer,                    intent(inout) :: nupdate
     character(len=*),           intent(out) :: prefix
@@ -97,6 +98,14 @@ contains
              error_code = 1
              return
           end if
+       case('--start')
+          iarg = iarg + 1
+          call read_opt_arg(iarg,nargs,istart,err)
+          if ( err/= 0 ) then
+             write(0,*) 'ERROR ! check --start argument'
+             error_code = 1
+             return
+          end if
        case('--prefix')
           ! prefix
           iarg = iarg + 1
@@ -132,6 +141,12 @@ contains
        return
     end if
 
+    if (istart < 0) then
+       write(0,*) "ERROR ! index for starting point cant be < 0"
+       error_code = 1
+       return
+    end if
+
 100 format(&
          'elss-sample (elss v0.3)                                                      '/& 
          '                                                                               '/&
@@ -154,6 +169,11 @@ contains
          '                                                                               '/&
          '--prefix <str>                                                                 '/&         
          '    Prefix of output files.                                                    '/&
+         '                                                                               '/&
+         '--start <i>, integer                                                           '/&
+         '    Use the <i>-th sample in <chk_file> as starting point for the MC chain.   '/&
+         '    (indexing starts from zero)                                                '/&
+         '    [default: 0]                                                               '/&
          '                                                                               '/&
          '-n, --nsweeps <n>, integer                                                     '/&
          '    Simulate <n> MC sweeps.                                                    '/&

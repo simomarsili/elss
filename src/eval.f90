@@ -63,7 +63,7 @@ program eval
   !================================================ read checkpoint file
 
   if (uchk > 0) then
-     call read_chk(uchk,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
+     call read_chk(uchk,data_type,nvars,nclasses,iproc,seq,prm,err)
      if (err /= 0) then
         stop
      end if
