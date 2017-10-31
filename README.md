@@ -14,7 +14,7 @@ correlated amino acids can be learned and resampled using MCMC methods
 
 All **elss** source code is hosted on Github. 
 The latest version can be downloaded using 
-[this link](https://github.com/simomarsili/elss/archive/v0.3.1.tar.gz). 
+[this link](https://github.com/simomarsili/elss/archive/v0.3.2.tar.gz). 
 
 ## Prerequisites
 
