@@ -264,30 +264,31 @@ program pchk
   end select
 
 100 format(&
-       'elss-pchk (elss v0.3)                                                        '/&
-       '                                                                               '/&
-       'Usage:                                                                         '/&
-       '    elss-pchk [-d <digits>] (-u <chk_file> | -f <formatted_file>)              '/&
-       '                                                                               '/&
-       'Description:                                                                   '/&
-       '    Convert a checkpoint file to a human-readable plain text file and viceversa'/&
-       '                                                                               '/&
-       'Required:                                                                      '/&
-       '-u <chk_file>                                                                  '/&
-       '    Print the content of <chk_file> to text file <chk_file>.txt                '/&
-       '-f <formatted_file>                                                            '/&
-       '    Generate a checkpoint file <formatted_file>.chk from the params in         '/&
-       '    <formatted_file>                                                           '/&
-       '                                                                               '/&
-       'Options:                                                                       '/&
-       '-h, --help                                                                     '/&
-       '    Display this help and exit.                                                '/&
-       '                                                                               '/&
-       '-d, --digits <number_of_digits>, integer                                       '/&
-       '    For formatted floating points, the number of digits to the right           '/&
-       '    of the decimal point.                                                      '/&
-       '                                                                               '/&
-       'Examples:                                                                      '/&
-       '                                                                               '/)
+       'elss-pchk (elss v0.3)                                               '/&
+       '                                                                    '/&
+       'Usage:                                                              '/&
+       '    elss-pchk [-d <digits>] (-u <chk_file> | -f <formatted_file>)   '/&
+       '                                                                    '/&
+       'Description:                                                        '/&
+       '    Convert a checkpoint file to a human-readable plain text file   '/&
+       '    and viceversa.                                                  '/&
+       '                                                                    '/&
+       'Required:                                                           '/&
+       '-u <chk_file>                                                       '/&
+       '    Print the content of <chk_file> to text file <chk_file>.txt     '/&
+       '-f <formatted_file>                                                 '/&
+       '    Read <formatted_file> and generate a checkpoint file named      '/&
+       '    <formatted_file>.chk                                            '/&
+       '                                                                    '/&
+       'Options:                                                            '/&
+       '-h, --help                                                          '/&
+       '    Display this help and exit.                                     '/&
+       '                                                                    '/&
+       '-d, --digits <number_of_digits>, integer                            '/&
+       '    For formatted floating points, the number of digits             '/&
+       '    to the right of the decimal point.                              '/&
+       '                                                                    '/&
+       'Examples:                                                           '/&
+       '                                                                    '/)
 
 end program pchk
