@@ -21,6 +21,7 @@ program sample
   character(len=string_size) :: data_type    ! data tytpe ('unknown', 'protein', 'nuc_acid')
   ! command line parameters
   integer                    :: uchk         ! chk unit
+  integer                    :: istart       ! index of starting point in chk file
   integer                    :: mc_nsweeps   ! number of MC sweeps per gradient estimate
   integer                    :: nupdate      ! stride for averages aupdate
   integer                    :: rseed        ! random seed
@@ -40,6 +41,7 @@ program sample
   nclasses = 0
   data_type = 'unk'
   uchk = 0
+  istart = 0
   mc_nsweeps = 1000
   nupdate = 10
   rseed = 0
@@ -52,7 +54,7 @@ program sample
 
   !================================================ read args
 
-  call command_line_read(uchk,rseed,beta,mc_nsweeps,nupdate,prefix,err)
+  call command_line_read(uchk,rseed,beta,istart,mc_nsweeps,nupdate,prefix,err)
 
   if (err /= 0) stop
 
@@ -63,7 +65,7 @@ program sample
   !================================================ read checkpoint file
   
   if (uchk > 0) then
-     call read_chk(uchk,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
+     call read_chk(uchk,data_type,nvars,nclasses,istart,seq,prm,err)
      if (err /= 0) then
         write(0,*) 'ERROR ! cannot read from chk'
         stop
@@ -112,16 +114,17 @@ program sample
 
      ! print a header
      write(ulog, 101) adjustr(trim(data_type)), uchk, nvars,&
-          nclasses, mc_nsweeps, nupdate, beta
+          nclasses, istart, mc_nsweeps, nupdate, beta
   end if
 
 101 format(&
-         '# elss-sample (elss v0.3)          '/& 
+         '# elss-sample (elss v0.3.2)          '/& 
          '#                                   '/&
          '# data type:              ',    a12  /&
          '# chk file unit:          ',    i12  /&
          '# n. features:            ',    i12  /&
          '# n. classes:             ',    i12  /&
+         '# index of starting point:',    i12  /&
          '# n. sweeps:              ',    i12  /&
          '# n. sweeps per update:   ',    i12  /&
          '# temperature factor:     ',  f12.3  /)

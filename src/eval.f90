@@ -14,7 +14,7 @@ program eval
   implicit none
   integer                 :: nvars        ! total number of variables
   integer                 :: nclasses     ! total number of classes
-  integer                 :: nseqs     ! total number of samples
+  integer                 :: ndata     ! total number of samples
   real(kflt)              :: neff         ! effective number of seqs
   integer,    allocatable :: seq(:)    ! seq array
   integer,    allocatable :: seqs(:,:) ! data matrix
@@ -63,7 +63,7 @@ program eval
   !================================================ read checkpoint file
 
   if (uchk > 0) then
-     call read_chk(uchk,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
+     call read_chk(uchk,data_type,nvars,nclasses,iproc,seq,prm,err)
      if (err /= 0) then
         stop
      end if
@@ -73,7 +73,7 @@ program eval
   !================================================ read data
 
   call data_read(iproc,udata,uwgt,wid,&
-       nvars,nclasses,data_type,nseqs,neff,seqs,err)
+       nvars,nclasses,data_type,ndata,neff,seqs,err)
   
   if (err /= 0) then
      stop
@@ -114,11 +114,11 @@ program eval
      
      ! print a header
      write(ulog, 101) adjustr(trim(data_type)), uchk, nvars,&
-          nclasses, nseqs
+          nclasses, ndata
   end if
 
 101 format(&
-         '# elss-eval (elss v0.3)           '/& 
+         '# elss-eval (elss v0.3.2)           '/& 
          '#                                   '/&
          '# data type:              ',    a12  /&
          '# chk file unit:          ',    i12  /&
@@ -126,7 +126,7 @@ program eval
          '# n. classes:             ',    i12  /&
          '# n. samples:             ',    i12  /)
          
-  do j = 1,nseqs
+  do j = 1,ndata
      call mcmc_compute_energy(nvars,nclasses,seqs(:,j),prm(1:dim1),prm(dim1+1:dim1+dim2),efields,ecouplings,etot)
      call dump_energies(uene,etot,efields,ecouplings)
   end do
