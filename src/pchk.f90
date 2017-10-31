@@ -264,7 +264,7 @@ program pchk
   end select
 
 100 format(&
-       'elss-pchk (elss v0.3)                                               '/&
+       'elss-pchk (elss v0.3.1)                                               '/&
        '                                                                    '/&
        'Usage:                                                              '/&
        '    elss-pchk [-d <digits>] (-u <chk_file> | -f <formatted_file>)   '/&

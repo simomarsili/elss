@@ -281,7 +281,7 @@ contains
     end if
 
 100 format(&
-         'elss-learn (elss v0.3)                                            '/& 
+         'elss-learn (elss v0.3.1)                                            '/& 
          '                                                                  '/&
          'Usage:                                                            '/&
          '    elss-learn [options] (-i <file> | --fasta <file>)             '/&
