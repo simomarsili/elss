@@ -85,7 +85,7 @@ contains
     
   end subroutine dump_fasta
 
-  subroutine read_chk_unit(unt,data_type,nvars,nclasses,iproc,nproc,seq,prm,error_code)
+  subroutine read_chk_unit(unt,data_type,nvars,nclasses,iproc,seq,prm,error_code)
     ! read a checkpoint file 
     use random, only: random_seq
     use fasta, only: set_fasta_alphabet
@@ -93,7 +93,6 @@ contains
     character(len=*), intent(inout)              :: data_type
     integer,          intent(inout)              :: nvars,nclasses
     integer,          intent(in)                 :: iproc
-    integer,          intent(in)                 :: nproc
     integer,          intent(inout), allocatable :: seq(:)
     real(kflt),       intent(inout), allocatable :: prm(:)
     integer,          intent(out) :: error_code
@@ -141,7 +140,7 @@ contains
        ! => randomize 
        call random_seq(nvars,nclasses,seq)
     else
-       if (np >= nproc) then
+       if (np > iproc) then
           ! if there are more samples than chains, read the starting points from the chk file
           do p = 1,np
              read(unt) dummy
@@ -149,6 +148,8 @@ contains
           end do
        else
           ! else, randomize
+          write(0,*) "WARNING: cant find sequence index ", iproc, "in .chk file"
+          write(0,*) "WARNING: will start from random sequence"
           call random_seq(nvars,nclasses,seq)
        end if
     end if
@@ -166,7 +167,7 @@ contains
     
   end subroutine read_chk_unit
 
-  subroutine read_chk_file(filename,data_type,nvars,nclasses,iproc,nproc,seq,&
+  subroutine read_chk_file(filename,data_type,nvars,nclasses,iproc,seq,&
                            prm,error_code)
     ! should read both a filename or a unit
     use random, only: random_seq
@@ -174,7 +175,6 @@ contains
     character(len=*), intent(inout)              :: data_type
     integer,          intent(inout)              :: nvars,nclasses
     integer,          intent(in)                 :: iproc
-    integer,          intent(in)                 :: nproc
     integer,          intent(inout), allocatable :: seq(:)
     real(kflt),       intent(inout), allocatable :: prm(:)
     integer,          intent(out)                :: error_code
@@ -189,7 +189,7 @@ contains
        return
     end if
 
-    call read_chk_unit(unt,data_type,nvars,nclasses,iproc,nproc,seq,prm,error_code)
+    call read_chk_unit(unt,data_type,nvars,nclasses,iproc,seq,prm,error_code)
     
     close(unt)
     
