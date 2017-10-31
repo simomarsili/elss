@@ -91,7 +91,7 @@ program learn
   !================================================ read checkpoint file
   
   if (uchk > 0) then
-     call read_chk(uchk,data_type,nvars,nclasses,iproc,nproc,seq,prm,err)
+     call read_chk(uchk,data_type,nvars,nclasses,iproc,seq,prm,err)
      if (err /= 0) then
         if(iproc == 0) write(0,*) 'ERROR ! cannot read from chk'
         call mpi_wrapper_finalize(err)
