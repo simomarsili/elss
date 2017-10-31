@@ -17,9 +17,8 @@ program learn
   implicit none
   integer                 :: nvars        ! total number of variables
   integer                 :: nclasses     ! total number of classes
-  integer                 :: nseqs     ! total number of samples
+  integer                 :: ndata     ! total number of samples
   real(kflt)              :: neff         ! effective number of seqs
-  integer                 :: delta_class
   integer,    allocatable :: seq(:)    ! seq array
   integer,    allocatable :: seqs(:,:) ! data matrix
   real(kflt), allocatable :: prm(:)       ! parameters array
@@ -104,7 +103,7 @@ program learn
   !================================================ read data
 
   call data_read(iproc,udata,uwgt,wid,&
-       nvars,nclasses,data_type,nseqs,neff,seqs,err)
+       nvars,nclasses,data_type,ndata,neff,seqs,err)
 
   if (err /= 0) then
      if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'
@@ -151,7 +150,7 @@ program learn
 
      ! and print a header
      write(ulog, 101) adjustr(trim(data_type)), uchk, nproc, nvars,&
-          nclasses, nseqs, nupdate, beta, uwgt, wid, neff, lambda, mc_nsweeps,&
+          nclasses, ndata, nupdate, beta, uwgt, wid, neff, lambda, mc_nsweeps,&
           niter, adjustr(trim(algorithm))
   end if
   
@@ -184,7 +183,7 @@ program learn
   
   !================================================ compute averages from data
   
-  call data_average(nvars,nclasses,nseqs,neff,seqs,fdata(1:dim1),fdata(dim1+1:dim1+dim2))
+  call data_average(nvars,nclasses,ndata,neff,seqs,fdata(1:dim1),fdata(dim1+1:dim1+dim2))
   
   !================================================ maximum a posteriori estimate of parameters
   
