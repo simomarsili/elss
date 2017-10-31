@@ -281,78 +281,78 @@ contains
     end if
 
 100 format(&
-         'elss-learn (elss v0.3)                                                       '/& 
-         '                                                                               '/&
-         'Usage:                                                                         '/&
-         '    elss-learn [options] (-i <file> | --fasta <file>)                          '/&
-         '    (prepend "mpiexec -n <n_proc>" for multiple parallel MC chains)            '/&
-         '                                                                               '/&
-         'Description:                                                                   '/&
-         '    Fit a model of pairwise interacting, categorical variables to input data.  '/&
-         '    Valid formats are the FASTA format for biological multiple sequence        '/&
-         '    alignments, or plain space/tab separated integer values.                   '/&
-         '    The fitted parameters are dumped to an unformatted checkpoint file `chk`   '/&
-         '    that can be used as input to:                                              '/&
-         '    - elss-sample, to generate artificial samples according to the model       '/&
-         '    - elss-eval, to measure the relative probability of new samples            '/&
-         '      according to the model.                                                  '/&
-         '                                                                               '/&
-         'Required:                                                                      '/&
-         '-i, --int <data_file>                                                          '/&
-         '    Path to data file (space/tab separated integers), or:                      '/&
-         '--fasta <data_file>                                                            '/&
-         '    Path to a multiple sequence alignment in FASTA format.                     '/&
-         '                                                                               '/&
-         'Options:                                                                       '/&
-         '-h, --help                                                                     '/&
-         '    Display this help and exit.                                                '/&
-         '                                                                               '/&
-         '--prefix <str>                                                                 '/&         
-         '    Prefix of output files.                                                    '/&
-         '                                                                               '/&
-         '-c, --chk <chk_file>                                                           '/&
-         '    Restart a previous calculation from checkpoint file <chk_file>             '/&
-         '                                                                               '/&
-         '-n, --nsweeps <n>, integer                                                     '/&
-         '    Number of MC sweeps per gradient estimate.                                 '/&
-         '    [default: 1000]                                                            '/&
-         '                                                                               '/&
-         '-u, --nupdate <n>, integer                                                     '/&
-         '    During gradient estimate: update model averages every <n> sweeps.          '/&
-         '    [default: 10]                                                              '/&
-         '                                                                               '/&
-         '--wid <%id>, float                                                             '/&
-         '    Compute data averages reweighting each sample according to its similarity  '/&
-         '    to the rest of data, using a threshold <%id> to define data/sequence       '/&
-         '    similarity.                                                                '/&
-         '    [default: no reweighting]                                                  '/&
-         '                                                                               '/&
-         '-w, --weights <file>, path_to_file                                             '/&
-         '    Read weights for data from file <file>.                                    '/&
-         '                                                                               '/&
-         '--algorithm <algorithm_name>, string                                           '/&
-         '    Options are: gd, momentum, nag, adam.                                      '/&
-         '    [default: adam]                                                            '/&
-         '                                                                               '/&
-         '-r, --rate <learning_rate>, float                                              '/&
-         '    Learning rate for the run. Multiplicative factor in prm update.            '/&
-         '    [default: 0.01]                                                            '/&
-         '                                                                               '/&
-         '--niter <n_iter>, integer                                                      '/&
-         '    Number of iterations in the minimization process.                          '/&
-         '    [default: 2000]                                                            '/&
-         '                                                                               '/&
-         '-l, --lambda <regularization_strength>, float                                  '/&
-         '    Parameter controlling the strength of l2 regularization.                   '/&
-         '    [default: 0.01]                                                            '/&
-         '                                                                               '/&
-         '--seed <seed>, integer                                                         '/&
-         '    Seed for the initialization of the pseudo-random number generator.         '/&
-         '    If == 0, the seed is generated from system clock.                          '/&
-         '    [default: 0]                                                               '/&
-         '                                                                               '/&
-         'Examples:                                                                      '/&
-         '                                                                               '/)
+         'elss-learn (elss v0.3)                                            '/& 
+         '                                                                  '/&
+         'Usage:                                                            '/&
+         '    elss-learn [options] (-i <file> | --fasta <file>)             '/&
+         '    (prepend "mpiexec -n <n_proc>" for multiple parallel chains)  '/&
+         '                                                                  '/&
+         'Description:                                                      '/&
+         '    Fit a model of pairwise-interacting categorical variables to  '/&
+         '    input data. Valid formats are the FASTA format for biological '/&
+         '    multiple sequence alignments, or plain space/tab separated    '/&
+         '    integers. The fitted parameters are dumped to an unformatted  '/&
+         '    checkpoint file `chk` that can be used as input to:           '/&
+         '    - the elss-sample executable,                                 '/&
+         '    to generate artificial data sampled from the fitted model     '/&
+         '    - the elss-eval executable,                                   '/&
+         '    to measure the estimated relative probability of new samples  '/&
+         '                                                                  '/&
+         'Required:                                                         '/&
+         '-i, --int <data_file>                                             '/&
+         '    Path to data file (space/tab separated integers), or:         '/&
+         '--fasta <data_file>                                               '/&
+         '    Path to a multiple sequence alignment in FASTA format.        '/&
+         '                                                                  '/&
+         'Options:                                                          '/&
+         '-h, --help                                                        '/&
+         '    Display this help and exit.                                   '/&
+         '                                                                  '/&
+         '--prefix <str>                                                    '/&         
+         '    Prefix of output files.                                       '/&
+         '                                                                  '/&
+         '-c, --chk <chk_file>                                              '/&
+         '    Restart a previous calculation from checkpoint file.          '/&
+         '                                                                  '/&
+         '-n, --nsweeps <n>, integer                                        '/&
+         '    Number of MC sweeps per gradient estimate.                    '/&
+         '    [default: 1000]                                               '/&
+         '                                                                  '/&
+         '-u, --nupdate <n>, integer                                        '/&
+         '    Gradient estimate: update model averages every <n> sweeps.    '/&
+         '    [default: 10]                                                 '/&
+         '                                                                  '/&
+         '--wid <%id>, float                                                '/&
+         '    Take averages reweighting for similarity of each sample to the'/&
+         '    rest of data, using a threshold <%id> to define similarity.   '/&
+         '    [default: no reweighting]                                     '/&
+         '                                                                  '/&
+         '-w, --weights <file>, path_to_file                                '/&
+         '    Read weights for data from file <file>.                       '/&
+         '                                                                  '/&
+         '--algorithm <algorithm_name>, string                              '/&
+         '    Options are: gd, momentum, nag, adam.                         '/&
+         '    [default: adam]                                               '/&
+         '                                                                  '/&
+         '-r, --rate <learning_rate>, float                                 '/&
+         '    Learning rate for the run.                                    '/&
+         '    [default: 0.01]                                               '/&
+         '                                                                  '/&
+         '--niter <n_iter>, integer                                         '/&
+         '    Number of iterations in the minimization process.             '/&
+         '    [default: 2000]                                               '/&
+         '                                                                  '/&
+         '-l, --lambda <regularization_strength>, float                     '/&
+         '    Parameter controlling the strength of l2 regularization.      '/&
+         '    [default: 0.01]                                               '/&
+         '                                                                  '/&
+         '--seed <seed>, integer                                            '/&
+         '    Seed for the pseudo-random number generator.                  '/&
+         '    If == 0, the seed is generated from system clock.             '/&
+         '    [default: 0]                                                  '/&
+         '                                                                  '/&
+         'Examples:                                                         '/&
+         '                                                                  '/)
 
   end subroutine command_line_read
 

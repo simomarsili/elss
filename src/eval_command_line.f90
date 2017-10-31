@@ -134,36 +134,36 @@ contains
     end if
 
 100 format(&
-         'elss-eval (elss v0.3)                                                                  '/&
-         '                                                                                         '/&
-         'Usage:                                                                                   '/&
+         'elss-eval (elss v0.3)                                             '/&
+         '                                                                  '/&
+         'Usage:                                                            '/&
          '    elss-eval [options] -c <chk_file> (-i <data_file>|--fasta <MSA_file>)'/&
-         '                                                                                         '/&
-         'Description:                                                                   '/&
-         '    Given a set of parameters, compute the (non-normalized) probability of each'/&
-         '    sample in a data file. The first column of the output contains the         '/&
-         '    log(probability) of the samples (apart from an additive constant that      '/&
-         '    cancels out in probability ratios).                                        '/&
-         '                                                                               '/&
-         'Required:                                                                      '/&
-         '-c, --chk <chk_file>                                                           '/&
-         '    Read the parameters of the model from checkpoint file <chk_file>.          '/&
-         '                                                                               '/&
-         '-i, --int <data_file>                                                          '/&
-         '    Path to data file.                                                         '/&
-         '                                                                               '/&
-         '--fasta <data_file>                                                            '/&
-         '    Path to FASTA multiple sequence alignment.                                 '/&
-         '                                                                               '/&
-         'Options:                                                                       '/&
-         '-h, --help                                                                     '/&
-         '    Display this help and exit.                                                '/&
-         '                                                                               '/&
-         '--prefix <str>                                                                 '/&         
-         '    Prefix of output files.                                                    '/&
-         '                                                                               '/&
-         'Examples:                                                                      '/&
-         '                                                                               '/)
+         '                                                                  '/&
+         'Description:                                                      '/&
+         '    Given a set of parameters, compute the (non-normalized)       '/&
+         '    probability of each sample in a data file. The output         '/&
+         '    first column contains the log(probability) of the samples     '/&
+         '    (upan additive constant that cancels out in probability ratios).'/&
+         '                                                                  '/&
+         'Required:                                                         '/&
+         '-c, --chk <chk_file>                                              '/&
+         '    Read the parameters of the model from checkpoint file.        '/&
+         '                                                                  '/&
+         '-i, --int <data_file>                                             '/&
+         '    Path to data file.                                            '/&
+         '                                                                  '/&
+         '--fasta <data_file>                                               '/&
+         '    Path to FASTA multiple sequence alignment.                    '/&
+         '                                                                  '/&
+         'Options:                                                          '/&
+         '-h, --help                                                        '/&
+         '    Display this help and exit.                                   '/&
+         '                                                                  '/&
+         '--prefix <str>                                                    '/&         
+         '    Prefix of output files.                                       '/&
+         '                                                                  '/&
+         'Examples:                                                         '/&
+         '                                                                  '/)
 
 
 
