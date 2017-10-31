@@ -148,48 +148,48 @@ contains
     end if
 
 100 format(&
-         'elss-sample (elss v0.3)                                                      '/& 
-         '                                                                               '/&
-         'Usage:                                                                         '/&
-         '    elss-sample [options] -c <chk_file>                                        '/&
-         '                                                                               '/&
-         'Description:                                                                   '/&
-         '    Simulate a trajectory in "sequence" space using the parameters from        '/&
-         '    checkpoint file <chk_file>. The unformatted checkpoint file can be         '/&
-         '    generated using the elss-pchk tool from a set of user-defined parameters,  '/&
-         '    or directly from data using the elss-learn executable.                     '/&
-         '                                                                               '/&
-         'Required:                                                                      '/&
-         '-c, --chk <chk_file>                                                           '/&
-         '    Read the parameters of the model from checkpoint file <chk_file>.          '/&
-         '                                                                               '/&
-         'Options:                                                                       '/&
-         '-h, --help                                                                     '/&
-         '    Display this help and exit.                                                '/&
-         '                                                                               '/&
-         '--prefix <str>                                                                 '/&         
-         '    Prefix of output files.                                                    '/&
-         '                                                                               '/&
-         '--start <i>, integer                                                           '/&
-         '    Use the <i>-th sample in <chk_file> as starting point for the MC chain.   '/&
-         '    (indexing starts from zero)                                                '/&
-         '    [default: 0]                                                               '/&
-         '                                                                               '/&
-         '-n, --nsweeps <n>, integer                                                     '/&
-         '    Simulate <n> MC sweeps.                                                    '/&
-         '    [default: 1000]                                                            '/&
-         '                                                                               '/&
-         '-u, --nupdate <n>, integer                                                     '/&
-         '    Update model averages every <n> sweeps.                                    '/&
-         '    [default: 10]                                                              '/&
-         '                                                                               '/&
-         '--seed <seed>, integer                                                         '/&
-         '    Seed for the initialization of the pseudo-random number generator.         '/&
-         '    If == 0, the seed is generated from system clock.                          '/&
-         '    [default: 0]                                                               '/&
-         '                                                                               '/&
-         'Examples:                                                                      '/&
-         '                                                                               '/)
+         'elss-sample (elss v0.3)                                           '/& 
+         '                                                                  '/&
+         'Usage:                                                            '/&
+         '    elss-sample [options] -c <chk_file>                           '/&
+         '                                                                  '/&
+         'Description:                                                      '/&
+         '    Simulate a trajectory in "sequence" space using the parameters'/&
+         '    from checkpoint file <chk_file>. The unformatted checkpoint   '/&
+         '    file can be generated using the elss-pchk tool from a set of  '/&
+         '    user-defined parameters, or as elss-learn output.             '/&
+         '                                                                  '/&
+         'Required:                                                         '/&
+         '-c, --chk <chk_file>                                              '/&
+         '    Read the parameters of the model from checkpoint file.        '/&
+         '                                                                  '/&
+         'Options:                                                          '/&
+         '-h, --help                                                        '/&
+         '    Display this help and exit.                                   '/&
+         '                                                                  '/&
+         '--prefix <str>                                                    '/&         
+         '    Prefix of output files.                                       '/&
+         '                                                                  '/&
+         '--start <i>, integer                                              '/&
+         '    Use the <i>-th sample in <chk_file> as starting point.        '/&
+         '    (indexing starts from zero)                                   '/&
+         '    [default: 0]                                                  '/&
+         '                                                                  '/&
+         '-n, --nsweeps <n>, integer                                        '/&
+         '    Simulate <n> MC sweeps.                                       '/&
+         '    [default: 1000]                                               '/&
+         '                                                                  '/&
+         '-u, --nupdate <n>, integer                                        '/&
+         '    Update model averages every <n> sweeps.                       '/&
+         '    [default: 10]                                                 '/&
+         '                                                                  '/&
+         '--seed <seed>, integer                                            '/&
+         '    Seed for the pseudo-random number generator.                  '/&
+         '    If == 0, the seed is generated from system clock.             '/&
+         '    [default: 0]                                                  '/&
+         '                                                                  '/&
+         'Examples:                                                         '/&
+         '                                                                  '/)
 
   end subroutine command_line_read
 
