@@ -17,7 +17,7 @@ module data
 contains
 
   subroutine data_read(iproc, udata, uwgt, wid, nvars, nclasses, data_type, &
-                       nseqs, neff, seqs, error_code)
+                       ndata, neff, seqs, error_code)
     use fasta, only: fasta_read
     integer,              intent(in)    :: iproc
     integer,              intent(in)    :: udata
@@ -26,7 +26,7 @@ contains
     integer,              intent(inout) :: nvars
     integer,              intent(inout) :: nclasses
     character(len=*),     intent(out)   :: data_type
-    integer,              intent(out)   :: nseqs
+    integer,              intent(out)   :: ndata
     real(kflt),           intent(out)   :: neff
     integer, allocatable, intent(out)   :: seqs(:,:)
     integer,              intent(out)   :: error_code
@@ -48,20 +48,20 @@ contains
        if (nvars == 0) nvars = nfields
        
        ! count data lines
-       nseqs = 0
+       ndata = 0
        do
           read(udata, '(a)', iostat=err) line
           ! exit at end of file or empty line
           if( err < 0 .or. len_trim(line) == 0) exit
-          nseqs = nseqs + 1
+          ndata = ndata + 1
        end do
        rewind(udata)
 
        ! allocate memory for data
-       allocate(seqs(nvars, nseqs), stat=err)
+       allocate(seqs(nvars, ndata), stat=err)
 
        ! read data
-       do i = 1, nseqs
+       do i = 1, ndata
           read(udata, *, iostat=err) seqs(:, i)
           if(err > 0) then 
              error_code = 1
@@ -74,12 +74,12 @@ contains
        ! read sequences from MSA
        call fasta_read(udata, seqs, data_type, error_code)
        if (error_code /= 0) return
-       nseqs = size(seqs, 2)
+       ndata = size(seqs, 2)
        if (nvars == 0) nvars = size(seqs, 1)
 
     end select
 
-    allocate(ws(nseqs), stat=err)
+    allocate(ws(ndata), stat=err)
     ! initialize weigths to one
     ws = 1.0_kflt
 
@@ -94,12 +94,12 @@ contains
        end do
 
        rewind(uwgt)
-       if (nn /= nseqs) then
+       if (nn /= ndata) then
           error_code = 2
           return
        end if
 
-       do i = 1,nseqs
+       do i = 1,ndata
           read(uwgt, *, iostat=err) ws(i)
           if(err > 0) then 
              error_code = 2
@@ -130,13 +130,13 @@ contains
 
   end subroutine data_read
 
-  subroutine data_average(nvars, nclasses, nseqs, neff, seqs, &
+  subroutine data_average(nvars, nclasses, ndata, neff, seqs, &
                           data_freq_single, data_freq_pair)
     integer,    intent(in)    :: nvars
     integer,    intent(in)    :: nclasses
-    integer,    intent(in)    :: nseqs
+    integer,    intent(in)    :: ndata
     real(kflt), intent(inout) :: neff
-    integer,    intent(in)    :: seqs(nvars, nseqs)
+    integer,    intent(in)    :: seqs(nvars, ndata)
     real(kflt), intent(out)   :: data_freq_single(nclasses, nvars)
     real(kflt), intent(out)   :: data_freq_pair(nclasses, nclasses, nvars*(nvars-1)/2)
     integer             :: err
@@ -149,7 +149,7 @@ contains
     ! take averages
     data_freq_single = 0.0_kflt
     data_freq_pair = 0.0_kflt
-    do k = 1, nseqs
+    do k = 1, ndata
        call data_averages_update(seqs(:,k), ws(k), data_freq_single, &
                                  data_freq_pair)
     end do
