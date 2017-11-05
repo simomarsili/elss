@@ -165,7 +165,7 @@ program learn
          '# n. features:                       ',    i12  /&
          '# n. classes:                        ',    i12  /&
          '# n. samples:                        ',    i12  /&
-         '# n. sweeps per update:              ',    i12  /&
+         '# n. sweeps (per update):            ',    i12  /&
          '# temperature factor:                ',  f12.3  /&
          '# weights file unit:                 ',    i12  /&
          '# %id threshold:                     ',  f12.3  /&
