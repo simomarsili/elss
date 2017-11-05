@@ -18,9 +18,9 @@ program learn
   integer                 :: nvars        ! total number of variables
   integer                 :: nclasses     ! total number of classes
   integer                 :: ndata     ! total number of samples
-  real(kflt)              :: neff         ! effective number of seqs
+  real(kflt)              :: neff         ! effective number of data
   integer,    allocatable :: seq(:)    ! seq array
-  integer,    allocatable :: seqs(:,:) ! data matrix
+  integer,    allocatable :: data(:,:) ! data matrix
   real(kflt), allocatable :: prm(:)       ! parameters array
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
   real(kflt), allocatable :: fdata(:)     ! empirical frequencies
@@ -103,7 +103,7 @@ program learn
   !================================================ read data
 
   call data_read(iproc,udata,uwgt,wid,&
-       nvars,nclasses,data_type,ndata,neff,seqs,err)
+       nvars,nclasses,data_type,ndata,neff,data,err)
 
   if (err /= 0) then
      if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'
@@ -122,6 +122,7 @@ program learn
      seq = 0
      call random_seq(nvars,nclasses,seq)
   end if
+  
   ! allocate and fill up seqs_table
   allocate(seqs_table(nvars,nproc),stat=err)
   seqs_table = 0
@@ -183,7 +184,7 @@ program learn
   
   !================================================ compute averages from data
   
-  call data_average(nvars,nclasses,ndata,neff,seqs,fdata(1:dim1),fdata(dim1+1:dim1+dim2))
+  call data_average(nvars,nclasses,ndata,neff,data,fdata(1:dim1),fdata(dim1+1:dim1+dim2))
   
   !================================================ maximum a posteriori estimate of parameters
   
