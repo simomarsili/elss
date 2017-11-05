@@ -12,8 +12,8 @@ module learn_command_line
 contains
 
   subroutine command_line_read(udata, data_type, uwgt, wid, uchk, rseed, &
-       beta, mc_nsweeps, nupdate, algorithm, rate, niter, lambda,prefix, &
-       error_code)
+       beta, n_replicas, mc_nsweeps, nupdate, algorithm, rate, niter, &
+       lambda, prefix, error_code)
     use units, only: units_open, units_open_unf
     use arguments, only: read_opt, read_opt_arg
     integer,          intent(inout) :: udata
@@ -23,6 +23,7 @@ contains
     integer,          intent(inout) :: uchk
     integer,          intent(inout) :: rseed
     real(kflt),       intent(inout) :: beta
+    integer,          intent(inout) :: n_replicas
     integer,          intent(inout) :: mc_nsweeps
     integer,          intent(inout) :: nupdate
     character(len=string_size), intent(inout) :: algorithm
@@ -140,6 +141,20 @@ contains
           end if
           if ( rate <= 0.0 ) then
              write(0,*) 'ERROR ! learning rate must be > 0'
+             error_code = 1
+             return
+          end if
+       case('-nr', '--replicas')
+          ! learning rate
+          iarg = iarg + 1
+          call read_opt_arg(iarg,nargs,n_replicas,err)
+          if ( err/= 0 ) then
+             write(0,*) 'ERROR ! check learning rate'
+             error_code = 1
+             return
+          end if
+          if ( n_replicas <= 0 ) then
+             write(0,*) 'ERROR ! n. of replicas must be > 0'
              error_code = 1
              return
           end if
@@ -313,6 +328,10 @@ contains
          '                                                                  '/&
          '-c, --chk <chk_file>                                              '/&
          '    Restart a previous calculation from checkpoint file.          '/&
+         '                                                                  '/&
+         '-nr, --replicas <n>, integer                                      '/&
+         '    Number of independent chains per processor.                   '/&
+         '    [default: 1]                                                  '/&
          '                                                                  '/&
          '-n, --nsweeps <n>, integer                                        '/&
          '    Number of MC sweeps per gradient estimate.                    '/&

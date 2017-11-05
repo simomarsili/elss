@@ -32,6 +32,7 @@ program learn
   integer                        :: uwgt         ! ww unit
   real(kflt)                     :: wid          ! %id for weights calculation
   integer                        :: uchk         ! chk unit
+  integer                        :: n_replicas   ! number of replicas in the swarm
   integer                        :: mc_nsweeps   ! number of MC sweeps per gradient estimate
   integer                        :: nupdate      ! stride for averages aupdate
   integer                        :: niter        ! number of iter.
@@ -56,6 +57,7 @@ program learn
   wid = -1
   neff =  0.0_kflt
   uchk = 0
+  n_replicas = 1
   mc_nsweeps = 1000
   nupdate = 10
   algorithm = 'adam'
@@ -72,9 +74,9 @@ program learn
 
   !================================================ read args
 
-  call command_line_read(udata,data_type,uwgt,&
-       wid,uchk,rseed,beta,mc_nsweeps,nupdate,algorithm,rate,niter,&
-       lambda,prefix,err)
+  call command_line_read(udata, data_type, uwgt, wid, uchk, rseed, beta, &
+       n_replicas, mc_nsweeps, nupdate, algorithm, rate, niter, lambda, &
+       prefix, err)
   
   if (err /= 0) then
      stop
@@ -149,30 +151,31 @@ program learn
      end if
 
      ! and print a header
-     write(ulog, 101) adjustr(trim(data_type)), uchk, nproc, nvars,&
-          nclasses, ndata, nupdate, beta, uwgt, wid, neff, lambda, mc_nsweeps,&
-          niter, adjustr(trim(algorithm))
+     write(ulog, 101) adjustr(trim(data_type)), uchk, nproc, nvars, &
+          nclasses, ndata, nupdate, beta, uwgt, wid, neff, lambda, &
+          n_replicas, mc_nsweeps, niter, adjustr(trim(algorithm))
   end if
   
 101 format(&
-         '# elss-learn (elss v0.3.2)          '/& 
-         '#                                   '/&
-         '# data type:              ',    a12  /&
-         '# chk file unit:          ',    i12  /&
-         '# n. procs:               ',    i12  /&
-         '# n. features:            ',    i12  /&
-         '# n. classes:             ',    i12  /&
-         '# n. samples:             ',    i12  /&
-         '# n. sweeps per update:   ',    i12  /&
-         '# temperature factor:     ',  f12.3  /&
-         '# weights file unit:      ',    i12  /&
-         '# %id threshold:          ',  f12.3  /&
-         '# neff:                   ',  f12.3  /&
-         '# lambda:                 ',  f12.3  /&
-         '# n. sweeps per gradient: ',    i12  /&
-         '# n. iterations:          ',    i12  /&
-         '# optimization algorithm: ',    a12  /&
-         '# learning rate:          ',  f12.3  /)
+         '# elss-learn (elss v0.3.2)                      '/& 
+         '#                                               '/&
+         '# data type:                         ',    a12  /&
+         '# chk file unit:                     ',    i12  /&
+         '# n. procs:                          ',    i12  /&
+         '# n. features:                       ',    i12  /&
+         '# n. classes:                        ',    i12  /&
+         '# n. samples:                        ',    i12  /&
+         '# n. sweeps per update:              ',    i12  /&
+         '# temperature factor:                ',  f12.3  /&
+         '# weights file unit:                 ',    i12  /&
+         '# %id threshold:                     ',  f12.3  /&
+         '# neff:                              ',  f12.3  /&
+         '# lambda:                            ',  f12.3  /&
+         '# n. chains (per process):           ',    i12  /&
+         '# n. sweeps (per iteration,process): ',    i12  /&
+         '# n. iterations:                     ',    i12  /&
+         '# optimization algorithm:            ',    a12  /&
+         '# learning rate:                     ',  f12.3  /)
 
   !================================================ allocate memory for map algorithm
   
