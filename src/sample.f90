@@ -9,7 +9,7 @@ program sample
   use dump,        only: read_chk
   use sample_command_line
   use units,       only: units_initialize,units_open
-  use random,      only: random_initialize,random_seq
+  use random,      only: random_initialize,random_data
   use mcmc,        only: mcmc_simulate
   implicit none
   integer                 :: nvars        ! total number of variables
@@ -81,7 +81,7 @@ program sample
      ! allocate seq
      allocate(seq(nvars),stat=err)
      seq = 0
-     call random_seq(nvars,nclasses,seq)
+     call random_data(nvars,nclasses,seq)
   end if
   allocate(fmodel(dim1+dim2),stat=err)
   fmodel = 0.0_kflt

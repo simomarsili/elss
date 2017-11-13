@@ -9,7 +9,7 @@ program eval
   use eval_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
-  use random,      only: random_initialize,random_seq
+  use random,      only: random_initialize
   use mcmc,        only: mcmc_compute_energy
   implicit none
   integer                 :: nvars        ! total number of variables

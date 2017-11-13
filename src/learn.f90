@@ -10,7 +10,7 @@ program learn
   use learn_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
-  use random,      only: random_initialize,random_seq
+  use random,      only: random_initialize,random_data
   use map,         only: map_learn
   use scoring,     only: gauge,compute_scores,print_scores
   use mcmc,        only: mcmc_simulate,mcmc_compute_energy
@@ -120,7 +120,7 @@ program learn
      prm = 0.0_kflt
      allocate(seq(nvars),stat=err)
      seq = 0
-     call random_seq(nvars,nclasses,seq)
+     call random_data(nvars,nclasses,seq)
   end if
   
   ! allocate and fill up seqs_table

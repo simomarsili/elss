@@ -7,7 +7,7 @@ module random
   implicit none
   private
   public :: random_initialize
-  public :: random_seq
+  public :: random_data
   
 contains 
 
@@ -36,19 +36,19 @@ contains
     
   end subroutine random_initialize
 
-  subroutine random_seq(nv, nc, seq)
+  subroutine random_data(nv, nc, data)
     integer, intent(in)    :: nv, nc
-    integer, intent(inout) :: seq(:)
+    integer, intent(inout) :: data(:)
     integer    :: iv, ic
     real(kflt) :: rnd
 
     do iv = 1, nv
        call random_number(rnd)
        ic = int(rnd * nc) + 1
-       seq(iv) = ic
+       data(iv) = ic
     end do
 
-  end subroutine random_seq
+  end subroutine random_data
 
 
   
