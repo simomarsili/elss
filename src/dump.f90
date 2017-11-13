@@ -194,20 +194,20 @@ contains
     
   end subroutine read_chk_file
 
-  subroutine dump_chk_unit(unt,data_type,nclasses,seqs_table,prm,&
+  subroutine dump_chk_unit(unt,data_type,nclasses,seqs,prm,&
                            error_code)
     ! dump a checkpoint file 
     integer,          intent(in)  :: unt
     character(len=*), intent(in)  :: data_type
     integer,          intent(in)  :: nclasses
-    integer,          intent(in)  :: seqs_table(:,:)
+    integer,          intent(in)  :: seqs(:,:)
     real(kflt),       intent(in)  :: prm(:)
     integer,          intent(out) :: error_code
     integer :: table_shape(2)
     integer :: id, nvars, ndata
 
     error_code = 0
-    table_shape = shape(seqs_table)
+    table_shape = shape(seqs)
     nvars = table_shape(1)
     ndata = table_shape(2)
     write(unt) nvars
@@ -215,20 +215,20 @@ contains
     write(unt) data_type
     write(unt) ndata
     do id = 1, ndata
-       write(unt) seqs_table(:, id)
+       write(unt) seqs(:, id)
     end do
     write(unt) prm
 
   end subroutine dump_chk_unit
 
   subroutine dump_chk_file(filename,status,data_type,nclasses,&
-                           seqs_table,prm,error_code)
+                           seqs,prm,error_code)
     ! dump a checkpoint file 
     character(len=*), intent(in)  :: filename
     character(len=*), intent(in)  :: status
     character(len=*), intent(in)  :: data_type
     integer,          intent(in)  :: nclasses
-    integer,          intent(in)  :: seqs_table(:,:)
+    integer,          intent(in)  :: seqs(:,:)
     real(kflt),       intent(in)  :: prm(:)
     integer,          intent(out) :: error_code
     integer :: unt,err
@@ -242,7 +242,7 @@ contains
        return
     end if
 
-    call dump_chk_unit(unt,data_type,nclasses,seqs_table,prm,error_code)
+    call dump_chk_unit(unt,data_type,nclasses,seqs,prm,error_code)
 
     close(unt)
 
