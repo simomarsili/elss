@@ -31,7 +31,7 @@ contains
     real(kflt),       intent(in)     :: fdata(:)
     character(len=*), intent(in)     :: prefix
     integer,          intent(inout)  :: seq(:)
-    integer,          intent(inout)  :: seqs_table(:,:)
+    integer,          intent(inout)  :: seqs_table(:,:,:)
     real(kflt),       intent(inout)  :: prm(:)
     real(kflt),       intent(out)    :: fmodel(:)
     character(len=long_string_size) :: chk_file
@@ -67,7 +67,7 @@ contains
     
     if(iproc == 0) then
        call dump_chk(chk_file,'replace',data_type,nvars,nclasses,nproc,&
-            seqs_table,prm,err)
+            seqs_table(:, 1, :),prm,err)
     end if
 
   end subroutine map_learn
@@ -83,7 +83,7 @@ contains
     real(kflt), intent(in)       :: eps_map
     integer,    intent(inout)    :: nvars,nclasses
     integer,    intent(inout)    :: seq(:)
-    integer,    intent(inout)    :: seqs_table(:,:)
+    integer,    intent(inout)    :: seqs_table(:,:,:)
     real(kflt), intent(inout)    :: prm(:)
     real(kflt), intent(out)      :: fmodel(:)
     real(kflt), intent(in)       :: fdata(:)
@@ -151,12 +151,12 @@ contains
        call map_compute_fmodel(nvars,nclasses,seq,prm,beta,iter,mc_nsweeps,nupdate,fmodel,elapsed,facc)
 
        ! each chain knows the coordinates of other chains
-       seqs_table(:,iproc+1) = seq
+       seqs_table(:,1,iproc+1) = seq
        CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
 
        if(iproc == 0) then
           if(mod(iter,1) == 0 .or. iter == 1) then
-             call dump_chk('chk','replace',data_type,nvars,nclasses,nproc,seqs_table,prm,err)
+             call dump_chk('chk','replace',data_type,nvars,nclasses,nproc,seqs_table(:, 1, :),prm,err)
              if( err /= 0 ) then 
                 if ( iproc == 0 ) write(0,*) "error opening file chk", err
                 call mpi_wrapper_finalize(err)

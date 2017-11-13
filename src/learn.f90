@@ -123,7 +123,7 @@ program learn
      prm = 0.0_kflt
      allocate(seqs(nvars, nreplicas), seq(nvars), stat=err)
      call random_data(nclasses, seqs)
-     seq = seqs(:, nreplicas)
+     seq = seqs(:, 1)
   end if
   
   
@@ -195,7 +195,7 @@ program learn
   
   ! inv. temperature for MAP estimation is set to 1
   call map_learn(algorithm,rate,nvars,nclasses,niter,lambda,mc_nsweeps,&
-       1.0_kflt,nupdate,data_type,ulog,fdata,prefix,seq,seqs_table(:, 1, :),prm,fmodel)
+       1.0_kflt,nupdate,data_type,ulog,fdata,prefix,seq,seqs_table,prm,fmodel)
 
   !================================================ compute and print scores
   
