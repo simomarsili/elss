@@ -119,11 +119,12 @@ program learn
   dim1 = nvars * nclasses
   dim2 = nvars * (nvars - 1) * nclasses**2 / 2
   if (uchk == 0) then
-     allocate(prm(dim1+dim2),stat=err)
+     allocate(prm(dim1 + dim2), stat=err)
      prm = 0.0_kflt
-     allocate(seq(nvars),stat=err)
-     seq = 0
-     call random_data(nvars,nclasses,seq)
+     allocate(seqs(nvars, nreplicas), seq(nvars), stat=err)
+     call random_data(nvars, nclasses, seqs)
+     seq = seqs(:, nreplicas)
+     call random_data(nvars, nclasses, seq)
   end if
   
   ! allocate and fill up seqs_table
