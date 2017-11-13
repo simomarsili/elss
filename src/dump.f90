@@ -85,78 +85,38 @@ contains
     
   end subroutine dump_fasta
 
-  subroutine read_chk_unit(unt,data_type,nvars,nclasses,iproc,seq,prm,error_code)
-    ! read a checkpoint file 
+  subroutine read_chk_unit(unt,nvars,nclasses,data_type,data,prm,error_code)
+    ! read a checkpoint file
     use random, only: random_data
     use fasta, only: set_fasta_alphabet
-    integer,          intent(in)                 :: unt
-    character(len=*), intent(inout)              :: data_type
-    integer,          intent(inout)              :: nvars,nclasses
-    integer,          intent(in)                 :: iproc
-    integer,          intent(inout), allocatable :: seq(:)
-    real(kflt),       intent(inout), allocatable :: prm(:)
-    integer,          intent(out) :: error_code
+    integer,          intent(in)               :: unt
+    integer,          intent(out)              :: nvars
+    integer,          intent(out)              :: nclasses
+    character(len=*), intent(out)              :: data_type
+    integer,          intent(out), allocatable :: data(:, :)
+    real(kflt),       intent(out), allocatable :: prm(:)
+    integer,          intent(out)              :: error_code
     integer, allocatable    :: dummy(:)
-    integer                 :: p,np,err
-    integer                 :: nv,nc
+    integer                 :: id,ndata,err
+    integer                 :: data_shape(2)
 
     error_code = 0
 
-    read(unt) nv
-    read(unt) nc
+    read(unt) nvars
+    read(unt) nclasses
     read(unt) data_type
-    read(unt) np
+    read(unt) ndata
 
-    if (nvars == 0 .and. nclasses == 0) then 
-       nvars = nv
-       nclasses = nc
-       ! no data have been read
-       ! => allocate and initialize
-       if (allocated(seq) .or. allocated(prm)) then 
-          ! arrays are already allocated
-          ! => exit
-          write(0,*) 'ERROR ! arrays are already allocated'
-          error_code = 1
-          return
-       end if
-       allocate(seq(nvars),stat=err)
-       allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
-       seq = 0 
-       prm = 0.0_kflt
-    else 
-       ! after reading data
-       if (nv /= nvars .or. nc /= nclasses ) then 
-          ! n. of variables/classes are inconsistent with data
-          ! => exit
-          write(0,*) 'ERROR ! n. of variables/classes is inconsistent with data'
-          error_code = 1
-          return
-       end if
-    end if
+    allocate(data(nvars, ndata),stat=err)
+    allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
+    data = 0 
+    prm = 0.0_kflt
 
     allocate(dummy(nvars),stat=err)
-    if (np == 0) then 
-       ! no seqs found in checkpoint 
-       ! => randomize 
-       call random_data(nclasses, seq)
-    else
-       if (np > iproc) then
-          ! if there are more samples than chains, read the starting points from the chk file
-          do p = 1,np
-             read(unt) dummy
-             if (p == iproc+1) seq = dummy
-          end do
-       else
-          ! else, randomize
-          write(0,*) "WARNING: cant find sequence index ", iproc, "in .chk file"
-          write(0,*) "WARNING: will start from random sequence"
-          call random_data(nclasses, seq)
-       end if
-    end if
-          
+    do id = 1, ndata
+       read(unt) data(:, id)
+    end do
     read(unt) prm
-
-    deallocate(dummy)
 
     select case (trim(data_type))
     case('bio', 'protein', 'nuc_acid')
@@ -167,14 +127,13 @@ contains
     
   end subroutine read_chk_unit
 
-  subroutine read_chk_file(filename,data_type,nvars,nclasses,iproc,seq,&
+  subroutine read_chk_file(filename,nvars,nclasses,data_type,data,&
                            prm,error_code)
     ! should read both a filename or a unit
     character(len=*), intent(in)                 :: filename
-    character(len=*), intent(inout)              :: data_type
     integer,          intent(inout)              :: nvars,nclasses
-    integer,          intent(in)                 :: iproc
-    integer,          intent(inout), allocatable :: seq(:)
+    character(len=*), intent(inout)              :: data_type
+    integer,          intent(inout), allocatable :: data(:, :)
     real(kflt),       intent(inout), allocatable :: prm(:)
     integer,          intent(out)                :: error_code
     integer :: unt,err
@@ -188,7 +147,7 @@ contains
        return
     end if
 
-    call read_chk_unit(unt,data_type,nvars,nclasses,iproc,seq,prm,error_code)
+    call read_chk_unit(unt,nvars,nclasses,data_type,data,prm,error_code)
     
     close(unt)
     
