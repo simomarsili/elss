@@ -19,20 +19,21 @@ program learn
   integer                 :: nclasses     ! total number of classes
   integer                 :: ndata     ! total number of samples
   real(kflt)              :: neff         ! effective number of data
-  integer,    allocatable :: seq(:)    ! seq array
+  integer,    allocatable :: seq(:)    ! nvars seq array
+  integer,    allocatable :: seqs(:,:)    ! (nvars, nreplicas) seqs array
   integer,    allocatable :: data(:,:) ! data matrix
   real(kflt), allocatable :: prm(:)       ! parameters array
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
   real(kflt), allocatable :: fdata(:)     ! empirical frequencies
   real(kflt), allocatable :: scores(:,:)  ! final scores
-  integer, allocatable    :: seqs_table(:,:)
+  integer, allocatable    :: seqs_table(:,:,:) ! (nvars, nreplicas, nproc)
   character(len=string_size) :: data_type    ! data tytpe ('unk', 'bio', 'protein', 'nuc_acid')
   ! command line parameters
   integer                        :: udata        ! data unit
   integer                        :: uwgt         ! ww unit
   real(kflt)                     :: wid          ! %id for weights calculation
   integer                        :: uchk         ! chk unit
-  integer                        :: n_replicas   ! number of replicas in the swarm
+  integer                        :: nreplicas   ! number of replicas in the swarm
   integer                        :: mc_nsweeps   ! number of MC sweeps per gradient estimate
   integer                        :: nupdate      ! stride for averages aupdate
   integer                        :: niter        ! number of iter.
@@ -57,7 +58,7 @@ program learn
   wid = -1
   neff =  0.0_kflt
   uchk = 0
-  n_replicas = 1
+  nreplicas = 1
   mc_nsweeps = 1000
   nupdate = 10
   algorithm = 'adam'
@@ -75,7 +76,7 @@ program learn
   !================================================ read args
 
   call command_line_read(udata, data_type, uwgt, wid, uchk, rseed, beta, &
-       n_replicas, mc_nsweeps, nupdate, algorithm, rate, niter, lambda, &
+       nreplicas, mc_nsweeps, nupdate, algorithm, rate, niter, lambda, &
        prefix, err)
   
   if (err /= 0) then
@@ -126,7 +127,7 @@ program learn
   end if
   
   ! allocate and fill up seqs_table
-  allocate(seqs_table(nvars,nproc),stat=err)
+  allocate(seqs_table(nvars,nreplicas,nproc),stat=err)
   seqs_table = 0
   seqs_table(:,iproc+1) = seq
   CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
@@ -154,7 +155,7 @@ program learn
      ! and print a header
      write(ulog, 101) adjustr(trim(data_type)), uchk, nproc, nvars, &
           nclasses, ndata, nupdate, beta, uwgt, wid, neff, lambda, &
-          n_replicas, mc_nsweeps, niter, adjustr(trim(algorithm))
+          nreplicas, mc_nsweeps, niter, adjustr(trim(algorithm))
   end if
   
 101 format(&

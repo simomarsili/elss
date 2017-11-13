@@ -12,7 +12,7 @@ module learn_command_line
 contains
 
   subroutine command_line_read(udata, data_type, uwgt, wid, uchk, rseed, &
-       beta, n_replicas, mc_nsweeps, nupdate, algorithm, rate, niter, &
+       beta, nreplicas, mc_nsweeps, nupdate, algorithm, rate, niter, &
        lambda, prefix, error_code)
     use units, only: units_open, units_open_unf
     use arguments, only: read_opt, read_opt_arg
@@ -23,7 +23,7 @@ contains
     integer,          intent(inout) :: uchk
     integer,          intent(inout) :: rseed
     real(kflt),       intent(inout) :: beta
-    integer,          intent(inout) :: n_replicas
+    integer,          intent(inout) :: nreplicas
     integer,          intent(inout) :: mc_nsweeps
     integer,          intent(inout) :: nupdate
     character(len=string_size), intent(inout) :: algorithm
@@ -147,13 +147,13 @@ contains
        case('-nr', '--replicas')
           ! learning rate
           iarg = iarg + 1
-          call read_opt_arg(iarg,nargs,n_replicas,err)
+          call read_opt_arg(iarg,nargs,nreplicas,err)
           if ( err/= 0 ) then
              write(0,*) 'ERROR ! check learning rate'
              error_code = 1
              return
           end if
-          if ( n_replicas <= 0 ) then
+          if ( nreplicas <= 0 ) then
              write(0,*) 'ERROR ! n. of replicas must be > 0'
              error_code = 1
              return
