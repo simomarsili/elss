@@ -34,6 +34,7 @@ program eval
   character(len=long_string_size) :: filename
   integer                         :: j
   real(kflt)                      :: etot,efields,ecouplings
+  integer, allocatable            :: chk_data(:,:)
 
   !================================================ set defaults
 
@@ -62,13 +63,10 @@ program eval
 
   !================================================ read checkpoint file
 
-  if (uchk > 0) then
-     call read_chk(uchk,data_type,nvars,nclasses,iproc,seq,prm,err)
-     if (err /= 0) then
-        stop
-     end if
-     close(uchk)
-  end if
+  call read_chk(uchk,nvars,nclasses,data_type,chk_data,prm,err)
+  if (err /= 0) stop
+  allocate(seq(nvars), stat=err)
+  close(uchk)
 
   !================================================ read data
 
