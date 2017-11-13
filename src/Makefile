@@ -5,7 +5,7 @@ DESTDIR=/usr/local
 EXE = elss-eval elss-sample elss-learn
 TOOLS = elss-pchk
 FC = mpif90
-FFLAGS = -O2 -fconvert=little-endian -std=f2008 -fimplicit-none
+FFLAGS = -O2 -fconvert=little-endian -std=f2008 -fimplicit-none -fbounds-check
 #FFLAGS = -fast -heap-arrays # ifort (important: use -heap-arrays)
 #FFLAGS = -O3 -ffast-math # gfortran
 LDFLAGS = -s 

@@ -62,7 +62,7 @@ contains
     call map_all(algorithm,rate,nvars,nclasses,seq,seqs_table,prm,fmodel,&
          fdata,data_type,ulog,beta,lambda,&
          niter,mc_nsweeps,tot_iter,nupdate)
-    
+
     tot_iter = tot_iter + 1
     
     if(iproc == 0) then

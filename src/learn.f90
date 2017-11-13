@@ -26,7 +26,7 @@ program learn
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
   real(kflt), allocatable :: fdata(:)     ! empirical frequencies
   real(kflt), allocatable :: scores(:,:)  ! final scores
-  integer, allocatable    :: seqs_table(:,:,:) ! (nvars, nreplicas, nproc)
+  integer, allocatable    :: seqs_table(:, :, :) ! (nvars, nreplicas, nproc)
   character(len=string_size) :: data_type    ! data tytpe ('unk', 'bio', 'protein', 'nuc_acid')
   ! command line parameters
   integer                        :: udata        ! data unit
@@ -94,7 +94,7 @@ program learn
   !================================================ read checkpoint file
   
   if (uchk > 0) then
-     call read_chk(uchk,data_type,nvars,nclasses,iproc,seq,prm,err)
+     call read_chk(uchk, data_type, nvars, nclasses, iproc, seq, prm, err)
      if (err /= 0) then
         if(iproc == 0) write(0,*) 'ERROR ! cannot read from chk'
         call mpi_wrapper_finalize(err)
@@ -126,15 +126,16 @@ program learn
      seq = seqs(:, nreplicas)
   end if
   
-  ! allocate and fill up seqs_table
-  allocate(seqs_table(nvars,nreplicas,nproc),stat=err)
-  seqs_table = 0
-  seqs_table(:,iproc+1) = seq
-  CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
-  ! allocate model frequencies
-  allocate(fmodel(dim1+dim2),stat=err)
-  fmodel = 0.0_kflt
   
+  ! allocate and fill up seqs_table
+  allocate(seqs_table(nvars, nreplicas, nproc), stat=err)
+  seqs_table = 0
+  seqs_table(:, :, iproc+1) = seqs
+  CALL mpi_allgather(seqs, nvars * nreplicas, MPI_INTEGER, seqs_table, nvars * nreplicas, MPI_INTEGER, MPI_COMM_WORLD, err)
+  ! allocate model frequencies
+  allocate(fmodel(dim1 + dim2), stat=err)
+  fmodel = 0.0_kflt
+
   close(udata)
 
   if (iproc == 0) then
@@ -194,8 +195,8 @@ program learn
   
   ! inv. temperature for MAP estimation is set to 1
   call map_learn(algorithm,rate,nvars,nclasses,niter,lambda,mc_nsweeps,&
-       1.0_kflt,nupdate,data_type,ulog,fdata,prefix,seq,seqs_table,prm,fmodel)
-  
+       1.0_kflt,nupdate,data_type,ulog,fdata,prefix,seq,seqs_table(:, 1, :),prm,fmodel)
+
   !================================================ compute and print scores
   
   !     call gauge(nvars,nclasses,prm(1:dim1),prm(dim1+1:dim1+dim2))
