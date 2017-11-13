@@ -34,6 +34,7 @@ program sample
   character(len=long_string_size) :: filename
   real(kflt)                      :: facc
   logical                         :: hot_start
+  integer, allocatable            :: chk_data(:,:)
 
   !================================================ set defaults
 
@@ -63,16 +64,17 @@ program sample
   call random_initialize(rseed,iproc)
 
   !================================================ read checkpoint file
-  
-  if (uchk > 0) then
-     call read_chk(uchk,data_type,nvars,nclasses,istart,seq,prm,err)
-     if (err /= 0) then
-        write(0,*) 'ERROR ! cannot read from chk'
-        stop
-     end if
-     close(uchk)
-  end if
 
+  call read_chk(uchk,nvars,nclasses,data_type,chk_data,prm,err)
+  if (err /= 0) stop
+  allocate(seq(nvars), stat=err)
+  if (allocated(chk_data)) then
+     seq = chk_data(:,1)
+  else
+     call random_data(nclasses,seq)
+  end if
+  close(uchk)
+  
   !================================================ allocate memory for the run and initialize
 
   dim1 = nvars * nclasses
