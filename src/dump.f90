@@ -138,7 +138,7 @@ contains
     if (np == 0) then 
        ! no seqs found in checkpoint 
        ! => randomize 
-       call random_data(nvars,nclasses,seq)
+       call random_data(nclasses, seq)
     else
        if (np > iproc) then
           ! if there are more samples than chains, read the starting points from the chk file
@@ -150,7 +150,7 @@ contains
           ! else, randomize
           write(0,*) "WARNING: cant find sequence index ", iproc, "in .chk file"
           write(0,*) "WARNING: will start from random sequence"
-          call random_data(nvars,nclasses,seq)
+          call random_data(nclasses, seq)
        end if
     end if
           
@@ -170,7 +170,6 @@ contains
   subroutine read_chk_file(filename,data_type,nvars,nclasses,iproc,seq,&
                            prm,error_code)
     ! should read both a filename or a unit
-    use random, only: random_data
     character(len=*), intent(in)                 :: filename
     character(len=*), intent(inout)              :: data_type
     integer,          intent(inout)              :: nvars,nclasses
