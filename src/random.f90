@@ -58,10 +58,13 @@ contains
   subroutine random_data_2d(nc, data)
     integer, intent(in)    :: nc
     integer, intent(inout) :: data(:, :)
+    integer :: data_shape(2)
     integer    :: nr
     integer    :: iv, ic, ir
     real(kflt) :: rnd
 
+    data_shape = shape(data)
+    nr = data_shape(2)
     do ir = 1, nr
        call random_data_1d(nc, data(:, ir))
     end do
