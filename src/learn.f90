@@ -120,7 +120,7 @@ program learn
      prm = 0.0_kflt
      allocate(seq(nvars),stat=err)
      seq = 0
-     call random_data(nvars,nclasses,seq)
+     call random_data(nclasses, seq)
   end if
   
   ! allocate and fill up seqs_table
