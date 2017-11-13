@@ -122,9 +122,8 @@ program learn
      allocate(prm(dim1 + dim2), stat=err)
      prm = 0.0_kflt
      allocate(seqs(nvars, nreplicas), seq(nvars), stat=err)
-     call random_data(nvars, nclasses, seqs)
+     call random_data(nclasses, seqs)
      seq = seqs(:, nreplicas)
-     call random_data(nvars, nclasses, seq)
   end if
   
   ! allocate and fill up seqs_table
