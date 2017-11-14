@@ -29,7 +29,7 @@ program eval
   character(len=long_string_size) :: prefix  ! prefix for output file
   integer                         :: iproc=0,nproc=1
   integer                         :: err
-  integer                         :: dim1,dim2
+  integer                         :: nv,nc,dim1,dim2
   integer                         :: uene,ulog
   character(len=long_string_size) :: filename
   integer                         :: j
@@ -59,17 +59,30 @@ program eval
 
   ! read checkpoint file
   call read_chk(uchk,nvars,nclasses,data_type,chk_data,prm,err)
-  if (err /= 0) stop
-  allocate(seq(nvars), stat=err)
   close(uchk)
-
-  ! read data
-  call data_read(iproc,udata,uwgt,wid,&
-       nvars,nclasses,data_type,ndata,neff,data,err)
   if (err /= 0) then
+     write(0,*) 'ERROR ! cannot read from chk file'
      stop
   end if
+  allocate(seq(nvars), stat=err)
+
+  ! read data
+  call data_read(iproc, udata, uwgt, wid, nv, nc, data_type, ndata, neff, &
+       data, err)
   close(udata)
+  if (err /= 0) then
+     write(0,*) 'ERROR ! cannot read from msa file'
+     stop
+  end if
+  if (nvars > 0) then
+     if (nv /= nvars .or. nc > nclasses) then
+        write(0,*) 'ERROR ! data are not consistent with chk file'
+        stop
+     end if
+  else
+     nvars = nv
+     nclasses = nc
+  end if
   
   ! open log file
   if (len_trim(prefix) == 0) then

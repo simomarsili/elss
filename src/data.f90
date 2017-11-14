@@ -23,8 +23,8 @@ contains
     integer,              intent(in)    :: udata
     integer,              intent(in)    :: uwgt
     real(kflt),           intent(in)    :: wid
-    integer,              intent(inout) :: nvars
-    integer,              intent(inout) :: nclasses
+    integer,              intent(out)   :: nvars
+    integer,              intent(out)   :: nclasses
     character(len=*),     intent(out)   :: data_type
     integer,              intent(out)   :: ndata
     real(kflt),           intent(out)   :: neff
@@ -45,7 +45,7 @@ contains
        rewind(udata)
        
        ! set nvars
-       if (nvars == 0) nvars = nfields
+       nvars = nfields
        
        ! count data lines
        ndata = 0
@@ -75,7 +75,7 @@ contains
        call fasta_read(udata, data, data_type, error_code)
        if (error_code /= 0) return
        ndata = size(data, 2)
-       if (nvars == 0) nvars = size(data, 1)
+       nvars = size(data, 1)
 
     end select
 
@@ -122,7 +122,7 @@ contains
     end if
     data = data - cmin + 1
     ! set n. of classes per variable as the max value in data
-    if (nclasses == 0) nclasses = maxval(data)
+    nclasses = maxval(data)
 
     neff = sum(ws)
 
