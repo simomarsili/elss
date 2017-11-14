@@ -7,9 +7,14 @@ module random
   implicit none
   private
   public :: random_initialize
-  public :: random_seq
+  public :: random_data
+
+  interface random_data
+     module procedure random_data_1d
+     module procedure random_data_2d
+  end interface random_data
   
-contains 
+contains
 
   subroutine random_initialize(rseed, pid)
     ! Random Numbers In Scientific Computing: An Introduction by Katzgrabber
@@ -36,20 +41,34 @@ contains
     
   end subroutine random_initialize
 
-  subroutine random_seq(nv, nc, seq)
-    integer, intent(in)    :: nv, nc
-    integer, intent(inout) :: seq(:)
+  subroutine random_data_1d(nc, data)
+    integer, intent(in)    :: nc
+    integer, intent(inout) :: data(:)
     integer    :: iv, ic
     real(kflt) :: rnd
 
-    do iv = 1, nv
+    do iv = 1, size(data)
        call random_number(rnd)
        ic = int(rnd * nc) + 1
-       seq(iv) = ic
+       data(iv) = ic
     end do
+    
+  end subroutine random_data_1d
+  
+  subroutine random_data_2d(nc, data)
+    integer, intent(in)    :: nc
+    integer, intent(inout) :: data(:, :)
+    integer :: data_shape(2)
+    integer    :: nr
+    integer    :: iv, ic, ir
+    real(kflt) :: rnd
 
-  end subroutine random_seq
-
-
+    data_shape = shape(data)
+    nr = data_shape(2)
+    do ir = 1, nr
+       call random_data_1d(nc, data(:, ir))
+    end do
+    
+  end subroutine random_data_2d
   
 end module random

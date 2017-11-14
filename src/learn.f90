@@ -10,7 +10,7 @@ program learn
   use learn_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
-  use random,      only: random_initialize,random_seq
+  use random,      only: random_initialize,random_data
   use map,         only: map_learn
   use scoring,     only: gauge,compute_scores,print_scores
   use mcmc,        only: mcmc_simulate,mcmc_compute_energy
@@ -18,9 +18,9 @@ program learn
   integer                 :: nvars        ! total number of variables
   integer                 :: nclasses     ! total number of classes
   integer                 :: ndata     ! total number of samples
-  real(kflt)              :: neff         ! effective number of seqs
+  real(kflt)              :: neff         ! effective number of data
   integer,    allocatable :: seq(:)    ! seq array
-  integer,    allocatable :: seqs(:,:) ! data matrix
+  integer,    allocatable :: data(:,:) ! data matrix
   real(kflt), allocatable :: prm(:)       ! parameters array
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
   real(kflt), allocatable :: fdata(:)     ! empirical frequencies
@@ -42,12 +42,12 @@ program learn
   character(len=string_size)     :: algorithm
   character(len=long_string_size) :: prefix
   integer                         :: err
-  integer                         :: dim1,dim2
+  integer                         :: nv,nc,dim1,dim2
   integer                         :: ulog
   character(len=long_string_size) :: filename
+  integer, allocatable            :: chk_data(:,:)
 
-  !================================================ set defaults
-
+  ! set default values
   nvars = 0
   nclasses = 0
   udata = 0
@@ -66,53 +66,63 @@ program learn
   beta = 1.0_kflt
   prefix = ''
 
-  !================================================ init. unit identifiers
-
+  ! init. unit identifiers
   call units_initialize()
 
-  !================================================ read args
-
+  ! read command line args
   call command_line_read(udata,data_type,uwgt,&
        wid,uchk,rseed,beta,mc_nsweeps,nupdate,algorithm,rate,niter,&
        lambda,prefix,err)
-  
   if (err /= 0) then
-     stop
-  end if
-
-  !================================================ init. mpi
-
-  call mpi_wrapper_initialize(err)
-
-  !================================================ init. the random number generator
-
-  call random_initialize(rseed,iproc)
-
-  !================================================ read checkpoint file
-  
-  if (uchk > 0) then
-     call read_chk(uchk,data_type,nvars,nclasses,iproc,seq,prm,err)
-     if (err /= 0) then
-        if(iproc == 0) write(0,*) 'ERROR ! cannot read from chk'
-        call mpi_wrapper_finalize(err)
-        stop
-     end if
-     close(uchk)
-  end if
-
-  !================================================ read data
-
-  call data_read(iproc,udata,uwgt,wid,&
-       nvars,nclasses,data_type,ndata,neff,seqs,err)
-
-  if (err /= 0) then
-     if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'
      call mpi_wrapper_finalize(err)
      stop
   end if
 
-  !================================================ allocate memory for the run and initialize
+  ! init mpi
+  call mpi_wrapper_initialize(err) 
 
+  ! init. the random number generator
+  call random_initialize(rseed,iproc) 
+
+  ! read checkpoint file
+  if (uchk > 0) then
+     call read_chk(uchk, nvars, nclasses, data_type, chk_data, prm, err)
+     if (err /= 0) then
+        if(iproc == 0) &
+             write(0,*) 'ERROR ! cannot read from chk file'
+        call mpi_wrapper_finalize(err)
+        stop
+     end if
+     allocate(seq(nvars), stat=err)
+     call random_data(nclasses, seq)
+     if (allocated(chk_data)) then
+        if (nproc <= size(chk_data(1, :))) then
+           seq = chk_data(:, iproc + 1)
+        end if
+     end if
+     close(uchk)
+  end if
+
+  ! read data
+  call data_read(iproc,udata,uwgt,wid,& 
+       nv,nc,data_type,ndata,neff,data,err)
+  close(udata)
+  if (err /= 0) then
+     call mpi_wrapper_finalize(err)
+     stop
+  end if
+  if (nvars > 0) then
+     if (nv /= nvars .or. nc > nclasses) then
+        if(iproc == 0) write(0,*) 'ERROR ! data are not consistent with chk file'
+        call mpi_wrapper_finalize(err)
+        stop
+     end if
+  else
+     nvars = nv
+     nclasses = nc
+  end if
+
+  ! allocate memory for the run and initialize chains
   dim1 = nvars * nclasses
   dim2 = nvars * (nvars - 1) * nclasses**2 / 2
   if (uchk == 0) then
@@ -120,8 +130,9 @@ program learn
      prm = 0.0_kflt
      allocate(seq(nvars),stat=err)
      seq = 0
-     call random_seq(nvars,nclasses,seq)
+     call random_data(nclasses, seq)
   end if
+  
   ! allocate and fill up seqs_table
   allocate(seqs_table(nvars,nproc),stat=err)
   seqs_table = 0
@@ -155,7 +166,7 @@ program learn
   end if
   
 101 format(&
-         '# elss-learn (elss v0.3.2)          '/& 
+         '# elss-learn (elss v0.4)          '/& 
          '#                                   '/&
          '# data type:              ',    a12  /&
          '# chk file unit:          ',    i12  /&
@@ -163,7 +174,7 @@ program learn
          '# n. features:            ',    i12  /&
          '# n. classes:             ',    i12  /&
          '# n. samples:             ',    i12  /&
-         '# n. sweeps per update:   ',    i12  /&
+         '# n. sweeps (per update): ',    i12  /&
          '# temperature factor:     ',  f12.3  /&
          '# weights file unit:      ',    i12  /&
          '# %id threshold:          ',  f12.3  /&
@@ -183,7 +194,7 @@ program learn
   
   !================================================ compute averages from data
   
-  call data_average(nvars,nclasses,ndata,neff,seqs,fdata(1:dim1),fdata(dim1+1:dim1+dim2))
+  call data_average(nvars,nclasses,ndata,neff,data,fdata(1:dim1),fdata(dim1+1:dim1+dim2))
   
   !================================================ maximum a posteriori estimate of parameters
   

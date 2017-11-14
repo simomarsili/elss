@@ -66,7 +66,7 @@ contains
     tot_iter = tot_iter + 1
     
     if(iproc == 0) then
-       call dump_chk(chk_file,'replace',data_type,nvars,nclasses,nproc,&
+       call dump_chk(chk_file,'replace',data_type,nclasses,&
             seqs_table,prm,err)
     end if
 
@@ -156,7 +156,7 @@ contains
 
        if(iproc == 0) then
           if(mod(iter,1) == 0 .or. iter == 1) then
-             call dump_chk('chk','replace',data_type,nvars,nclasses,nproc,seqs_table,prm,err)
+             call dump_chk('chk','replace',data_type,nclasses,seqs_table,prm,err)
              if( err /= 0 ) then 
                 if ( iproc == 0 ) write(0,*) "error opening file chk", err
                 call mpi_wrapper_finalize(err)
