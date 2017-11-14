@@ -8,6 +8,7 @@
 
 ### Changed
 - class indices for data encoding must start from zero.  
+- fixed tests
   
 ### Removed
 - version.py
