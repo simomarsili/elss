@@ -1,5 +1,4 @@
 {
-    "number": "0.3.2",
     "files": [
         "src/pchk.f90",
         "src/learn.f90",
@@ -8,5 +7,6 @@
         "src/sample_command_line.f90",
         "src/eval.f90",
         "src/eval_command_line.f90"
-    ]
+    ],
+    "number": "0.4"
 }
