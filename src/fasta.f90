@@ -68,10 +68,10 @@ contains
 
   end subroutine fasta_string2seq
 
-  subroutine fasta_read(unt, seqs, data_type, error_code)
+  subroutine fasta_read(unt, data, data_type, error_code)
     ! read n sequences from unit udata
     integer,              intent(in)  :: unt
-    integer, allocatable, intent(out) :: seqs(:, :)
+    integer, allocatable, intent(out) :: data(:, :)
     character(len=*),     intent(out) :: data_type
     integer,              intent(out) :: error_code
     character(len=long_string_size) :: header
@@ -81,7 +81,7 @@ contains
     integer                         :: k, ns, nv, nnuc, nprot, ntot, nuc, prot
     integer                         :: err
     
-    ! count seqs and Ls
+    ! count data and Ls
     ns = 0
     ntot = 0
     nnuc = 0
@@ -130,7 +130,7 @@ contains
              error_code = 1
           end if
           call fasta_string2seq(fasta_alphabet,string,seq)
-          if (all(seq > 0)) seqs(:,k) = seq
+          if (all(seq > 0)) data(:,k) = seq
           exit          
        end if
        if (line(1:1) == ">") then 
@@ -142,12 +142,12 @@ contains
           if (k == 1) then
              nv = len_trim(string)
              allocate(seq(nv), stat=err)
-             allocate(seqs(nv, ns), stat=err)
+             allocate(data(nv, ns), stat=err)
           end if
           call fasta_string2seq(fasta_alphabet, string,seq)
           string = ""
           if (all(seq > 0)) then
-             seqs(:, k) = seq
+             data(:, k) = seq
              k = k + 1
           end if
           cycle

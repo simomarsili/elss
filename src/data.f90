@@ -17,18 +17,18 @@ module data
 contains
 
   subroutine data_read(iproc, udata, uwgt, wid, nvars, nclasses, data_type, &
-                       ndata, neff, seqs, error_code)
-    use fasta, only: fasta_read
+                       ndata, neff, data, error_code)
+    use fasta, only: fasta_read, fasta_alphabet
     integer,              intent(in)    :: iproc
     integer,              intent(in)    :: udata
     integer,              intent(in)    :: uwgt
     real(kflt),           intent(in)    :: wid
-    integer,              intent(inout) :: nvars
-    integer,              intent(inout) :: nclasses
+    integer,              intent(out)   :: nvars
+    integer,              intent(out)   :: nclasses
     character(len=*),     intent(out)   :: data_type
     integer,              intent(out)   :: ndata
     real(kflt),           intent(out)   :: neff
-    integer, allocatable, intent(out)   :: seqs(:,:)
+    integer, allocatable, intent(out)   :: data(:,:)
     integer,              intent(out)   :: error_code
     integer                                      :: err
     character(len=long_string_size)              :: line, newline
@@ -45,7 +45,7 @@ contains
        rewind(udata)
        
        ! set nvars
-       if (nvars == 0) nvars = nfields
+       nvars = nfields
        
        ! count data lines
        ndata = 0
@@ -58,24 +58,41 @@ contains
        rewind(udata)
 
        ! allocate memory for data
-       allocate(seqs(nvars, ndata), stat=err)
+       allocate(data(nvars, ndata), stat=err)
 
        ! read data
        do i = 1, ndata
-          read(udata, *, iostat=err) seqs(:, i)
+          read(udata, *, iostat=err) data(:, i)
           if(err > 0) then 
              error_code = 1
              return
           end if
        end do
 
+       ! smallest index should be ZERO
+       cmin = minval(data)
+       if (cmin /= 0) then
+          if (iproc == 0) write(0,*) 'cmin: ', cmin
+          if (cmin < 0)then
+             if (iproc == 0) write(0, *) "ERROR: class indices should start from zero."
+             error_code = 3
+             return
+          else
+             if (iproc == 0) write(0, *) "WARNING: class indices should start from zero."
+          end if
+       end if
+       data = data + 1
+       ! set n. of classes per variable as the max value in data
+       nclasses = maxval(data)
+
     case('bio', 'protein', 'nuc_acid')
 
        ! read sequences from MSA
-       call fasta_read(udata, seqs, data_type, error_code)
+       call fasta_read(udata, data, data_type, error_code)
        if (error_code /= 0) return
-       ndata = size(seqs, 2)
-       if (nvars == 0) nvars = size(seqs, 1)
+       ndata = size(data, 2)
+       nvars = size(data, 1)
+       nclasses = len_trim(fasta_alphabet)
 
     end select
 
@@ -111,32 +128,20 @@ contains
 
     if (wid > 0.0_kflt) then 
 
-       call data_reweight(seqs, wid, iproc)
+       call data_reweight(data, wid, iproc)
 
     end if
-
-    ! first class is set to one
-    cmin = minval(seqs)
-    if (iproc == 0 .and. cmin < 0) then
-       write(0, *) "WARNING: class indices should start from zero."
-    end if
-    seqs = seqs - cmin + 1
-    ! set n. of classes per variable as the max value in data
-    if (nclasses == 0) nclasses = maxval(seqs)
 
     neff = sum(ws)
-
-    close(udata)
-
   end subroutine data_read
 
-  subroutine data_average(nvars, nclasses, ndata, neff, seqs, &
+  subroutine data_average(nvars, nclasses, ndata, neff, data, &
                           data_freq_single, data_freq_pair)
     integer,    intent(in)    :: nvars
     integer,    intent(in)    :: nclasses
     integer,    intent(in)    :: ndata
     real(kflt), intent(inout) :: neff
-    integer,    intent(in)    :: seqs(nvars, ndata)
+    integer,    intent(in)    :: data(nvars, ndata)
     real(kflt), intent(out)   :: data_freq_single(nclasses, nvars)
     real(kflt), intent(out)   :: data_freq_pair(nclasses, nclasses, nvars*(nvars-1)/2)
     integer             :: err
@@ -150,7 +155,7 @@ contains
     data_freq_single = 0.0_kflt
     data_freq_pair = 0.0_kflt
     do k = 1, ndata
-       call data_averages_update(seqs(:,k), ws(k), data_freq_single, &
+       call data_averages_update(data(:,k), ws(k), data_freq_single, &
                                  data_freq_pair)
     end do
 
@@ -204,9 +209,9 @@ contains
 
   end subroutine data_averages_update
 
-  subroutine data_reweight(seqs, wid, iproc)
+  subroutine data_reweight(data, wid, iproc)
     use units, only: units_open
-    integer,    intent(in) :: seqs(:,:)
+    integer,    intent(in) :: data(:,:)
     real(kflt), intent(in) :: wid
     integer,    intent(in) :: iproc
     integer              :: err
@@ -216,8 +221,8 @@ contains
     integer              :: thr, uwgt
     logical              :: dump_weights = .false.
 
-    nv = size(seqs, 1)
-    ns = size(seqs, 2)
+    nv = size(data, 1)
+    ns = size(data, 2)
     
     allocate(x(nv), y(nv), stat=err)
     
@@ -228,9 +233,9 @@ contains
           write(0,'(a,f8.1)') &
                'computing weigths: ', 100.0 * real(id) / real(ns)
        end if
-       x = seqs(:, id)
+       x = data(:, id)
        do jd = id + 1, ns
-          y = seqs(:, jd)
+          y = data(:, jd)
           if(count(x == y) >= thr) then
              ws(id) = ws(id) + 1.0_kflt
              ws(jd) = ws(jd) + 1.0_kflt
