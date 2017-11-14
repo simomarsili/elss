@@ -85,30 +85,41 @@ contains
     
   end subroutine dump_fasta
 
-  subroutine read_chk_unit(unt,nvars,nclasses,data_type,data,prm,error_code)
+  subroutine read_chk_unit(unt, nvars, nclasses, data_type, data, prm, &
+       error_code)
     ! read a checkpoint file
     use random, only: random_data
     use fasta, only: set_fasta_alphabet
     integer,          intent(in)               :: unt
-    integer,          intent(out)              :: nvars
-    integer,          intent(out)              :: nclasses
+    integer,          intent(inout)            :: nvars
+    integer,          intent(inout)            :: nclasses
     character(len=*), intent(out)              :: data_type
     integer,          intent(out), allocatable :: data(:, :)
     real(kflt),       intent(out), allocatable :: prm(:)
     integer,          intent(out)              :: error_code
     integer, allocatable    :: dummy(:)
-    integer                 :: id,ndata,err
+    integer                 :: id,ndata,nv,nc,err
     integer                 :: data_shape(2)
 
     error_code = 0
 
-    read(unt) nvars
-    read(unt) nclasses
+    read(unt) nv
+    read(unt) nc
     read(unt) data_type
     read(unt) ndata
 
-    allocate(data(nvars, ndata),stat=err)
-    allocate(prm(nvars*nclasses + nvars*(nvars - 1)*nclasses**2/2),stat=err)
+    ! check consistency with data
+    if (nvars > 0 .and. (nv /= nvars .or. nc < nclasses)) then
+       error_code = 1
+       return
+    else
+       nvars = nv
+       nclasses = nc
+    end if
+
+    allocate(data(nvars, ndata), stat=err)
+    allocate(prm(nvars * nclasses + nvars * (nvars - 1) * nclasses**2 / 2), &
+         stat=err)
     data = 0 
     prm = 0.0_kflt
 
