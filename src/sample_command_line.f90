@@ -148,7 +148,7 @@ contains
     end if
 
 100 format(&
-         'elss-sample (elss v0.3.2)                                           '/& 
+         'elss-sample (elss v0.4)                                           '/& 
          '                                                                  '/&
          'Usage:                                                            '/&
          '    elss-sample [options] -c <chk_file>                           '/&

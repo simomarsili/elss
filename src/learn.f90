@@ -170,25 +170,25 @@ program learn
   end if
   
 101 format(&
-         '# elss-learn (elss v0.3.2)                      '/& 
-         '#                                               '/&
-         '# data type:                         ',    a12  /&
-         '# chk file unit:                     ',    i12  /&
-         '# n. procs:                          ',    i12  /&
-         '# n. features:                       ',    i12  /&
-         '# n. classes:                        ',    i12  /&
-         '# n. samples:                        ',    i12  /&
-         '# n. sweeps (per update):            ',    i12  /&
-         '# temperature factor:                ',  f12.3  /&
-         '# weights file unit:                 ',    i12  /&
-         '# %id threshold:                     ',  f12.3  /&
-         '# neff:                              ',  f12.3  /&
-         '# lambda:                            ',  f12.3  /&
-         '# n. chains (per process):           ',    i12  /&
-         '# n. sweeps (per iteration,process): ',    i12  /&
-         '# n. iterations:                     ',    i12  /&
-         '# optimization algorithm:            ',    a12  /&
-         '# learning rate:                     ',  f12.3  /)
+         '# elss-learn (elss v0.4)              '/& 
+         '#                                     '/&
+         '# data type:                          ',    a12  /&
+         '# chk file unit:                      ',    i12  /&
+         '# n. procs:                           ',    i12  /&
+         '# n. features:                        ',    i12  /&
+         '# n. classes:                         ',    i12  /&
+         '# n. samples:                         ',    i12  /&
+         '# n. sweeps (per update):             ',    i12  /&
+         '# temperature factor:                 ',  f12.3  /&
+         '# weights file unit:                  ',    i12  /&
+         '# %id threshold:                      ',  f12.3  /&
+         '# neff:                               ',  f12.3  /&
+         '# lambda:                             ',  f12.3  /&
+         '# n. chains (per process):            ',    i12  /&
+         '# n. sweeps (per iteration, process): ',    i12  /&
+         '# n. iterations:                      ',    i12  /&
+         '# optimization algorithm:             ',    a12  /&
+         '# learning rate:                      ',  f12.3  /)
 
   !================================================ allocate memory for map algorithm
   
