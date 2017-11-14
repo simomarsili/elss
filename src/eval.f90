@@ -69,11 +69,7 @@ program eval
   ! read data
   call data_read(iproc, udata, uwgt, wid, nv, nc, data_type, ndata, neff, &
        data, err)
-  close(udata)
-  if (err /= 0) then
-     write(0,*) 'ERROR ! cannot read from msa file'
-     stop
-  end if
+  if (err /= 0) stop
   if (nvars > 0) then
      if (nv /= nvars .or. nc > nclasses) then
         write(0,*) 'ERROR ! data are not consistent with chk file'

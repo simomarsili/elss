@@ -18,7 +18,7 @@ contains
 
   subroutine data_read(iproc, udata, uwgt, wid, nvars, nclasses, data_type, &
                        ndata, neff, data, error_code)
-    use fasta, only: fasta_read
+    use fasta, only: fasta_read, fasta_alphabet
     integer,              intent(in)    :: iproc
     integer,              intent(in)    :: udata
     integer,              intent(in)    :: uwgt
@@ -69,6 +69,22 @@ contains
           end if
        end do
 
+       ! smallest index should be ZERO
+       cmin = minval(data)
+       if (cmin /= 0) then
+          if (iproc == 0) write(0,*) 'cmin: ', cmin
+          if (cmin < 0)then
+             if (iproc == 0) write(0, *) "ERROR: class indices should start from zero."
+             error_code = 3
+             return
+          else
+             if (iproc == 0) write(0, *) "WARNING: class indices should start from zero."
+          end if
+       end if
+       data = data + 1
+       ! set n. of classes per variable as the max value in data
+       nclasses = maxval(data)
+
     case('bio', 'protein', 'nuc_acid')
 
        ! read sequences from MSA
@@ -76,6 +92,7 @@ contains
        if (error_code /= 0) return
        ndata = size(data, 2)
        nvars = size(data, 1)
+       nclasses = len_trim(fasta_alphabet)
 
     end select
 
@@ -115,19 +132,7 @@ contains
 
     end if
 
-    ! first class is set to one
-    cmin = minval(data)
-    if (iproc == 0 .and. cmin < 0) then
-       write(0, *) "WARNING: class indices should start from zero."
-    end if
-    data = data - cmin + 1
-    ! set n. of classes per variable as the max value in data
-    nclasses = maxval(data)
-
     neff = sum(ws)
-
-    close(udata)
-
   end subroutine data_read
 
   subroutine data_average(nvars, nclasses, ndata, neff, data, &

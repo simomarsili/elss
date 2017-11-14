@@ -106,8 +106,8 @@ program learn
   ! read data
   call data_read(iproc,udata,uwgt,wid,& 
        nv,nc,data_type,ndata,neff,data,err)
+  close(udata)
   if (err /= 0) then
-     if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'
      call mpi_wrapper_finalize(err)
      stop
   end if
