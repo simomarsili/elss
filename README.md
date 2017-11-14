@@ -13,8 +13,13 @@ correlated amino acids can be learned and resampled using MCMC methods
 ## Obtaining the source
 
 All **elss** source code is hosted on Github. 
-The latest version can be downloaded using 
-[this link](https://github.com/simomarsili/elss/archive/v0.3.2.tar.gz). 
+A copy of the code can be downloaded from 
+[this page](https://github.com/simomarsili/elss/releases/latest)  
+The `git` repo can be cloned by:
+
+```bash
+$ git clone https://github.com/simomarsili/elss.git
+```
 
 ## Prerequisites
 
@@ -93,7 +98,7 @@ $ head encoded.txt
 ```
 
 The code assumes that all variables share a common set of classes, 
-encoded as integer indices starting from zero.  
+encoded as integer indices **starting from zero**.  
 Alternatively, biological sequence data can be directly read from a
 multiple sequence alignment file in FASTA format.
 
