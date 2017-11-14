@@ -47,6 +47,7 @@ program learn
   integer                         :: dim1,dim2
   integer                         :: ulog
   character(len=long_string_size) :: filename
+  integer, allocatable            :: chk_data(:,:)
 
   !================================================ set defaults
 
@@ -94,11 +95,17 @@ program learn
   !================================================ read checkpoint file
   
   if (uchk > 0) then
-     call read_chk(uchk, data_type, nvars, nclasses, iproc, seq, prm, err)
+     call read_chk(uchk, nvars, nclasses, data_type, chk_data, prm, err)
      if (err /= 0) then
-        if(iproc == 0) write(0,*) 'ERROR ! cannot read from chk'
         call mpi_wrapper_finalize(err)
         stop
+     end if
+     allocate(seq(nvars), stat=err)
+     call random_data(nclasses,seq)
+     if (allocated(chk_data)) then
+        if (nproc <= size(chk_data(1, :))) then
+           seq = chk_data(:, iproc + 1)
+        end if
      end if
      close(uchk)
   end if
