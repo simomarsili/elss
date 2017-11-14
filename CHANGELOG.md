@@ -1,9 +1,16 @@
 # Change log
 
 ## [Unreleased]
+
+## [0.4] - 2017-11-14
+### Added
+- version.json
+
 ### Changed
 - class indices for data encoding must start from zero.  
-  code is not correcting indices a posteriori.
+  
+### Removed
+- version.py
 
 ## [0.3.1] - 2017-10-31
 ### Added
