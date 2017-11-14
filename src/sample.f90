@@ -36,8 +36,7 @@ program sample
   logical                         :: hot_start
   integer, allocatable            :: chk_data(:,:)
 
-  !================================================ set defaults
-
+  ! set default values
   nvars = 0
   nclasses = 0
   data_type = 'unk'
@@ -49,76 +48,63 @@ program sample
   beta = 1.0_kflt
   prefix = ''
 
-  !================================================ init. unit identifiers
-
+  ! init. unit identifiers
   call units_initialize()
 
-  !================================================ read args
-
+  ! read command line args
   call command_line_read(uchk,rseed,beta,istart,mc_nsweeps,nupdate,prefix,err)
-
   if (err /= 0) stop
 
-  !================================================ init. the random number generator
-
+  ! init. the random number generator
   call random_initialize(rseed,iproc)
 
-  !================================================ read checkpoint file
-
+  ! read checkpoint file
   call read_chk(uchk,nvars,nclasses,data_type,chk_data,prm,err)
-  if (err /= 0) stop
+  close(uchk)
+  if (err /= 0) then
+     write(0,*) 'ERROR ! cannot read from chk file'
+     stop
+  end if
+
+  ! allocate memory for the run and initialize chains
+  dim1 = nvars * nclasses
+  dim2 = nvars * (nvars - 1) * nclasses**2 / 2
   allocate(seq(nvars), stat=err)
+  allocate(fmodel(dim1+dim2),stat=err)
   if (allocated(chk_data)) then
      seq = chk_data(:,1)
   else
      call random_data(nclasses,seq)
   end if
-  close(uchk)
-  
-  !================================================ allocate memory for the run and initialize
-
-  dim1 = nvars * nclasses
-  dim2 = nvars * (nvars - 1) * nclasses**2 / 2
-  if (uchk == 0) then
-     ! allocate seq
-     allocate(seq(nvars),stat=err)
-     seq = 0
-     call random_data(nclasses, seq)
-  end if
-  allocate(fmodel(dim1+dim2),stat=err)
   fmodel = 0.0_kflt
 
-  if (iproc == 0) then
-     
-     ! open log file
-     if (len_trim(prefix) == 0) then
-        filename = 'log'
-     else
-        filename = trim(prefix)//'.log'        
-     end if
-     call units_open(trim(filename),'unknown',ulog,err)
-     if(err /= 0) then
-        write(0,*) "error opening file ", trim(filename)
-        stop
-     end if
-
-     ! open trj file
-     if (len_trim(prefix) == 0) then
-        filename = 'trj'
-     else
-        filename = trim(prefix)//'.trj'        
-     end if
-     call units_open(filename,'unknown',utrj,err)
-     if(err /= 0) then
-        write(0,*) "error opening file ", trim(filename)
-        stop
-     end if
-
-     ! print a header
-     write(ulog, 101) adjustr(trim(data_type)), uchk, nvars,&
-          nclasses, istart, mc_nsweeps, nupdate, beta
+  ! open log file
+  if (len_trim(prefix) == 0) then
+     filename = 'log'
+  else
+     filename = trim(prefix)//'.log'        
   end if
-
+  call units_open(trim(filename),'unknown',ulog,err)
+  if(err /= 0) then
+     write(0,*) "error opening file ", trim(filename)
+     stop
+  end if
+  
+  ! open trj file
+  if (len_trim(prefix) == 0) then
+     filename = 'trj'
+  else
+     filename = trim(prefix)//'.trj'        
+  end if
+  call units_open(filename,'unknown',utrj,err)
+  if(err /= 0) then
+     write(0,*) "error opening file ", trim(filename)
+     stop
+  end if
+  
+  ! print a header
+  write(ulog, 101) adjustr(trim(data_type)), uchk, nvars,&
+       nclasses, istart, mc_nsweeps, nupdate, beta
 101 format(&
          '# elss-sample (elss v0.3.2)          '/& 
          '#                                   '/&
@@ -132,7 +118,8 @@ program sample
          '# temperature factor:     ',  f12.3  /)
 
   !================================================ run a simulation
-  
+
+  ! simulate chains
   hot_start = .false.
   call mcmc_simulate(nvars,nclasses,seq,&
        prm(1:dim1),prm(dim1+1:dim1+dim2),data_type,&

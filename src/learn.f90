@@ -121,7 +121,6 @@ program learn
      nvars = nv
      nclasses = nc
   end if
-     
 
   ! allocate memory for the run and initialize chains
   dim1 = nvars * nclasses
