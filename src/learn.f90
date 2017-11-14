@@ -42,7 +42,7 @@ program learn
   character(len=string_size)     :: algorithm
   character(len=long_string_size) :: prefix
   integer                         :: err
-  integer                         :: dim1,dim2
+  integer                         :: nv,nc,dim1,dim2
   integer                         :: ulog
   character(len=long_string_size) :: filename
   integer, allocatable            :: chk_data(:,:)
@@ -84,27 +84,12 @@ program learn
   ! init. the random number generator
   call random_initialize(rseed,iproc) 
 
-  ! read data
-  call data_read(iproc,udata,uwgt,wid,& 
-       nvars,nclasses,data_type,ndata,neff,data,err)
-  if (err /= 0) then
-     if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'
-     call mpi_wrapper_finalize(err)
-     stop
-  end if
-
   ! read checkpoint file
   if (uchk > 0) then
      call read_chk(uchk, nvars, nclasses, data_type, chk_data, prm, err)
      if (err /= 0) then
-        select case(err)
-        case(1)
-           if(iproc == 0) &
-                write(0,*) 'ERROR ! chk file is not consistent with data'
-        case default
-           if(iproc == 0) &
-                write(0,*) 'ERROR ! cannot read from chk file'
-        end select
+        if(iproc == 0) &
+             write(0,*) 'ERROR ! cannot read from chk file'
         call mpi_wrapper_finalize(err)
         stop
      end if
@@ -117,6 +102,26 @@ program learn
      end if
      close(uchk)
   end if
+
+  ! read data
+  call data_read(iproc,udata,uwgt,wid,& 
+       nv,nc,data_type,ndata,neff,data,err)
+  if (err /= 0) then
+     if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'
+     call mpi_wrapper_finalize(err)
+     stop
+  end if
+  if (nvars > 0) then
+     if (nv /= nvars .or. nc > nclasses) then
+        if(iproc == 0) write(0,*) 'ERROR ! data are not consistent with chk file'
+        call mpi_wrapper_finalize(err)
+        stop
+     end if
+  else
+     nvars = nv
+     nclasses = nc
+  end if
+     
 
   ! allocate memory for the run and initialize chains
   dim1 = nvars * nclasses

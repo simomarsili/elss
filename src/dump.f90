@@ -91,8 +91,8 @@ contains
     use random, only: random_data
     use fasta, only: set_fasta_alphabet
     integer,          intent(in)               :: unt
-    integer,          intent(inout)            :: nvars
-    integer,          intent(inout)            :: nclasses
+    integer,          intent(out)              :: nvars
+    integer,          intent(out)              :: nclasses
     character(len=*), intent(out)              :: data_type
     integer,          intent(out), allocatable :: data(:, :)
     real(kflt),       intent(out), allocatable :: prm(:)
@@ -103,19 +103,10 @@ contains
 
     error_code = 0
 
-    read(unt) nv
-    read(unt) nc
+    read(unt) nvars
+    read(unt) nclasses
     read(unt) data_type
     read(unt) ndata
-
-    ! check consistency with data
-    if (nvars > 0 .and. (nv /= nvars .or. nc < nclasses)) then
-       error_code = 1
-       return
-    else
-       nvars = nv
-       nclasses = nc
-    end if
 
     allocate(data(nvars, ndata), stat=err)
     allocate(prm(nvars * nclasses + nvars * (nvars - 1) * nclasses**2 / 2), &
