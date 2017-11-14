@@ -93,7 +93,7 @@ $ head encoded.txt
 ```
 
 The code assumes that all variables share a common set of classes, 
-encoded as integer indices starting from zero.  
+encoded as integer indices **starting from zero**.  
 Alternatively, biological sequence data can be directly read from a
 multiple sequence alignment file in FASTA format.
 
