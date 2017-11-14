@@ -149,7 +149,7 @@ contains
           iarg = iarg + 1
           call read_opt_arg(iarg,nargs,nreplicas,err)
           if ( err/= 0 ) then
-             write(0,*) 'ERROR ! check learning rate'
+             write(0,*) 'ERROR ! check --replicas value'
              error_code = 1
              return
           end if
