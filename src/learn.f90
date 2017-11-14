@@ -47,8 +47,7 @@ program learn
   character(len=long_string_size) :: filename
   integer, allocatable            :: chk_data(:,:)
 
-  !================================================ set defaults
-
+  ! set default values
   nvars = 0
   nclasses = 0
   udata = 0
@@ -67,38 +66,50 @@ program learn
   beta = 1.0_kflt
   prefix = ''
 
-  !================================================ init. unit identifiers
-
+  ! init. unit identifiers
   call units_initialize()
 
-  !================================================ read args
-
+  ! read command line args
   call command_line_read(udata,data_type,uwgt,&
        wid,uchk,rseed,beta,mc_nsweeps,nupdate,algorithm,rate,niter,&
        lambda,prefix,err)
-  
   if (err /= 0) then
+     call mpi_wrapper_finalize(err)
      stop
   end if
 
-  !================================================ init. mpi
+  ! init mpi
+  call mpi_wrapper_initialize(err) 
 
-  call mpi_wrapper_initialize(err)
+  ! init. the random number generator
+  call random_initialize(rseed,iproc) 
 
-  !================================================ init. the random number generator
+  ! read data
+  call data_read(iproc,udata,uwgt,wid,& 
+       nvars,nclasses,data_type,ndata,neff,data,err)
+  if (err /= 0) then
+     if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'
+     call mpi_wrapper_finalize(err)
+     stop
+  end if
 
-  call random_initialize(rseed,iproc)
-
-  !================================================ read checkpoint file
-
+  ! read checkpoint file
   if (uchk > 0) then
-     call read_chk(uchk,nvars,nclasses,data_type,chk_data,prm,err)
+     call read_chk(uchk, nvars, nclasses, data_type, chk_data, prm, err)
      if (err /= 0) then
+        select case(err)
+        case(1)
+           if(iproc == 0) &
+                write(0,*) 'ERROR ! chk file is not consistent with data'
+        case default
+           if(iproc == 0) &
+                write(0,*) 'ERROR ! cannot read from chk file'
+        end select
         call mpi_wrapper_finalize(err)
         stop
      end if
      allocate(seq(nvars), stat=err)
-     call random_data(nclasses,seq)
+     call random_data(nclasses, seq)
      if (allocated(chk_data)) then
         if (nproc <= size(chk_data(1, :))) then
            seq = chk_data(:, iproc + 1)
@@ -107,19 +118,7 @@ program learn
      close(uchk)
   end if
 
-  !================================================ read data
-
-  call data_read(iproc,udata,uwgt,wid,&
-       nvars,nclasses,data_type,ndata,neff,data,err)
-
-  if (err /= 0) then
-     if(iproc == 0) write(0,*) 'ERROR ! cannot read from msa file'
-     call mpi_wrapper_finalize(err)
-     stop
-  end if
-
-  !================================================ allocate memory for the run and initialize
-
+  ! allocate memory for the run and initialize chains
   dim1 = nvars * nclasses
   dim2 = nvars * (nvars - 1) * nclasses**2 / 2
   if (uchk == 0) then
