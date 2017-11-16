@@ -134,7 +134,7 @@ contains
     end if
 
 100 format(&
-         'elss-eval (elss v0.4)                                             '/&
+         'elss-eval (elss v0.4.1)                                             '/&
          '                                                                  '/&
          'Usage:                                                            '/&
          '    elss-eval [options] -c <chk_file> (-i <data_file>|--fasta <MSA_file>)'/&
