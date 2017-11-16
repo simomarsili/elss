@@ -23,10 +23,7 @@ contains
     integer,          intent(inout) :: uchk
     integer,          intent(inout) :: rseed
     real(kflt),       intent(inout) :: beta
-<<<<<<< HEAD
     integer,          intent(inout) :: nreplicas
-=======
->>>>>>> develop
     integer,          intent(inout) :: mc_nsweeps
     integer,          intent(inout) :: nupdate
     character(len=string_size), intent(inout) :: algorithm
@@ -147,7 +144,6 @@ contains
              error_code = 1
              return
           end if
-<<<<<<< HEAD
        case('-nr', '--replicas')
           ! learning rate
           iarg = iarg + 1
@@ -162,8 +158,6 @@ contains
              error_code = 1
              return
           end if
-=======
->>>>>>> develop
        case('-n','--nsweeps')
           ! num. of sweeps at each gradient evaluation
           iarg = iarg + 1
@@ -335,13 +329,10 @@ contains
          '-c, --chk <chk_file>                                              '/&
          '    Restart a previous calculation from checkpoint file.          '/&
          '                                                                  '/&
-<<<<<<< HEAD
          '-nr, --replicas <n>, integer                                      '/&
          '    Number of independent chains per processor.                   '/&
          '    [default: 1]                                                  '/&
          '                                                                  '/&
-=======
->>>>>>> develop
          '-n, --nsweeps <n>, integer                                        '/&
          '    Number of MC sweeps per gradient estimate.                    '/&
          '    [default: 1000]                                               '/&
