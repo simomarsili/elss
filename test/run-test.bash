@@ -51,12 +51,15 @@ command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's n
 
 echo "fitting model parameters... (chk, prm, log)"
 mpiexec -n $NPROC $EXE\-learn --fasta $DATA -n $NS --seed 123 >> log 2>&1;
+mv log learn.log;
 
 echo "sampling sequences from the model distribution... (trj, log)"
-$EXE\-sample -c chk -n 100000 --seed 123 >> log 2>&1; 
+$EXE\-sample -c chk -n 100000 --seed 123 >> log 2>&1;
+mv log sample.log;
 
 echo "checking data energies... (ene, log)"
 $EXE\-eval -c chk --fasta $DATA >> log 2>&1;
+mv log eval.log;
 
 #echo "checking prms... "
 #$EXE\-pchk -u chk > chk.dat; 
