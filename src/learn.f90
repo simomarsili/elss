@@ -96,11 +96,10 @@ program learn
         call mpi_wrapper_finalize(err)
         stop
      end if
-     allocate(seq(nvars), stat=err)
-     call random_data(nclasses, seq)
      if (allocated(chk_data)) then
-        if (nproc <= size(chk_data(1, :))) then
-           seq = chk_data(:, iproc + 1)
+        if (nproc * nreplicas <= size(chk_data, 2)) then
+           allocate(seqs(nvars, nreplicas), stat=err)
+           seqs = chk_data(:, iproc * nreplicas + 1 : (iproc + 1) * nreplicas)
         end if
      end if
      close(uchk)
@@ -128,14 +127,19 @@ program learn
   ! allocate memory for the run and initialize chains
   dim1 = nvars * nclasses
   dim2 = nvars * (nvars - 1) * nclasses**2 / 2
+  
   if (uchk == 0) then
      allocate(prm(dim1 + dim2), stat=err)
      prm = 0.0_kflt
-     allocate(seqs(nvars, nreplicas), seq(nvars), stat=err)
-     call random_data(nclasses, seqs)
-     seq = seqs(:, 1)
   end if
-  
+
+  if (.not. allocated(seqs)) then
+     allocate(seqs(nvars, nreplicas), stat=err)
+     call random_data(nclasses, seqs)
+  end if
+
+  allocate(seq(nvars), stat=err)
+  seq = seqs(:, 1)
   
   ! allocate and fill up seqs_table
   allocate(seqs_table(nvars, nreplicas, nproc), stat=err)
