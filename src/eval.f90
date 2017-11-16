@@ -108,7 +108,7 @@ program eval
   write(ulog, 101) adjustr(trim(data_type)), uchk, nvars, &
        nclasses, ndata
 101 format(&
-         '# elss-eval (elss v0.4)           '/& 
+         '# elss-eval (elss v0.4.1)           '/& 
          '#                                   '/&
          '# data type:              ',    a12  /&
          '# chk file unit:          ',    i12  /&
