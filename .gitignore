@@ -4,8 +4,9 @@
 src/*.o
 src/*.mod
 test/*
-!test/0.TRJ
 !test/10.fa
+!test/eval.ref.out
+!test/sample.ref.out
 !cv.bash
 !run-test.bash
 user_guide/*
