@@ -45,7 +45,7 @@ Running tests...
 ================
 '
 
-rm chk trj ene
+rm chk trj ene sample.test.out eval.test.out
 
 command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's not installed.  Aborting."; exit 1; }
 
@@ -55,12 +55,12 @@ mv log learn.log;
 
 echo "sampling sequences from the model distribution... (trj, log)"
 $EXE\-sample -c chk -n 100000 --seed 123 >> log 2>&1;
-tail -20 trj > sample.out;
+tail -20 trj > sample.test.out;
 mv log sample.log;
 
 echo "checking data energies... (ene, log)"
 $EXE\-eval -c chk --fasta $DATA >> log 2>&1;
-tail -10 ene > eval.out;
+tail -10 ene > eval.test.out;
 mv log eval.log;
 
 #echo "checking prms... "
@@ -76,15 +76,15 @@ Checking results
     # check diffs
     tests_ok=true
     
-    if ! cmp sample.out sample.ref.out >/dev/null 2>&1; then
-	echo "trj: RESULTS DIFFER..."
-	echo "check files TRJ and trj for minor numerical diffs and log file"
+    if ! cmp sample.test.out sample.ref.out >/dev/null 2>&1; then
+	echo "elss-sample: RESULTS DIFFER..."
+	echo "compare sample.test.out and sample.ref.out for minor numerical diffs and sample.log file"
 	tests_ok=false
     fi
     
-    if ! cmp eval.out eval.ref.out >/dev/null 2>&1; then
-	echo "ene: RESULTS DIFFER..."
-	echo "check files ENE and ene for minor numerical diffs and log file"
+    if ! cmp eval.test.out eval.ref.out >/dev/null 2>&1; then
+	echo "elss-eval: RESULTS DIFFER..."
+	echo "compare eval.test.out and eval.ref.out for minor numerical diffs and eval.log file"
 	tests_ok=false
     fi
 
@@ -96,6 +96,7 @@ Checking results
 
     if [ "$tests_ok" = true ] ; then
 	echo "!!! TESTS OK !!!"
+	rm sample.test.out eval.test.out
     fi
 fi 
 
