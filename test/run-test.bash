@@ -51,12 +51,17 @@ command -v mpiexec >/dev/null 2>&1 || { echo >&2 "mpiexec is required but it's n
 
 echo "fitting model parameters... (chk, prm, log)"
 mpiexec -n $NPROC $EXE\-learn --fasta $DATA -n $NS --seed 123 >> log 2>&1;
+mv log learn.log;
 
 echo "sampling sequences from the model distribution... (trj, log)"
-$EXE\-sample -c chk -n 100000 --seed 123 >> log 2>&1; 
+$EXE\-sample -c chk -n 100000 --seed 123 >> log 2>&1;
+tail -20 trj > sample.out;
+mv log sample.log;
 
 echo "checking data energies... (ene, log)"
 $EXE\-eval -c chk --fasta $DATA >> log 2>&1;
+tail -10 ene > eval.out;
+mv log eval.log;
 
 #echo "checking prms... "
 #$EXE\-pchk -u chk > chk.dat; 
@@ -71,13 +76,13 @@ Checking results
     # check diffs
     tests_ok=true
     
-    if ! cmp trj TRJ >/dev/null 2>&1; then
+    if ! cmp sample.out sample.ref.out >/dev/null 2>&1; then
 	echo "trj: RESULTS DIFFER..."
 	echo "check files TRJ and trj for minor numerical diffs and log file"
 	tests_ok=false
     fi
     
-    if ! cmp ene ENE >/dev/null 2>&1; then
+    if ! cmp eval.out eval.ref.out >/dev/null 2>&1; then
 	echo "ene: RESULTS DIFFER..."
 	echo "check files ENE and ene for minor numerical diffs and log file"
 	tests_ok=false
