@@ -152,6 +152,7 @@ contains
 
        ! each chain knows the coordinates of other chains
        seqs_table(:,1,iproc+1) = seq
+
        CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
 
        if(iproc == 0) then

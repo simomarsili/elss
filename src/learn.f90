@@ -80,7 +80,7 @@ program learn
      call mpi_wrapper_finalize(err)
      stop
   end if
-  
+
   ! init mpi
   call mpi_wrapper_initialize(err) 
 
