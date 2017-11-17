@@ -161,22 +161,26 @@ contains
     integer,          intent(in)  :: unt
     character(len=*), intent(in)  :: data_type
     integer,          intent(in)  :: nclasses
-    integer,          intent(in)  :: seqs(:,:)
+    integer,          intent(in)  :: seqs(:, :, :)
     real(kflt),       intent(in)  :: prm(:)
     integer,          intent(out) :: error_code
-    integer :: table_shape(2)
-    integer :: id, nvars, ndata
+    integer :: table_shape(3)
+    integer :: nvars, nr, np
+    integer :: ir, ip
 
     error_code = 0
     table_shape = shape(seqs)
     nvars = table_shape(1)
-    ndata = table_shape(2)
+    nr = table_shape(2)
+    np = table_shape(3)
     write(unt) nvars
     write(unt) nclasses
     write(unt) data_type
-    write(unt) ndata
-    do id = 1, ndata
-       write(unt) seqs(:, id)
+    write(unt) nr * np
+    do ip = 1,np
+       do ir = 1,nr
+          write(unt) seqs(:, ir, ip)
+       end do
     end do
     write(unt) prm
 
@@ -189,7 +193,7 @@ contains
     character(len=*), intent(in)  :: status
     character(len=*), intent(in)  :: data_type
     integer,          intent(in)  :: nclasses
-    integer,          intent(in)  :: seqs(:,:)
+    integer,          intent(in)  :: seqs(:, :, :)
     real(kflt),       intent(in)  :: prm(:)
     integer,          intent(out) :: error_code
     integer :: unt,err

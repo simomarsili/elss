@@ -211,7 +211,7 @@ program learn
   
   ! inv. temperature for MAP estimation is set to 1
   call map_learn(algorithm,rate,nvars,nclasses,niter,lambda,mc_nsweeps,&
-       1.0_kflt,nupdate,data_type,ulog,fdata,prefix,seq,seqs_table,prm,fmodel)
+       1.0_kflt,nupdate,data_type,ulog,fdata,prefix,seqs,seqs_table,prm,fmodel)
 
   !================================================ compute and print scores
   

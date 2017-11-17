@@ -16,7 +16,7 @@ module map
 contains
 
   subroutine map_learn(algorithm,rate,nvars,nclasses,niter,lambda,mc_nsweeps,beta,&
-       nupdate,data_type,ulog,fdata,prefix,seq,seqs_table,prm,fmodel)
+       nupdate,data_type,ulog,fdata,prefix,seqs_table,prm,fmodel)
     use dump, only: dump_chk
     character(len=*), intent(in)  :: algorithm
     real(kflt), intent(in) :: rate
@@ -30,7 +30,6 @@ contains
     integer,          intent(in)     :: ulog
     real(kflt),       intent(in)     :: fdata(:)
     character(len=*), intent(in)     :: prefix
-    integer,          intent(inout)  :: seq(:)
     integer,          intent(inout)  :: seqs_table(:,:,:)
     real(kflt),       intent(inout)  :: prm(:)
     real(kflt),       intent(out)    :: fmodel(:)
@@ -59,7 +58,7 @@ contains
             '     cpu_time'
     end if
 
-    call map_all(algorithm,rate,nvars,nclasses,seq,seqs_table,prm,fmodel,&
+    call map_all(algorithm,rate,nvars,nclasses,seqs_table,prm,fmodel,&
          fdata,data_type,ulog,beta,lambda,&
          niter,mc_nsweeps,tot_iter,nupdate)
 
@@ -67,12 +66,12 @@ contains
     
     if(iproc == 0) then
        call dump_chk(chk_file, 'replace', data_type, nclasses, &
-            seqs_table(:, 1, :), prm, err)
+            seqs_table, prm, err)
     end if
 
   end subroutine map_learn
 
-  subroutine map_all(algorithm,eps_map,nvars,nclasses,seq,seqs_table,prm,fmodel,fdata,&
+  subroutine map_all(algorithm,eps_map,nvars,nclasses,seqs_table,prm,fmodel,fdata,&
        data_type,ulog,beta,lambda,niter,&
        mc_nsweeps,tot_iter,nupdate)
     use mcmc, only:       mcmc_update_energy
@@ -82,7 +81,6 @@ contains
     character(len=*), intent(in)  :: algorithm
     real(kflt), intent(in)       :: eps_map
     integer,    intent(inout)    :: nvars,nclasses
-    integer,    intent(inout)    :: seq(:)
     integer,    intent(inout)    :: seqs_table(:,:,:)
     real(kflt), intent(inout)    :: prm(:)
     real(kflt), intent(out)      :: fmodel(:)
@@ -106,12 +104,17 @@ contains
     real(kflt),parameter            :: gamma1=0.9_kflt,gamma2=0.999_kflt
     real(kflt)                      :: g1,g2
     integer, parameter              :: nt0=10
+    integer                         :: table_shape(3)
+    integer                         :: nreplicas
 
 
     dim1 = nvars*nclasses
     dim2 = nvars*(nvars-1)*nclasses**2/2
     dimm = dim1 + dim2
     if (iproc == 0) allocate(grd(dimm),stat=err)
+
+    table_shape = shape(seqs_table)
+    nreplicas = table_shape(2)
     
     ! initialize and set alg. dependent defaults
     dimm = size(prm)
@@ -148,17 +151,16 @@ contains
        tot_iter = tot_iter + 1
        
        ! compute model frequencies
-       call map_compute_fmodel(nvars,nclasses,seq,prm,beta,iter,mc_nsweeps,nupdate,fmodel,elapsed,facc)
+       call map_compute_fmodel(nvars,nclasses,seqs,prm,beta,iter,mc_nsweeps,nupdate,fmodel,elapsed,facc)
 
        ! each chain knows the coordinates of other chains
-       seqs_table(:,1,iproc+1) = seq
-
-       CALL mpi_allgather(seq, nvars, MPI_INTEGER, seqs_table, nvars, MPI_INTEGER, MPI_COMM_WORLD, err)
+       seqs_table(:,:,iproc+1) = seqs
+       CALL mpi_allgather(seqs, nvars * nreplicas, MPI_INTEGER, seqs_table, nvars * nreplicas, MPI_INTEGER, MPI_COMM_WORLD, err)
 
        if(iproc == 0) then
           if(mod(iter,1) == 0 .or. iter == 1) then
              call dump_chk('chk', 'replace', data_type, nclasses, &
-                  seqs_table(:, 1, :), prm, err)
+                  seqs_table, prm, err)
              if( err /= 0 ) then 
                 if ( iproc == 0 ) write(0,*) "error opening file chk", err
                 call mpi_wrapper_finalize(err)
@@ -257,12 +259,12 @@ contains
 
   end subroutine map_all
 
-  subroutine map_compute_fmodel(nvars,nclasses,seq,prm,beta,iter,&
+  subroutine map_compute_fmodel(nvars,nclasses,seqs,prm,beta,iter,&
                                 mc_nsweeps,nupdate,fmodel,elapsed,facc)
     ! given a set of prms, compute the model frequencies via MC simulation
     use mcmc, only: mcmc_simulate
     integer,    intent(in)     :: nvars,nclasses
-    integer,    intent(inout)  :: seq(:)
+    integer,    intent(inout)  :: seqs(:,:)
     real(kflt), intent(in)     :: prm(:)
     real(kflt), intent(in)     :: beta
     integer,    intent(in)     :: iter
