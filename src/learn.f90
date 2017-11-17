@@ -72,6 +72,9 @@ program learn
   ! init. unit identifiers
   call units_initialize()
 
+    ! init mpi
+  call mpi_wrapper_initialize(err) 
+
   ! read command line args
   call command_line_read(udata, data_type, uwgt, wid, uchk, rseed, beta, &
        nreplicas, mc_nsweeps, nupdate, algorithm, rate, niter, lambda, &
@@ -80,9 +83,6 @@ program learn
      call mpi_wrapper_finalize(err)
      stop
   end if
-
-  ! init mpi
-  call mpi_wrapper_initialize(err) 
 
   ! init. the random number generator
   call random_initialize(rseed,iproc) 
