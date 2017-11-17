@@ -21,7 +21,7 @@ contains
        freq_single, freq_pair, beta, mc_nsweeps, hot_start, nupdate, utrj, facc)
     
     use dump, only:     dump_seq, dump_energies
-    use averages, only: averages_update
+    use averages, only: update_counts
     
     integer,          intent(in)    :: nvars, nclasses
     integer,          intent(inout) :: seq(:)
@@ -78,7 +78,7 @@ contains
        nacc = nacc + na
 
        ! update averages every nmoves
-       call averages_update(seq, freq_single, freq_pair)
+       call update_counts(seq, freq_single, freq_pair)
 
        if (utrj > 0) then 
           call dump_seq(data_type, utrj, seq, mc_step/nvars, etot, efields, &

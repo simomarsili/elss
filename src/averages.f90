@@ -6,11 +6,11 @@ module averages
   use kinds
   implicit none
   private
-  public :: averages_update
+  public :: update_counts
 
 contains
 
-  subroutine averages_update(seq, freq_single, freq_pair)
+  subroutine update_counts(seq, freq_single, freq_pair)
     integer,    intent(in)    :: seq(:)
     real(kflt), intent(inout) :: freq_single(:, :)
     real(kflt), intent(inout) :: freq_pair(:, :, :)
@@ -35,6 +35,6 @@ contains
        end do
     end do
 
-  end subroutine averages_update
+  end subroutine update_counts
 
 end module averages
