@@ -274,18 +274,21 @@ contains
     call mpi_wrapper_barrier(err)
     call cpu_time(start)
 
+    ! simulate and increment counts in fmodel
     hot_start = .false.
     fmodel = 0.0_kflt
     call mcmc_simulate(nvars,nclasses,seq,&
          prm(1:dim1),prm(dim1+1:dim1+dim2),'raw',&
          fmodel(1:dim1),fmodel(dim1+1:dim1+dim2),&
          beta,mc_nsweeps,hot_start,nupdate,-1,facc)
-
     call mpi_wrapper_barrier(err)
     call cpu_time(finish)
-
     elapsed = finish - start
 
+    ! normalize per processor
+    fmodel = fmodel / sum(fmodel(:nclasses))
+
+    ! average across processos
     call float_reduce(size(fmodel),fmodel)
     fmodel = fmodel / sum(fmodel(:nclasses))
 
