@@ -106,6 +106,7 @@ contains
     real(kflt),parameter            :: gamma1=0.9_kflt,gamma2=0.999_kflt
     real(kflt)                      :: g1,g2
     integer, parameter              :: nt0=10
+    real(kflt)                      :: etot
 
 
     dim1 = nvars*nclasses
@@ -231,9 +232,10 @@ contains
 
        end if
 
-       call float_bcast(size(prm),prm)
+       call float_bcast(size(prm), prm)
        
-       call mcmc_update_energy(nvars,nclasses,seq,prm(1:dim1),prm(dim1+1:dimm))
+       call mcmc_update_energy(nvars, nclasses, seq, prm(1:dim1), &
+            prm(dim1+1:dimm), etot)
 
     end do
 

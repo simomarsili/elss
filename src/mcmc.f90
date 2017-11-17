@@ -11,9 +11,7 @@ module mcmc
   public :: mcmc_update_energy
   public :: mcmc_compute_energy
   public :: mcmc_simulate
-  public :: etot
 
-  real(kflt) :: etot
   real(kflt) :: efields
   real(kflt) :: ecouplings
 
@@ -44,12 +42,13 @@ contains
     integer :: mc_nsteps           ! total MCMC steps
     integer :: nmoves              ! stride for average update and
     integer :: na,nacc
+    real(kflt) :: etot ! energy of actual sequence
 
     ! initialize averages
     call averages_initialize(freq_single, freq_pair)
 
     ! initialize energy values (efields, ecouplings)
-    call mcmc_update_energy(nvars, nclasses, seq, fields, couplings)
+    call mcmc_update_energy(nvars, nclasses, seq, fields, couplings, etot)
 
     ! set total mc steps
     mc_nsteps = mc_nsweeps * nvars
@@ -64,7 +63,7 @@ contains
     ! hot start: first mc_nsteps are discarded - no print at all
     !call mcmc_move(nvars,nclasses,seq,fields,couplings,beta,mc_nsteps,na)
     if (hot_start) then
-       call mcmc_move(nvars, nclasses, seq, fields, couplings, beta, mc_nsteps, na)
+       call mcmc_move(nvars, nclasses, seq, etot, fields, couplings, beta, mc_nsteps, na)
     end if
 
     mc_step = 0
@@ -77,7 +76,7 @@ contains
 
     mc_loop: do
        ! nmoves steps
-       call mcmc_move(nvars, nclasses, seq, fields, couplings, beta, nmoves, na)
+       call mcmc_move(nvars, nclasses, seq, etot, fields, couplings, beta, nmoves, na)
        mc_step = mc_step + nmoves
        nacc = nacc + na
 
@@ -133,12 +132,13 @@ contains
 
   end subroutine mcmc_compute_energy
 
-  subroutine mcmc_update_energy(nvars, nclasses, seq, fields, couplings)
+  subroutine mcmc_update_energy(nvars, nclasses, seq, fields, couplings, etot)
     integer,    intent(in) :: nvars, nclasses
     integer,    intent(in) :: seq(:)
     real(kflt), intent(in) :: fields(nclasses, nvars)
     real(kflt), intent(in) :: couplings(nclasses, nclasses, &
          nvars * (nvars - 1) * nclasses**2)
+    real(kflt), intent(out) :: etot
     integer    :: iv, jv
     integer    :: is, js
     integer    :: k
@@ -166,10 +166,11 @@ contains
 
   end subroutine mcmc_update_energy
 
-  subroutine mcmc_move(nvars, nclasses, seq, fields, couplings, beta, nsteps, &
+  subroutine mcmc_move(nvars, nclasses, seq, etot, fields, couplings, beta, nsteps, &
        nacc)
     integer,    intent(in)    :: nvars, nclasses
     integer,    intent(inout) :: seq(:)
+    real(kflt), intent(inout) :: etot
     real(kflt), intent(in)    :: fields(:, :)
     real(kflt), intent(in)    :: couplings(:, :, :)
     real(kflt), intent(in)    :: beta
