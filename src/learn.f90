@@ -20,7 +20,7 @@ program learn
   integer                 :: ndata     ! total number of samples
   real(kflt)              :: neff         ! effective number of data
   integer,    allocatable :: seq(:)    ! nvars seq array
-  integer,    allocatable :: seqs(:,:)    ! (nvars, nreplicas) seqs array
+  integer,    allocatable :: seqs(:,:)    ! (nvars, nreplicas) local seqs array
   integer,    allocatable :: data(:,:) ! data matrix
   real(kflt), allocatable :: prm(:)       ! parameters array
   real(kflt), allocatable :: fmodel(:)    ! model frequencies
