@@ -42,7 +42,7 @@ contains
     integer :: mc_nsteps           ! total MCMC steps
     integer :: nmoves              ! stride for average update and
     integer :: na,nacc
-    real(kflt) :: etot
+    real(kflt) :: etot ! energy of actual sequence
 
     ! initialize averages
     call averages_initialize(freq_single, freq_pair)

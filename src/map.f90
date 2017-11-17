@@ -34,7 +34,6 @@ contains
     real(kflt),       intent(inout)  :: prm(:)
     real(kflt),       intent(out)    :: fmodel(:)
     character(len=long_string_size) :: chk_file
-    integer                         :: tot_iter
     integer                         :: dim1,dim2,dimm
     integer                         :: err
 
@@ -48,8 +47,6 @@ contains
     dim2 = nvars*(nvars-1)*nclasses**2/2
     dimm = dim1 + dim2
 
-    tot_iter = 0
-
     if (iproc == 0) then
        write(ulog,'(a)') &
             '# iter, '//&
@@ -60,9 +57,7 @@ contains
 
     call map_all(algorithm,rate,nvars,nclasses,seqs_table,prm,fmodel,&
          fdata,data_type,ulog,beta,lambda,&
-         niter,mc_nsweeps,tot_iter,nupdate)
-
-    tot_iter = tot_iter + 1
+         niter,mc_nsweeps,nupdate)
     
     if(iproc == 0) then
        call dump_chk(chk_file, 'replace', data_type, nclasses, &
@@ -73,7 +68,7 @@ contains
 
   subroutine map_all(algorithm,eps_map,nvars,nclasses,seqs_table,prm,fmodel,fdata,&
        data_type,ulog,beta,lambda,niter,&
-       mc_nsweeps,tot_iter,nupdate)
+       mc_nsweeps,nupdate)
     use mcmc, only:       mcmc_update_energy
     use dump, only:       dump_chk
     use cost, only: compute_cost,compute_gradient
@@ -91,7 +86,6 @@ contains
     real(kflt), intent(in)       :: lambda
     integer,    intent(in)       :: niter
     integer,    intent(in)       :: mc_nsweeps
-    integer,    intent(inout)    :: tot_iter
     integer,    intent(in)       :: nupdate
     integer                         :: iter
     integer                         :: err
@@ -106,6 +100,7 @@ contains
     integer, parameter              :: nt0=10
     integer                         :: table_shape(3)
     integer                         :: nreplicas
+    real(kflt)                      :: etot
 
 
     dim1 = nvars*nclasses
@@ -148,8 +143,6 @@ contains
 
     do iter = 1,niter
 
-       tot_iter = tot_iter + 1
-       
        ! compute model frequencies
        call map_compute_fmodel(nvars,nclasses,seqs,prm,beta,iter,mc_nsweeps,nupdate,fmodel,elapsed,facc)
 
@@ -235,9 +228,10 @@ contains
 
        end if
 
-       call float_bcast(size(prm),prm)
+       call float_bcast(size(prm), prm)
        
-       call mcmc_update_energy(nvars,nclasses,seq,prm(1:dim1),prm(dim1+1:dimm))
+       call mcmc_update_energy(nvars, nclasses, seq, prm(1:dim1), &
+            prm(dim1+1:dimm), etot)
 
     end do
 
