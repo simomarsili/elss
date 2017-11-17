@@ -145,7 +145,7 @@ contains
        end if
     end select
 
-    seqs = seqs_table(:, :, iproc)
+    seqs = seqs_table(:, :, iproc + 1)
     do iter = 1,niter
 
        ! compute model frequencies
