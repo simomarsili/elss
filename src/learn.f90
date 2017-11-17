@@ -6,7 +6,7 @@ program learn
   use kinds
   use constants
   use mpi_wrapper
-  use dump,        only: read_chk,dump_energies
+  use dump,        only: read_chk, dump_chk,dump_energies
   use learn_command_line
   use units,       only: units_initialize,units_open
   use data,        only: data_read,data_average
@@ -96,12 +96,6 @@ program learn
         call mpi_wrapper_finalize(err)
         stop
      end if
-     if (allocated(chk_data)) then
-        if (nproc * nreplicas <= size(chk_data, 2)) then
-           allocate(seqs(nvars, nreplicas), stat=err)
-           seqs = chk_data(:, iproc * nreplicas + 1 : (iproc + 1) * nreplicas)
-        end if
-     end if
      close(uchk)
   end if
 
@@ -133,24 +127,32 @@ program learn
      prm = 0.0_kflt
   end if
 
-  if (.not. allocated(seqs)) then
-     allocate(seqs(nvars, nreplicas), stat=err)
+  ! allocate and set the local pool of sequences
+  ! set the current sequence of the process
+  allocate(seq(nvars), stat=err)
+  allocate(seqs(nvars, nreplicas), stat=err)
+  if (allocated(chk_data)) then
+     if (nproc * nreplicas <= size(chk_data, 2)) then
+        ! set nreplicas data from checkpoint file as the local pool of data
+        seqs = chk_data(:, iproc * nreplicas + 1 : (iproc + 1) * nreplicas)
+     else
+        call random_data(nclasses, seqs)
+     end if
+     deallocate(chk_data)
+  else
      call random_data(nclasses, seqs)
   end if
-
-  allocate(seq(nvars), stat=err)
   seq = seqs(:, 1)
   
-  ! allocate and fill up seqs_table
+  ! allocate and fill up seqs_table == chk_data if shape matches
   allocate(seqs_table(nvars, nreplicas, nproc), stat=err)
   seqs_table = 0
   seqs_table(:, :, iproc+1) = seqs
   CALL mpi_allgather(seqs, nvars * nreplicas, MPI_INTEGER, seqs_table, nvars * nreplicas, MPI_INTEGER, MPI_COMM_WORLD, err)
+
   ! allocate model frequencies
   allocate(fmodel(dim1 + dim2), stat=err)
   fmodel = 0.0_kflt
-
-  close(udata)
 
   if (iproc == 0) then
      
