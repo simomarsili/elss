@@ -235,7 +235,7 @@ contains
        call float_bcast(size(prm), prm)
 
        do irep = 1,nreplicas
-          call mcmc_update_energy(nvars, nclasses, seq, prm(1:dim1), &
+          call mcmc_update_energy(nvars, nclasses, seqs(:, irep), prm(1:dim1), &
                prm(dim1+1:dimm), etot)
           etot_array(irep) = etot
        end do
@@ -286,24 +286,25 @@ contains
     call mpi_wrapper_barrier(err)
     call cpu_time(start)
 
+    ! simulate and increment counts in fmodel
     hot_start = .false.
-
+    fmodel = 0.0_kflt
     do irep = 1, size(seqs, 2)
        call mcmc_simulate(nvars,nclasses,seqs(:, irep),&
             prm(1:dim1),prm(dim1+1:dim1+dim2),'raw',&
             fmodel(1:dim1),fmodel(dim1+1:dim1+dim2),&
             beta,mc_nsweeps,hot_start,nupdate,-1,facc)
     end do
-
     call mpi_wrapper_barrier(err)
     call cpu_time(finish)
-
     elapsed = finish - start
 
-    call float_reduce(size(fmodel),fmodel)
+    ! normalize per processor
     fmodel = fmodel / sum(fmodel(:nclasses))
 
-    deallocate(seq)
+    ! average across processos
+    call float_reduce(size(fmodel),fmodel)
+    fmodel = fmodel / sum(fmodel(:nclasses))
 
   end subroutine map_compute_fmodel
 

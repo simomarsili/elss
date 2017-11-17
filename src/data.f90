@@ -136,7 +136,8 @@ contains
   end subroutine data_read
 
   subroutine data_average(nvars, nclasses, ndata, neff, data, &
-                          data_freq_single, data_freq_pair)
+       data_freq_single, data_freq_pair)
+    use averages, only: update_counts
     integer,    intent(in)    :: nvars
     integer,    intent(in)    :: nclasses
     integer,    intent(in)    :: ndata
@@ -155,7 +156,7 @@ contains
     data_freq_single = 0.0_kflt
     data_freq_pair = 0.0_kflt
     do k = 1, ndata
-       call data_averages_update(data(:,k), ws(k), data_freq_single, &
+       call update_counts(ws(k), data(:,k), data_freq_single, &
                                  data_freq_pair)
     end do
 
@@ -180,34 +181,6 @@ contains
     deallocate(seq)
 
   end subroutine data_average
-
-  subroutine data_averages_update(seq, w, data_freq_single, &
-                                  data_freq_pair)
-    integer,    intent(in)    :: seq(:)
-    real(kflt), intent(in)    :: w
-    real(kflt), intent(inout) :: data_freq_single(:, :)
-    real(kflt), intent(inout) :: data_freq_pair(:, :, :)
-    integer :: nvars
-    integer :: k
-    integer :: iv,jv
-    integer :: is,js
-
-    nvars = size(seq)
-    do iv = 1, nvars
-       is = seq(iv)
-       data_freq_single(is, iv) = data_freq_single(is, iv) + w
-    end do
-    k = 0
-    do jv = 1, nvars - 1
-       js = seq(jv)
-       do iv = jv + 1, nvars
-          is = seq(iv)
-          k = k + 1
-          data_freq_pair(is, js, k) = data_freq_pair(is, js, k) + w
-       end do
-    end do
-
-  end subroutine data_averages_update
 
   subroutine data_reweight(data, wid, iproc)
     use units, only: units_open
