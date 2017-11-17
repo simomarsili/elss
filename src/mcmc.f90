@@ -21,7 +21,7 @@ contains
        freq_single, freq_pair, beta, mc_nsweeps, hot_start, nupdate, utrj, facc)
     
     use dump, only:     dump_seq, dump_energies
-    use averages, only: averages_initialize, averages_update
+    use averages, only: averages_update
     
     integer,          intent(in)    :: nvars, nclasses
     integer,          intent(inout) :: seq(:)
@@ -43,9 +43,6 @@ contains
     integer :: nmoves              ! stride for average update and
     integer :: na,nacc
     real(kflt) :: etot ! energy of actual sequence
-
-    ! initialize averages
-    call averages_initialize(freq_single, freq_pair)
 
     ! initialize energy values (efields, ecouplings)
     call mcmc_update_energy(nvars, nclasses, seq, fields, couplings, etot)

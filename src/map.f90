@@ -274,7 +274,8 @@ contains
     call mpi_wrapper_barrier(err)
     call cpu_time(start)
 
-    hot_start = .false. 
+    hot_start = .false.
+    fmodel = 0.0_kflt
     call mcmc_simulate(nvars,nclasses,seq,&
          prm(1:dim1),prm(dim1+1:dim1+dim2),'raw',&
          fmodel(1:dim1),fmodel(dim1+1:dim1+dim2),&

@@ -6,19 +6,9 @@ module averages
   use kinds
   implicit none
   private
-  public :: averages_initialize
   public :: averages_update
 
 contains
-
-  subroutine averages_initialize(freq_single, freq_pair)
-    real(kflt), intent(out) :: freq_single(:, :)
-    real(kflt), intent(out) :: freq_pair(:, :, :)
-
-    freq_single = 0.0_kflt
-    freq_pair = 0.0_kflt
-
-  end subroutine averages_initialize
 
   subroutine averages_update(seq, freq_single, freq_pair)
     integer,    intent(in)    :: seq(:)
