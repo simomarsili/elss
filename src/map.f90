@@ -87,7 +87,7 @@ contains
     integer,    intent(in)       :: niter
     integer,    intent(in)       :: mc_nsweeps
     integer,    intent(in)       :: nupdate
-    integer                         :: iter
+    integer                         :: iter, irep
     integer                         :: err
     integer                         :: dim1, dim2, dimm
     real(kflt), allocatable         :: grd(:)
@@ -101,6 +101,9 @@ contains
     integer                         :: table_shape(3)
     integer                         :: nreplicas
     real(kflt)                      :: etot
+    integer, allocatable            :: seqs(:, :)
+    real(kflt), allocatable         :: etot_array(:)
+    
 
 
     dim1 = nvars*nclasses
@@ -110,6 +113,7 @@ contains
 
     table_shape = shape(seqs_table)
     nreplicas = table_shape(2)
+    allocate(seqs(nvars, nreplicas), etot_array(nreplicas), stat=err)
     
     ! initialize and set alg. dependent defaults
     dimm = size(prm)
@@ -141,13 +145,13 @@ contains
        end if
     end select
 
+    seqs = seqs_table(:, :, iproc)
     do iter = 1,niter
 
        ! compute model frequencies
        call map_compute_fmodel(nvars,nclasses,seqs,prm,beta,iter,mc_nsweeps,nupdate,fmodel,elapsed,facc)
 
        ! each chain knows the coordinates of other chains
-       seqs_table(:,:,iproc+1) = seqs
        CALL mpi_allgather(seqs, nvars * nreplicas, MPI_INTEGER, seqs_table, nvars * nreplicas, MPI_INTEGER, MPI_COMM_WORLD, err)
 
        if(iproc == 0) then
@@ -229,9 +233,12 @@ contains
        end if
 
        call float_bcast(size(prm), prm)
-       
-       call mcmc_update_energy(nvars, nclasses, seq, prm(1:dim1), &
-            prm(dim1+1:dimm), etot)
+
+       do irep = 1,nreplicas
+          call mcmc_update_energy(nvars, nclasses, seq, prm(1:dim1), &
+               prm(dim1+1:dimm), etot)
+          etot_array(irep) = etot
+       end do
 
     end do
 
@@ -267,9 +274,10 @@ contains
     real(kflt), intent(out)    :: fmodel(:)
     real,       intent(out)    :: elapsed
     real(kflt), intent(out)    :: facc    
-    integer     :: dim1,dim2,err
+    integer     :: dim1,dim2,err,irep
     real        :: start,finish
     logical     :: hot_start
+    integer, allocatable :: seq(:)
 
 
     dim1 = nclasses*nvars
@@ -278,11 +286,14 @@ contains
     call mpi_wrapper_barrier(err)
     call cpu_time(start)
 
-    hot_start = .false. 
-    call mcmc_simulate(nvars,nclasses,seq,&
-         prm(1:dim1),prm(dim1+1:dim1+dim2),'raw',&
-         fmodel(1:dim1),fmodel(dim1+1:dim1+dim2),&
-         beta,mc_nsweeps,hot_start,nupdate,-1,facc)
+    hot_start = .false.
+
+    do irep = 1, size(seqs, 2)
+       call mcmc_simulate(nvars,nclasses,seqs(:, irep),&
+            prm(1:dim1),prm(dim1+1:dim1+dim2),'raw',&
+            fmodel(1:dim1),fmodel(dim1+1:dim1+dim2),&
+            beta,mc_nsweeps,hot_start,nupdate,-1,facc)
+    end do
 
     call mpi_wrapper_barrier(err)
     call cpu_time(finish)
@@ -291,6 +302,8 @@ contains
 
     call float_reduce(size(fmodel),fmodel)
     fmodel = fmodel / sum(fmodel(:nclasses))
+
+    deallocate(seq)
 
   end subroutine map_compute_fmodel
 
