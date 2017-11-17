@@ -10,7 +10,8 @@ module averages
 
 contains
 
-  subroutine update_counts(seq, freq_single, freq_pair)
+  subroutine update_counts(w, seq, freq_single, freq_pair)
+    real(kflt), intent(in)    :: w
     integer,    intent(in)    :: seq(:)
     real(kflt), intent(inout) :: freq_single(:, :)
     real(kflt), intent(inout) :: freq_pair(:, :, :)
@@ -22,7 +23,7 @@ contains
 
     do iv = 1, nv
        is = seq(iv)
-       freq_single(is, iv) = freq_single(is, iv) + 1.0_kflt
+       freq_single(is, iv) = freq_single(is, iv) + w
     end do
 
     k = 0
@@ -31,7 +32,7 @@ contains
        do iv = jv+1, nv
           is = seq(iv)
           k = k + 1
-          freq_pair(is, js, k) = freq_pair(is, js, k) + 1.0_kflt
+          freq_pair(is, js, k) = freq_pair(is, js, k) + w
        end do
     end do
 

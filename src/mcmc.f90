@@ -78,7 +78,7 @@ contains
        nacc = nacc + na
 
        ! update averages every nmoves
-       call update_counts(seq, freq_single, freq_pair)
+       call update_counts(1.0_kflt, seq, freq_single, freq_pair)
 
        if (utrj > 0) then 
           call dump_seq(data_type, utrj, seq, mc_step/nvars, etot, efields, &
