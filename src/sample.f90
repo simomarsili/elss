@@ -106,7 +106,7 @@ program sample
   write(ulog, 101) adjustr(trim(data_type)), uchk, nvars,&
        nclasses, istart, mc_nsweeps, nupdate, beta
 101 format(&
-         '# elss-sample (elss v0.4.1)          '/& 
+         '# elss-sample (elss v0.4.2)          '/& 
          '#                                   '/&
          '# data type:              ',    a12  /&
          '# chk file unit:          ',    i12  /&
