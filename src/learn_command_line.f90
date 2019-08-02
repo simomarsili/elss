@@ -296,7 +296,9 @@ contains
          '    - the elss-sample executable,                                 '/&
          '    to generate artificial data sampled from the fitted model     '/&
          '    - the elss-eval executable,                                   '/&
-         '    to measure the estimated relative probability of new samples  '/&
+         '    to measure the estimated relative probability of new samples. '/&
+         '    A matrix of scores measuring the coupling strength between    '/&
+         '    different variables is printed to the scores file `scr`.      '/&
          '                                                                  '/&
          'Required:                                                         '/&
          '-i, --int <data_file>                                             '/&

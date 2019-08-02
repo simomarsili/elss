@@ -7,8 +7,8 @@ Requirements/Tested on
 ======================
 
 - GNU Make 3.81 or higher (4.1)
-- gfortran 4.8.2 or higher (5.3.1)
-- OPENMPI 1.6 or higher (1.10)
+- gfortran 4.8.2 or higher (7.4.0)
+- OPENMPI 1.6 or higher (2.1.1)
 '
 
 DATA=10.fa
