@@ -228,7 +228,7 @@ If this software has been useful for your work, please cite using the following 
   title        = {elss 0.5},
   month        = aug,
   year         = 2019,
-  doi          = {10.5281/zenodo.3359003},
-  url          = {http://dx.doi.org/10.5281/zenodo.3359003}
+  doi          = {10.5281/zenodo.3359018},
+  url          = {http://dx.doi.org/10.5281/zenodo.3359018}
 }
 ```
