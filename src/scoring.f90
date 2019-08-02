@@ -15,6 +15,7 @@ module scoring
 contains 
 
   subroutine gauge(nvars,nclasses,fields,couplings)
+    ! double-center the matrix of couplings for each pair of variables
     integer,    intent(in)    :: nvars,nclasses       ! nvars, nclasses
     real(kflt), intent(inout) :: fields(nclasses,nvars)
     real(kflt), intent(inout) :: couplings(nclasses,nclasses,nvars*(nvars-1)/2)
@@ -90,14 +91,15 @@ contains
 
   end subroutine apc_correction
 
-  subroutine print_scores(nvars,scores)
+  subroutine print_scores(nvars,scores, unt)
     integer,    intent(in)    :: nvars
     real(kflt), intent(inout) :: scores(nvars,nvars)
+    integer, intent(in) :: unt
     integer :: iv,jv
     
     do iv = 1,nvars-1
        do jv = iv+1,nvars
-          write(444,*) iv,jv,scores(iv,jv)
+          write(unt,'(i5,1x,i5,1x,f8.4)') iv, jv, scores(iv,jv)
        end do
     end do
     

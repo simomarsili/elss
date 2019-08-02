@@ -43,7 +43,7 @@ program learn
   character(len=long_string_size) :: prefix
   integer                         :: err
   integer                         :: nv,nc,dim1,dim2
-  integer                         :: ulog
+  integer                         :: ulog, uscr
   character(len=long_string_size) :: filename
   integer, allocatable            :: chk_data(:,:)
 
@@ -204,11 +204,25 @@ program learn
   
   !================================================ compute and print scores
   
-  !     call gauge(nvars,nclasses,prm(1:dim1),prm(dim1+1:dim1+dim2))
+  call gauge(nvars,nclasses,prm(1:dim1),prm(dim1+1:dim1+dim2))
   
-  !     call compute_scores(nvars,nclasses,prm(dim1+1:dim1+dim2),scores)
+  call compute_scores(nvars,nclasses,prm(dim1+1:dim1+dim2),scores)
   
-  !     if ( iproc == 0 ) call print_scores(nvars,scores)
+  if ( iproc == 0 ) then
+     ! open scores file
+     if (len_trim(prefix) == 0) then
+        filename = 'scr'
+     else
+        filename = trim(prefix)//'.scr'
+     end if
+     call units_open(filename,'unknown',uscr,err)
+     if(err /= 0) then
+        write(0,*) "error opening file ", trim(filename)
+        call mpi_wrapper_finalize(err)
+        stop
+     end if
+     call print_scores(nvars,scores,uscr)
+  end if
   
   
   !================================================ finalize mpi
