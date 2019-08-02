@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/53605846.svg)](https://zenodo.org/badge/latestdoi/53605846)
 # **elss**
 
 **elss** is a Monte Carlo code for the modeling of protein sequence data 
@@ -208,8 +209,26 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 # Citation note
 
-If you are going to publish results obtained using the software, please cite the **elss** papers:
+If this software has been useful for your work, please cite using the following bibtex entries:
 
-[From residue coevolution to protein conformational ensembles and functional dynamics](http://www.pnas.org/content/112/44/13567)  
-L. Sutto, S. Marsili, A. Valencia, F.L. Gervasio  
-Proceedings of the National Academy of Sciences 112(44):13567-13572 (2015)
+```
+@article{sutto2015residue,
+  title={From residue coevolution to protein conformational ensembles and functional dynamics},
+  author={Sutto, Ludovico and Marsili, Simone and Valencia, Alfonso and Gervasio, Francesco Luigi},
+  journal={Proceedings of the National Academy of Sciences},
+  volume={112},
+  number={44},
+  pages={13567--13572},
+  year={2015},
+  publisher={National Acad Sciences}
+}
+
+@misc{fmpl,
+  author       = {Simone Marsili},
+  title        = {elss 0.5},
+  month        = aug,
+  year         = 2019,
+  doi          = {10.5281/zenodo.3359003},
+  url          = {http://dx.doi.org/10.5281/zenodo.3359003}
+}
+```
